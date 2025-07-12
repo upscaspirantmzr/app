@@ -1,0 +1,13 @@
+{
+  "name": "election-portal",
+  "version": "1.0.0",
+  "description": "Student Union Election Portal",
+  "main": "index.html",
+  "scripts": {
+    "prebuild": "node inject-firebase-config.js",
+    "build": "echo 'Build process finished.'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

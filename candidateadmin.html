@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Admin - Add Posts & Candidates</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- html2pdf.js CDN for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .message-box {
+            background-color: #fff3cd;
+            color: #664d03;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            border: 1px solid #ffecb5;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #2563eb; /* Tailwind blue-600 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+        }
+        .btn-danger {
+            background-color: #ef4444; /* Tailwind red-500 */
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626; /* Tailwind red-600 */
+        }
+        .btn-secondary {
+            background-color: #6b7280; /* Tailwind gray-500 */
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563; /* Tailwind gray-600 */
+        }
+        .input-field {
+            padding: 10px;
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal.open .modal-content {
+            transform: translateY(0);
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 50px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem; /* text-sm */
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb; /* Tailwind gray-50 */
+        }
+        /* Styles for PDF content - ensure they are generic enough for print */
+        .pdf-content {
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+            color: #333;
+            /* Explicitly set dimensions for PDF rendering */
+            width: 210mm; /* A4 width */
+            min-height: 297mm; /* A4 height */
+            box-sizing: border-box; /* Include padding in width/height */
+        }
+        .pdf-content h1, .pdf-content h2, .pdf-content h3 {
+            color: #1a202c; /* Dark gray */
+            margin-bottom: 10px;
+        }
+        .pdf-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .pdf-content th, .pdf-content td {
+            border: 1px solid #e2e8f0; /* Light gray */
+            padding: 8px;
+            text-align: left;
+        }
+        .pdf-content th {
+            background-color: #f0f4f8; /* Lighter blue-gray */
+            font-weight: bold;
+        }
+        .pdf-content .leading-candidate {
+            font-weight: bold;
+            color: #047857; /* Green-700 */
+        }
+        .pdf-content .status-live {
+            color: #059669; /* Green-600 */
+            font-weight: bold;
+        }
+        .pdf-content .status-not-live {
+            color: #dc2626; /* Red-600 */
+            font-weight: bold;
+        }
+        .pdf-content .conclusion-status {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="loading-spinner" class="spinner"></div>
+
+    <div id="app-container" class="hidden w-full flex flex-col items-center">
+        <h1 class="text-4xl font-extrabold text-purple-800 mb-6 text-center">➕ Candidate & Post Management Portal</h1>
+
+        <!-- Auth Section -->
+        <div id="auth-section" class="container text-center mb-8">
+            <div id="logged-out-view">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Manager Login</h2>
+                <input type="email" id="login-email" placeholder="Email" class="input-field mb-3">
+                <input type="password" id="login-password" placeholder="Password" class="input-field mb-4">
+                <button id="login-button" class="btn btn-primary w-full">Login</button>
+                <p id="login-error" class="text-red-500 text-sm mt-2 hidden"></p>
+            </div>
+            <div id="logged-in-view" class="hidden">
+                <p class="text-lg font-semibold text-gray-700 mb-4">Welcome, <span id="user-email"></span>!</p>
+                <button id="logout-button" class="btn btn-danger w-full">Logout</button>
+            </div>
+        </div>
+
+        <!-- Candidate Management Dashboard (Hidden by default) -->
+        <div id="candidate-dashboard" class="container hidden mt-8">
+            <h2 class="text-2xl font-bold text-purple-700 mb-6 text-center">Manage Election Structure</h2>
+
+            <!-- Overall Election Overview -->
+            <div class="mb-8 p-6 bg-blue-50 rounded-lg shadow-inner border border-blue-200">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Overall Election Overview</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Posts</p>
+                        <p id="total-posts" class="text-2xl font-bold text-blue-800">0</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Candidates</p>
+                        <p id="total-candidates" class="text-2xl font-bold text-blue-800">0</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Votes (across all posts)</p>
+                        <p id="total-votes" class="text-2xl font-bold text-blue-800">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add New Post Section -->
+            <div class="mb-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Add New Post</h3>
+                <input type="text" id="new-post-name" placeholder="Post Name (e.g., President)" class="input-field mb-3">
+                <input type="text" id="new-post-message" placeholder="Optional: Message for this post" class="input-field mb-4">
+                <button id="add-post-button" class="btn btn-primary w-full">Add Post</button>
+                <p id="add-post-message" class="text-sm mt-2"></p>
+            </div>
+
+            <!-- Add New Candidate Section -->
+            <div class="mb-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Add Candidate to a Post</h3>
+                <label for="select-post" class="block text-gray-700 text-sm font-bold mb-2">Select Post:</label>
+                <select id="select-post" class="input-field mb-3">
+                    <option value="">-- Select a Post --</option>
+                    <!-- Posts will be loaded here dynamically -->
+                </select>
+                <p id="candidate-count-display" class="text-gray-600 text-sm mb-3 hidden"></p>
+                <input type="text" id="new-candidate-name" placeholder="Candidate Name" class="input-field mb-3">
+                <button id="add-candidate-button" class="btn btn-primary w-full">Add Candidate</button>
+                <p id="add-candidate-message" class="text-sm mt-2"></p>
+            </div>
+
+            <!-- Display All Posts and Candidates -->
+            <div class="mb-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Current Election Structure</h3>
+                <div id="current-structure-display" class="space-y-6">
+                    <p class="text-gray-500 text-center">Loading posts and candidates...</p>
+                </div>
+            </div>
+
+            <!-- Supervisor Actions -->
+            <div class="mb-8 p-6 bg-red-50 rounded-lg shadow-inner border border-red-200">
+                <h3 class="text-xl font-semibold text-red-700 mb-4">Supervisor Actions</h3>
+                <p class="text-gray-600 mb-4">These actions provide overall control over the election data.</p>
+                <button id="reset-votes-button" class="btn btn-danger w-full mb-3">Reset All Votes to Zero</button>
+                <p id="reset-votes-message" class="text-sm mt-2"></p>
+            </div>
+
+            <!-- Final Results & Reporting Section -->
+            <div class="mb-8 p-6 bg-yellow-50 rounded-lg shadow-inner border border-yellow-200">
+                <h3 class="text-xl font-semibold text-yellow-700 mb-4">Final Results & Reporting</h3>
+                <p class="text-gray-600 mb-2">
+                    Current Counting Status: <span id="counting-concluded-status" class="font-semibold text-gray-800">Loading...</span>
+                </p>
+                <button id="toggle-counting-concluded-button" class="btn btn-secondary w-full mb-3">Toggle Counting Concluded</button>
+                <p id="counting-concluded-message" class="text-sm mt-2"></p>
+
+                <hr class="my-6 border-gray-300">
+
+                <button id="download-pdf-button" class="btn btn-primary w-full bg-indigo-600 hover:bg-indigo-700">Download Final Results PDF</button>
+                <p id="pdf-message" class="text-sm mt-2"></p>
+            </div>
+
+            <!-- Go Live / Publish All Posts Section -->
+            <div class="mb-8 p-6 bg-gray-50 rounded-lg shadow-inner">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Publish Election Data</h3>
+                <p class="text-gray-600 mb-4">Clicking this button will make all current posts and their candidates visible on the public live vote count page.</p>
+                <button id="publish-all-button" class="btn btn-primary w-full bg-green-600 hover:bg-green-700">Publish All Posts Live</button>
+                <p id="publish-message" class="text-sm mt-2"></p>
+            </div>
+
+
+            <div class="mt-8 text-center">
+                <p class="text-gray-600">Go to Polling Official Dashboard: <a href="admin.html" class="text-blue-600 hover:underline font-semibold">Admin Page</a></p>
+                <p class="text-gray-600">View public vote counts: <a href="index.html" class="text-blue-600 hover:underline font-semibold">Public Page</a></p>
+                <p class="text-gray-600">Manage Polling Officials: <a href="official_manager.html" class="text-indigo-600 hover:underline font-semibold">Official Manager Page</a></p>
+                <p class="text-gray-600">System Analyzer: <a href="system_analyzer.html" class="text-teal-600 hover:underline font-semibold">System Analyzer Dashboard</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="message-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title" class="text-xl font-bold mb-4"></h3>
+            <p id="modal-message" class="mb-6"></p>
+            <button id="modal-close-button" class="btn btn-secondary w-full">Close</button>
+        </div>
+    </div>
+
+    <!-- Hidden div for PDF content generation -->
+    <div id="pdf-content-template" style="position: absolute; left: -9999px; top: -9999px;">
+        <div class="pdf-content">
+            <h1 style="text-align: center; color: #1a202c; font-size: 2em; margin-bottom: 20px;">Final Election Results</h1>
+            <p class="conclusion-status" style="text-align: center;"></p>
+            <p style="text-align: center; font-size: 0.9em; color: #666; margin-bottom: 30px;">Generated on: <span id="pdf-generation-timestamp"></span></p>
+
+            <div id="pdf-posts-container">
+                <!-- Posts and candidates will be dynamically inserted here -->
+            </div>
+
+            <p style="text-align: center; margin-top: 40px; font-size: 0.8em; color: #999;">
+                This document contains the official final results of the student union election.
+            </p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, updateDoc, setDoc, onSnapshot, collection, query, getDocs, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Import firebaseConfig from the generated file
+        import { firebaseConfig } from './firebase-config.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null; // To store the authenticated user object
+        let availablePosts = []; // To store posts for the dropdown
+        let currentElectionStatus = { countingConcluded: false }; // To store global election status
+
+        // Define the specific email for candidate management access
+        const CANDIDATE_MANAGER_EMAIL = 'candidate@mzr.in'; // <--- Your specified email
+
+        // DOM Elements
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const appContainer = document.getElementById('app-container');
+        const authSection = document.getElementById('auth-section');
+        const loggedOutView = document.getElementById('logged-out-view');
+        const loggedInView = document.getElementById('logged-in-view');
+        const userEmailSpan = document.getElementById('user-email');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+        const loginButton = document.getElementById('login-button');
+        const loginError = document.getElementById('login-error');
+        const logoutButton = document.getElementById('logout-button');
+        const candidateDashboard = document.getElementById('candidate-dashboard');
+
+        // Post management elements
+        const newPostNameInput = document.getElementById('new-post-name');
+        const newPostMessageInput = document.getElementById('new-post-message');
+        const addPostButton = document.getElementById('add-post-button');
+        const addPostMessage = document.getElementById('add-post-message');
+
+        // Candidate management elements
+        const selectPostDropdown = document.getElementById('select-post');
+        const candidateCountDisplay = document.getElementById('candidate-count-display');
+        const newCandidateNameInput = document.getElementById('new-candidate-name');
+        const addCandidateButton = document.getElementById('add-candidate-button');
+        const addCandidateMessage = document.getElementById('add-candidate-message');
+
+        // Display current structure elements
+        const currentStructureDisplay = document.getElementById('current-structure-display');
+
+        // Overall summary elements
+        const totalPostsDisplay = document.getElementById('total-posts');
+        const totalCandidatesDisplay = document.getElementById('total-candidates');
+        const totalVotesDisplay = document.getElementById('total-votes');
+
+        // Supervisor Actions elements
+        const resetVotesButton = document.getElementById('reset-votes-button');
+        const resetVotesMessage = document.getElementById('reset-votes-message');
+
+        // Final Results & Reporting elements
+        const countingConcludedStatus = document.getElementById('counting-concluded-status');
+        const toggleCountingConcludedButton = document.getElementById('toggle-counting-concluded-button');
+        const countingConcludedMessage = document.getElementById('counting-concluded-message');
+        const downloadPdfButton = document.getElementById('download-pdf-button');
+        const pdfMessage = document.getElementById('pdf-message');
+        const pdfContentTemplate = document.getElementById('pdf-content-template');
+
+        // Publish elements
+        const publishAllButton = document.getElementById('publish-all-button');
+        const publishMessage = document.getElementById('publish-message');
+
+        const messageModal = document.getElementById('message-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseButton = document.getElementById('modal-close-button'); // Default close button
+
+        // --- Firestore Paths ---
+        const getPostsCollectionRef = () => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts`);
+        const getCandidatesCollectionRef = (postId) => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts/${postId}/candidates`);
+        const getElectionStatusDocRef = () => doc(db, `artifacts/${firebaseConfig.projectId}/public/data/election_meta/status`);
+
+
+        /**
+         * Displays a custom modal message to the user.
+         * @param {string} title - The title of the message.
+         * @param {string} message - The content of the message.
+         * @param {number} [duration] - Optional duration in milliseconds after which the modal will close.
+         * @param {Array<HTMLElement>} [actionButtons=[]] - Optional array of HTML button elements to add to the modal.
+         */
+        function showModal(title, message, duration, actionButtons = []) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            messageModal.classList.add('open');
+
+            // Remove previous action buttons if any
+            const existingActionButtons = modalMessage.querySelectorAll('.modal-action-button');
+            existingActionButtons.forEach(btn => btn.remove());
+
+            // Clear any previous custom button container
+            let customButtonContainer = modalMessage.querySelector('.custom-modal-buttons');
+            if (customButtonContainer) {
+                customButtonContainer.remove();
+            }
+
+            if (actionButtons.length > 0) {
+                // Create a new container for custom buttons
+                customButtonContainer = document.createElement('div');
+                customButtonContainer.classList.add('flex', 'justify-end', 'gap-2', 'mt-4', 'custom-modal-buttons');
+                actionButtons.forEach(button => {
+                    button.classList.add('modal-action-button'); // Add a class for easy removal
+                    customButtonContainer.appendChild(button);
+                });
+                modalMessage.appendChild(customButtonContainer);
+                modalCloseButton.style.display = 'none'; // Hide the default close button
+            } else {
+                modalCloseButton.style.display = 'block'; // Ensure the default close button is visible
+            }
+
+            if (duration) {
+                setTimeout(hideModal, duration);
+            }
+        }
+
+        /**
+         * Hides the custom modal message.
+         */
+        function hideModal() {
+            messageModal.classList.remove('open');
+            modalCloseButton.style.display = 'block'; // Ensure default close button is visible when modal is closed
+            // Also remove any dynamically added action buttons when closing
+            const existingActionButtons = modalMessage.querySelectorAll('.modal-action-button');
+            existingActionButtons.forEach(btn => btn.remove());
+            const customButtonContainer = modalMessage.querySelector('.custom-modal-buttons');
+            if (customButtonContainer) {
+                customButtonContainer.remove();
+            }
+        }
+
+        // Close modal button event listener (for the default close button)
+        modalCloseButton.addEventListener('click', hideModal);
+
+        // --- Authentication Logic ---
+
+        /**
+         * Handles user login with email and password.
+         */
+        loginButton.addEventListener('click', async () => {
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            loginError.classList.add('hidden');
+            if (!email || !password) {
+                loginError.textContent = "Please enter both email and password.";
+                loginError.classList.remove('hidden');
+                return;
+            }
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Login error:", error);
+                let errorMessage = "Login failed. Please check your credentials.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = "Invalid email or password.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Invalid email format.";
+                }
+                loginError.textContent = errorMessage;
+                loginError.classList.remove('hidden');
+            }
+        });
+
+        /**
+         * Handles user logout.
+         */
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Logout error:", error);
+                showModal("Logout Failed", "There was an error logging out. Please try again.");
+            }
+        });
+
+        /**
+         * Observes authentication state changes and updates UI accordingly.
+         */
+        onAuthStateChanged(auth, async (user) => {
+            loadingSpinner.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+
+            currentUser = user;
+
+            if (user) {
+                loggedOutView.classList.add('hidden');
+                loggedInView.classList.remove('hidden');
+                userEmailSpan.textContent = user.email || "Authenticated User";
+
+                // Check if the logged-in user's email matches the specific candidate manager email
+                if (user.email === CANDIDATE_MANAGER_EMAIL) {
+                    candidateDashboard.classList.remove('hidden');
+                    loadPostsForDropdown(); // Load posts for the dropdown
+                    startStructureListener(); // Start listener for displaying current structure
+                    startElectionStatusListener(); // Start listener for overall election status
+                } else {
+                    candidateDashboard.classList.add('hidden');
+                    showModal("Access Denied", `You (${user.email}) do not have management privileges to access this page.`);
+                    signOut(auth); // Log out unauthorized users
+                }
+            } else {
+                loggedOutView.classList.remove('hidden');
+                loggedInView.classList.add('hidden');
+                candidateDashboard.classList.add('hidden');
+                selectPostDropdown.innerHTML = '<option value="">-- Select a Post --</option>'; // Clear dropdown
+                candidateCountDisplay.classList.add('hidden'); // Hide candidate count
+                addCandidateMessage.textContent = '';
+                addPostMessage.textContent = ''; // Clear post message
+                publishMessage.textContent = ''; // Clear publish message
+                resetVotesMessage.textContent = ''; // Clear reset votes message
+                countingConcludedMessage.textContent = ''; // Clear counting concluded message
+                pdfMessage.textContent = ''; // Clear PDF message
+                if (unsubscribeStructure) { // Stop structure listener on logout
+                    unsubscribeStructure();
+                    unsubscribeStructure = null;
+                }
+                if (unsubscribeElectionStatus) { // Stop election status listener on logout
+                    unsubscribeElectionStatus();
+                    unsubscribeElectionStatus = null;
+                }
+                currentStructureDisplay.innerHTML = "<p class='text-gray-500 text-center'>Please login to view election structure.</p>";
+                totalPostsDisplay.textContent = '0';
+                totalCandidatesDisplay.textContent = '0';
+                totalVotesDisplay.textContent = '0';
+                countingConcludedStatus.textContent = 'Loading...';
+            }
+        });
+
+        // --- Post Management Logic ---
+
+        /**
+         * Handles adding a new post.
+         */
+        addPostButton.addEventListener('click', async () => {
+            const postName = newPostNameInput.value.trim();
+            const postMessage = newPostMessageInput.value.trim();
+            addPostMessage.textContent = ''; // Clear previous messages
+
+            if (!postName) {
+                addPostMessage.textContent = "Post name cannot be empty.";
+                addPostMessage.classList.add('text-red-500');
+                return;
+            }
+
+            try {
+                await addDoc(getPostsCollectionRef(), {
+                    postName: postName,
+                    postMessage: postMessage || '', // Store empty string if no message
+                    isLive: false // New posts are NOT live by default
+                });
+                newPostNameInput.value = '';
+                newPostMessageInput.value = '';
+                addPostMessage.textContent = "Post added successfully! It will not be visible publicly until you 'Publish All Posts Live'.";
+                addPostMessage.classList.remove('text-red-500');
+                addPostMessage.classList.add('text-green-500');
+                loadPostsForDropdown(); // Refresh dropdown after adding a new post
+            } catch (error) {
+                console.error("Error adding post:", error);
+                addPostMessage.textContent = "Error adding post: " + error.message;
+                addPostMessage.classList.remove('text-green-500');
+                addPostMessage.classList.add('text-red-500');
+            }
+        });
+
+
+        // --- Candidate Management Logic ---
+
+        /**
+         * Loads available posts into the dropdown for candidate assignment.
+         */
+        async function loadPostsForDropdown() {
+            selectPostDropdown.innerHTML = '<option value="">-- Select a Post --</option>'; // Clear existing options
+            candidateCountDisplay.classList.add('hidden'); // Hide count initially
+            try {
+                const postsSnapshot = await getDocs(getPostsCollectionRef());
+                availablePosts = postsSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().postName }));
+
+                if (availablePosts.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = "No posts available. Please add posts using the section above.";
+                    selectPostDropdown.appendChild(option);
+                    selectPostDropdown.disabled = true;
+                    newCandidateNameInput.disabled = true;
+                    addCandidateButton.disabled = true; // Disable add candidate button if no posts
+                    return;
+                }
+
+                selectPostDropdown.disabled = false;
+                newCandidateNameInput.disabled = false;
+                addCandidateButton.disabled = false; // Enable add candidate button if posts exist
+
+                availablePosts.forEach(post => {
+                    const option = document.createElement('option');
+                    option.value = post.id;
+                    option.textContent = post.name;
+                    selectPostDropdown.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error loading posts:", error);
+                showModal("Error", "Failed to load posts for candidate assignment.");
+            }
+        });
+
+        /**
+         * Fetches and displays the candidate count for the currently selected post.
+         */
+        selectPostDropdown.addEventListener('change', async () => {
+            const selectedPostId = selectPostDropdown.value;
+            if (selectedPostId) {
+                try {
+                    const candidatesQuery = query(getCandidatesCollectionRef(selectedPostId));
+                    const candidatesSnapshot = await getDocs(candidatesQuery);
+                    const count = candidatesSnapshot.size;
+                    candidateCountDisplay.textContent = `Current candidates for this post: ${count}`;
+                    candidateCountDisplay.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Error fetching candidate count:", error);
+                    candidateCountDisplay.textContent = "Error loading candidate count.";
+                    candidateCountDisplay.classList.remove('hidden');
+                }
+            } else {
+                candidateCountDisplay.classList.add('hidden');
+            }
+        });
+
+
+        /**
+         * Handles adding a new candidate to the selected post.
+         */
+        addCandidateButton.addEventListener('click', async () => {
+            const selectedPostId = selectPostDropdown.value;
+            const candidateName = newCandidateNameInput.value.trim();
+            addCandidateMessage.textContent = '';
+
+            if (!selectedPostId) {
+                addCandidateMessage.textContent = "Please select a post.";
+                addCandidateMessage.classList.add('text-red-500');
+                return;
+            }
+            if (!candidateName) {
+                addCandidateMessage.textContent = "Candidate name cannot be empty.";
+                addCandidateMessage.classList.add('text-red-500');
+                return;
+            }
+
+            try {
+                await addDoc(getCandidatesCollectionRef(selectedPostId), {
+                    candidateName: candidateName,
+                    votes: 0
+                });
+                newCandidateNameInput.value = ''; // Clear input
+                addCandidateMessage.textContent = `Candidate "${candidateName}" added to post successfully!`;
+                addCandidateMessage.classList.remove('text-red-500');
+                addCandidateMessage.classList.add('text-green-500');
+                // Update candidate count display immediately after adding
+                const candidatesQuery = query(getCandidatesCollectionRef(selectedPostId));
+                const candidatesSnapshot = await getDocs(candidatesQuery);
+                const count = candidatesSnapshot.size;
+                candidateCountDisplay.textContent = `Current candidates for this post: ${count}`;
+
+            } catch (error) {
+                console.error("Error adding candidate:", error);
+                addCandidateMessage.textContent = "Error adding candidate: " + error.message;
+                addCandidateMessage.classList.remove('text-green-500');
+                addCandidateMessage.classList.add('text-red-500');
+            }
+        });
+
+        // --- Display Current Structure Logic ---
+        let unsubscribeStructure = null;
+
+        /**
+         * Starts the real-time listener for displaying all posts and their candidates.
+         */
+        function startStructureListener() {
+            if (unsubscribeStructure) {
+                unsubscribeStructure();
+            }
+
+            const postsQuery = query(getPostsCollectionRef());
+
+            unsubscribeStructure = onSnapshot(postsQuery, async (postsSnapshot) => {
+                let allPostsData = [];
+                let totalCandidates = 0;
+                let totalVotes = 0;
+
+                const postPromises = postsSnapshot.docs.map(async (postDoc) => {
+                    const postData = { id: postDoc.id, ...postDoc.data() };
+                    const candidatesQuery = query(getCandidatesCollectionRef(postDoc.id));
+
+                    const candidatesSnapshot = await getDocs(candidatesQuery);
+                    const candidates = candidatesSnapshot.docs.map(candDoc => {
+                        const candData = candDoc.data();
+                        totalCandidates++; // Increment total candidates
+                        totalVotes += (candData.votes || 0); // Add to total votes
+                        return { id: candDoc.id, ...candData };
+                    });
+                    return { ...postData, candidates: candidates };
+                });
+
+                allPostsData = await Promise.all(postPromises);
+                updateCurrentStructureDisplay(allPostsData);
+
+                // Update overall summary
+                totalPostsDisplay.textContent = allPostsData.length;
+                totalCandidatesDisplay.textContent = totalCandidates;
+                totalVotesDisplay.textContent = totalVotes;
+
+            }, (error) => {
+                console.error("Error fetching current structure data:", error);
+                currentStructureDisplay.innerHTML = "<p class='text-red-500 text-center'>⚠️ Error loading election structure!</p>";
+            });
+        }
+
+        /**
+         * Updates the display with current posts and candidates.
+         * @param {Array<Object>} postsData - Array of post objects with their candidates.
+         */
+        function updateCurrentStructureDisplay(postsData) {
+            if (postsData.length === 0) {
+                currentStructureDisplay.innerHTML = "<p class='text-gray-500 text-center'>No posts created yet. Use the 'Add New Post' section above.</p>";
+                return;
+            }
+
+            let htmlContent = "";
+            postsData.forEach(post => {
+                const liveStatus = post.isLive ? '<span class="text-green-600 font-semibold">(Live)</span>' : '<span class="text-red-500 font-semibold">(Not Live)</span>';
+                htmlContent += `
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xl font-bold text-blue-700 mb-2">${post.postName} ${liveStatus}</h4>
+                            <div class="flex space-x-2">
+                                <button data-post-id="${post.id}" data-is-live="${post.isLive}" class="toggle-live-btn btn ${post.isLive ? 'btn-danger' : 'btn-primary'} text-xs px-3 py-1">
+                                    ${post.isLive ? 'Set Not Live' : 'Set Live'}
+                                </button>
+                                <button data-post-id="${post.id}" class="delete-post-btn btn btn-danger text-xs px-3 py-1">Delete Post</button>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-3">Message: ${post.postMessage || 'No message'}</p>
+                        <h5 class="text-lg font-semibold text-gray-700 mb-2">Candidates:</h5>
+                        <ul class="list-disc list-inside ml-4">
+                `;
+                if (post.candidates.length === 0) {
+                    htmlContent += `<li>No candidates added yet.</li>`;
+                } else {
+                    post.candidates.forEach(candidate => {
+                        htmlContent += `
+                            <li class="flex justify-between items-center py-1">
+                                <span>${candidate.candidateName} (Votes: ${candidate.votes})</span>
+                                <button data-post-id="${post.id}" data-candidate-id="${candidate.id}" class="delete-candidate-btn btn btn-danger text-xs px-2 py-1">Delete</button>
+                            </li>
+                        `;
+                    });
+                }
+                htmlContent += `
+                        </ul>
+                    </div>
+                `;
+            });
+            currentStructureDisplay.innerHTML = htmlContent;
+
+            // Attach event listeners for dynamically created elements
+            document.querySelectorAll('.toggle-live-btn').forEach(button => {
+                button.addEventListener('click', handleTogglePostLiveStatus);
+            });
+            document.querySelectorAll('.delete-post-btn').forEach(button => {
+                button.addEventListener('click', handleDeletePost);
+            });
+            document.querySelectorAll('.delete-candidate-btn').forEach(button => {
+                button.addEventListener('click', handleDeleteCandidate);
+            });
+        }
+
+        // --- Supervisor Actions ---
+
+        /**
+         * Handles resetting all votes to zero.
+         */
+        resetVotesButton.addEventListener('click', async () => {
+            resetVotesMessage.textContent = '';
+            showModal("Confirm Reset", "Are you sure you want to reset ALL votes for ALL candidates to zero? This action cannot be undone.", null, [
+                (() => {
+                    const confirmBtn = document.createElement('button');
+                    confirmBtn.textContent = 'Reset All Votes';
+                    confirmBtn.classList.add('btn', 'btn-danger', 'mr-2');
+                    confirmBtn.onclick = async () => {
+                        hideModal();
+                        try {
+                            const postsSnapshot = await getDocs(getPostsCollectionRef());
+                            if (postsSnapshot.empty) {
+                                resetVotesMessage.textContent = "No posts found to reset votes.";
+                                resetVotesMessage.classList.add('text-red-500');
+                                return;
+                            }
+
+                            const batch = writeBatch(db);
+                            let candidatesUpdated = 0;
+
+                            for (const postDoc of postsSnapshot.docs) {
+                                const candidatesQuery = query(getCandidatesCollectionRef(postDoc.id));
+                                const candidatesSnapshot = await getDocs(candidatesQuery);
+                                candidatesSnapshot.docs.forEach(candDoc => {
+                                    batch.update(doc(getCandidatesCollectionRef(postDoc.id), candDoc.id), { votes: 0 });
+                                    candidatesUpdated++;
+                                });
+                            }
+
+                            if (candidatesUpdated > 0) {
+                                await batch.commit();
+                                resetVotesMessage.textContent = `Successfully reset votes for ${candidatesUpdated} candidates across all posts!`;
+                                resetVotesMessage.classList.remove('text-red-500');
+                                resetVotesMessage.classList.add('text-green-500');
+                            } else {
+                                resetVotesMessage.textContent = "No candidates found to reset votes.";
+                                resetVotesMessage.classList.add('text-red-500');
+                            }
+
+                        } catch (error) {
+                            console.error("Error resetting votes:", error);
+                            resetVotesMessage.textContent = "Error resetting votes: " + error.message;
+                            resetVotesMessage.classList.remove('text-green-500');
+                            resetVotesMessage.classList.add('text-red-500');
+                        }
+                    };
+                    return confirmBtn;
+                })(),
+                (() => {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.classList.add('btn', 'btn-secondary');
+                    cancelBtn.onclick = hideModal;
+                    return cancelBtn;
+                })()
+            ]);
+        });
+
+
+        /**
+         * Handles toggling the live status of a specific post.
+         * @param {Event} event - The click event.
+         */
+        async function handleTogglePostLiveStatus(event) {
+            const postId = event.target.dataset.postId;
+            const currentIsLive = event.target.dataset.isLive === 'true'; // Convert string to boolean
+            const newIsLive = !currentIsLive;
+
+            if (!postId) {
+                showModal("Error", "Invalid post ID for live toggle.");
+                return;
+            }
+
+            try {
+                await updateDoc(doc(getPostsCollectionRef(), postId), {
+                    isLive: newIsLive
+                });
+                showModal("Success", `Post status updated to ${newIsLive ? 'Live' : 'Not Live'}!`, 2000);
+            } catch (error) {
+                console.error("Error toggling live status:", error);
+                showModal("Error", "Failed to toggle post live status: " + error.message);
+            }
+        }
+
+        /**
+         * Handles deleting an entire post.
+         * @param {Event} event - The click event.
+         */
+        async function handleDeletePost(event) {
+            const postId = event.target.dataset.postId;
+
+            if (!postId) {
+                showModal("Error", "Invalid post data for deletion.");
+                return;
+            }
+
+            showModal("Confirm Deletion", "Are you sure you want to delete this post and all its candidates? This action cannot be undone.", null, [
+                (() => {
+                    const confirmBtn = document.createElement('button');
+                    confirmBtn.textContent = 'Delete Post';
+                    confirmBtn.classList.add('btn', 'btn-danger', 'mr-2');
+                    confirmBtn.onclick = async () => {
+                        hideModal();
+                        try {
+                            // Delete all candidates in the subcollection first
+                            const candidatesSnapshot = await getDocs(getCandidatesCollectionRef(postId));
+                            const deletePromises = candidatesSnapshot.docs.map(candDoc => deleteDoc(doc(getCandidatesCollectionRef(postId), candDoc.id)));
+                            await Promise.all(deletePromises);
+
+                            // Then delete the post document itself
+                            await deleteDoc(doc(getPostsCollectionRef(), postId));
+                        } catch (error) {
+                            console.error("Error deleting post:", error);
+                            showModal("Error", "Failed to delete post: " + error.message);
+                        }
+                    };
+                    return confirmBtn;
+                })(),
+                (() => {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.classList.add('btn', 'btn-secondary');
+                    cancelBtn.onclick = hideModal;
+                    return cancelBtn;
+                })()
+            ]);
+        }
+
+        /**
+         * Handles deleting a candidate.
+         * @param {Event} event - The click event.
+         */
+        async function handleDeleteCandidate(event) {
+            const postId = event.target.dataset.postId;
+            const candidateId = event.target.dataset.candidateId;
+
+            if (!postId || !candidateId) {
+                showModal("Error", "Invalid candidate data for deletion.");
+                return;
+            }
+
+            showModal("Confirm Deletion", "Are you sure you want to delete this candidate? This action cannot be undone.", null, [
+                (() => {
+                    const confirmBtn = document.createElement('button');
+                    confirmBtn.textContent = 'Delete Candidate';
+                    confirmBtn.classList.add('btn', 'btn-danger', 'mr-2');
+                    confirmBtn.onclick = async () => {
+                        hideModal();
+                        try {
+                            await deleteDoc(doc(getCandidatesCollectionRef(postId), candidateId));
+                        } catch (error) {
+                            console.error("Error deleting candidate:", error);
+                            showModal("Error", "Failed to delete candidate: " + error.message);
+                        }
+                    };
+                    return confirmBtn;
+                })(),
+                (() => {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.classList.add('btn', 'btn-secondary');
+                    cancelBtn.onclick = hideModal;
+                    return cancelBtn;
+                })()
+            ]);
+        }
+
+        // --- Publish Functionality ---
+        publishAllButton.addEventListener('click', async () => {
+            publishMessage.textContent = ''; // Clear previous messages
+            try {
+                const postsSnapshot = await getDocs(getPostsCollectionRef());
+                if (postsSnapshot.empty) {
+                    publishMessage.textContent = "No posts to publish.";
+                    publishMessage.classList.add('text-red-500');
+                    return;
+                }
+
+                const batch = writeBatch(db); // Use batch for multiple updates
+                postsSnapshot.docs.forEach(postDoc => {
+                    batch.update(doc(getPostsCollectionRef(), postDoc.id), {
+                        isLive: true
+                    });
+                });
+
+                await batch.commit(); // Commit all updates in one go
+                publishMessage.textContent = "All posts and their candidates are now live on the public page!";
+                publishMessage.classList.remove('text-red-500');
+                publishMessage.classList.add('text-green-500');
+            } catch (error) {
+                console.error("Error publishing posts:", error);
+                publishMessage.textContent = "Error publishing posts: " + error.message;
+                publishMessage.classList.remove('text-green-500');
+                publishMessage.classList.add('text-red-500');
+            }
+        });
+
+        // --- Final Results & Reporting Logic ---
+        let unsubscribeElectionStatus = null;
+
+        /**
+         * Starts listener for the global election status (countingConcluded).
+         */
+        function startElectionStatusListener() {
+            if (unsubscribeElectionStatus) {
+                unsubscribeElectionStatus();
+            }
+
+            unsubscribeElectionStatus = onSnapshot(getElectionStatusDocRef(), (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    currentElectionStatus = docSnapshot.data();
+                    const statusText = currentElectionStatus.countingConcluded ? 'Concluded ✅' : 'Ongoing 📊';
+                    countingConcludedStatus.textContent = statusText;
+                    toggleCountingConcludedButton.textContent = currentElectionStatus.countingConcluded ? 'Reopen Counting' : 'Mark Counting Concluded';
+                    toggleCountingConcludedButton.classList.toggle('btn-danger', currentElectionStatus.countingConcluded);
+                    toggleCountingConcludedButton.classList.toggle('btn-primary', !currentElectionStatus.countingConcluded);
+                } else {
+                    // Document doesn't exist, create it with default status
+                    setDoc(getElectionStatusDocRef(), { countingConcluded: false });
+                    currentElectionStatus = { countingConcluded: false };
+                    countingConcludedStatus.textContent = 'Ongoing 📊';
+                    toggleCountingConcludedButton.textContent = 'Mark Counting Concluded';
+                    toggleCountingConcludedButton.classList.remove('btn-danger');
+                    toggleCountingConcludedButton.classList.add('btn-primary');
+                }
+            }, (error) => {
+                console.error("Error fetching election status:", error);
+                countingConcludedStatus.textContent = 'Error loading status.';
+            });
+        }
+
+        /**
+         * Toggles the 'countingConcluded' status.
+         */
+        toggleCountingConcludedButton.addEventListener('click', async () => {
+            countingConcludedMessage.textContent = '';
+            const newStatus = !currentElectionStatus.countingConcluded;
+            const actionText = newStatus ? 'conclude' : 'reopen';
+            const confirmMessage = `Are you sure you want to ${actionText} counting? This will affect the official status of the election.`;
+
+            showModal("Confirm Status Change", confirmMessage, null, [
+                (() => {
+                    const confirmBtn = document.createElement('button');
+                    confirmBtn.textContent = `Yes, ${actionText} counting`;
+                    confirmBtn.classList.add('btn', newStatus ? 'btn-danger' : 'btn-primary', 'mr-2');
+                    confirmBtn.onclick = async () => {
+                        hideModal();
+                        try {
+                            await updateDoc(getElectionStatusDocRef(), { countingConcluded: newStatus });
+                            countingConcludedMessage.textContent = `Counting status successfully set to ${newStatus ? 'Concluded' : 'Ongoing'}!`;
+                            countingConcludedMessage.classList.remove('text-red-500');
+                            countingConcludedMessage.classList.add('text-green-500');
+                        } catch (error) {
+                            console.error("Error toggling counting status:", error);
+                            countingConcludedMessage.textContent = "Error updating counting status: " + error.message;
+                            countingConcludedMessage.classList.remove('text-green-500');
+                            countingConcludedMessage.classList.add('text-red-500');
+                        }
+                    };
+                    return confirmBtn;
+                })(),
+                (() => {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.classList.add('btn', 'btn-secondary');
+                    cancelBtn.onclick = hideModal;
+                    return cancelBtn;
+                })()
+            ]);
+        });
+
+        /**
+         * Generates and downloads the final results PDF.
+         */
+        downloadPdfButton.addEventListener('click', async () => {
+            pdfMessage.textContent = 'Generating PDF... Please wait.';
+            pdfMessage.classList.remove('text-red-500', 'text-green-500');
+            pdfMessage.classList.add('text-blue-500');
+
+            try {
+                const postsSnapshot = await getDocs(query(getPostsCollectionRef(), where("isLive", "==", true)));
+                let allPostsData = [];
+                for (const postDoc of postsSnapshot.docs) {
+                    const postData = { id: postDoc.id, ...postDoc.data() };
+                    const candidatesSnapshot = await getDocs(getCandidatesCollectionRef(postDoc.id));
+                    const candidates = candidatesSnapshot.docs.map(candDoc => ({ id: candDoc.id, ...candDoc.data() }));
+                    allPostsData.push({ ...postData, candidates: candidates });
+                }
+
+                // Prepare content for PDF
+                const pdfContentDiv = pdfContentTemplate.cloneNode(true);
+                // Temporarily make it visible in the document flow but off-screen
+                pdfContentDiv.style.position = 'absolute';
+                pdfContentDiv.style.left = '-9999px';
+                pdfContentDiv.style.top = '-9999px';
+                document.body.appendChild(pdfContentDiv); // Append to body to ensure it's in DOM
+
+                pdfContentDiv.querySelector('#pdf-generation-timestamp').textContent = new Date().toLocaleString();
+                
+                const pdfConclusionStatus = pdfContentDiv.querySelector('.conclusion-status');
+                pdfConclusionStatus.textContent = `Counting Status: ${currentElectionStatus.countingConcluded ? 'Concluded ✅' : 'Ongoing 📊'}`;
+                pdfConclusionStatus.style.color = currentElectionStatus.countingConcluded ? '#059669' : '#f59e0b'; // Green for concluded, yellow for ongoing
+
+                const pdfPostsContainer = pdfContentDiv.querySelector('#pdf-posts-container');
+                pdfPostsContainer.innerHTML = ''; // Clear previous content
+
+                if (allPostsData.length === 0) {
+                    pdfPostsContainer.innerHTML = '<p style="text-align: center; color: #666;">No live election data available to generate report.</p>';
+                } else {
+                    allPostsData.forEach(post => {
+                        const candidates = post.candidates.sort((a, b) => b.votes - a.votes);
+                        const maxVotes = candidates.length > 0 ? candidates[0].votes : 0;
+
+                        let postHtml = `
+                            <div style="margin-bottom: 25px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #f8fafc;">
+                                <h2 style="color: #1d4ed8; font-size: 1.5em; margin-bottom: 10px;">${post.postName}</h2>
+                                ${post.postMessage ? `<p style="font-style: italic; color: #555; margin-bottom: 15px;">"${post.postMessage}"</p>` : ''}
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th style="background-color: #f0f4f8; padding: 8px; border: 1px solid #e2e8f0;">Candidate</th>
+                                            <th style="background-color: #f0f4f8; padding: 8px; border: 1px solid #e2e8f0; text-align: center;">Votes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        if (candidates.length === 0) {
+                            postHtml += `
+                                <tr>
+                                    <td colspan="2" style="padding: 8px; border: 1px solid #e2e8f0; text-align: center; color: #888;">No candidates for this post.</td>
+                                </tr>
+                            `;
+                        } else {
+                            candidates.forEach(candidate => {
+                                const isLeading = candidate.votes === maxVotes && maxVotes > 0;
+                                const leadingClass = isLeading ? 'leading-candidate' : '';
+                                const leadingIcon = isLeading ? ' 🏆' : ''; // Use trophy for PDF
+                                postHtml += `
+                                    <tr>
+                                        <td class="${leadingClass}" style="padding: 8px; border: 1px solid #e2e8f0;">${candidate.candidateName}${leadingIcon}</td>
+                                        <td class="${leadingClass}" style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">${candidate.votes}</td>
+                                    </tr>
+                                `;
+                            });
+                        }
+                        postHtml += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        pdfPostsContainer.innerHTML += postHtml;
+                    });
+                }
+
+                // Give browser a moment to render the content before capturing
+                setTimeout(async () => {
+                    const opt = {
+                        margin: 10,
+                        filename: `Election_Results_${new Date().toISOString().slice(0,10)}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, logging: false, dpi: 192, letterRendering: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+                    await html2pdf().set(opt).from(pdfContentDiv).save();
+
+                    pdfMessage.textContent = 'PDF generated successfully!';
+                    pdfMessage.classList.remove('text-blue-500', 'text-red-500');
+                    pdfMessage.classList.add('text-green-500');
+                    document.body.removeChild(pdfContentDiv); // Remove from DOM after generation
+
+                }, 100); // Small delay
+
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                pdfMessage.textContent = "Error generating PDF: " + error.message;
+                pdfMessage.classList.remove('text-blue-500', 'text-green-500');
+                pdfMessage.classList.add('text-red-500');
+                if (document.body.contains(pdfContentDiv)) { // Ensure cleanup if error occurs after appending
+                    document.body.removeChild(pdfContentDiv);
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

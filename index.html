@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Student Union Vote Count</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .message-box {
+            background-color: #fff3cd;
+            color: #664d03;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            border: 1px solid #ffecb5;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem; /* text-sm */
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb; /* Tailwind gray-50 */
+        }
+        .leading-candidate-row {
+            background-color: #d1fae5; /* Tailwind green-100 */
+            font-weight: 600;
+        }
+        .updated-time {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* Tailwind gray-500 */
+            margin-top: 10px;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 50px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-refresh {
+            background-color: #10b981; /* Tailwind green-500 */
+            color: white;
+        }
+        .btn-refresh:hover {
+            background-color: #059669; /* Tailwind green-600 */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-spinner" class="spinner"></div>
+
+    <div id="app-container" class="hidden w-full flex flex-col items-center">
+        <h1 class="text-4xl font-extrabold text-blue-800 mb-6 text-center">📊 Live Student Union Vote Count</h1>
+
+        <!-- Public View -->
+        <div id="public-view" class="container">
+            <h2 class="text-2xl font-bold text-blue-700 mb-4 text-center">Current Vote Status</h2>
+            <div id="vote-display-area">
+                <!-- Vote data will be loaded here -->
+                <p class="text-gray-500 text-center">Loading vote data...</p>
+            </div>
+            <div class="mt-8 text-center flex flex-col items-center justify-center">
+                <p id="last-updated" class="updated-time text-center mb-3">Last Updated: Fetching...</p>
+                <button id="refresh-button" class="btn btn-refresh">Refresh Data</button>
+            </div>
+            <div class="mt-8 text-center">
+                <p class="text-gray-600">Are you a polling official? <a href="admin.html" class="text-blue-600 hover:underline font-semibold">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, onSnapshot, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Import firebaseConfig from the generated file
+        import { firebaseConfig } from './firebase-config.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userId = null; // To store the user ID for Firestore paths
+        let unsubscribePublic = null; // To store the unsubscribe function for public view
+
+        // DOM Elements
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const appContainer = document.getElementById('app-container');
+        const voteDisplayArea = document.getElementById('vote-display-area');
+        const lastUpdatedSpan = document.getElementById('last-updated'); // Ensure this is correctly referenced
+        const refreshButton = document.getElementById('refresh-button'); // New refresh button
+
+        /**
+         * Observes authentication state changes and updates UI accordingly.
+         * For the public page, we always try to sign in anonymously.
+         */
+        onAuthStateChanged(auth, async (user) => {
+            if (loadingSpinner) {
+                loadingSpinner.classList.add('hidden'); // Hide spinner once auth state is known
+            }
+            if (appContainer) {
+                appContainer.classList.remove('hidden'); // Show app container
+            }
+
+            userId = user ? user.uid : crypto.randomUUID(); // Use UID if logged in, else random UUID
+
+            if (!user) {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Anonymous sign-in failed:", error);
+                    if (voteDisplayArea) { // Check before accessing
+                        voteDisplayArea.innerHTML = "<p class='text-red-500 text-center'>Error: Could not load public view. Please check network connection and ensure Anonymous authentication is enabled in Firebase.</p>";
+                    }
+                }
+            }
+            startPublicListeners(); // Always start public listeners
+        });
+
+        // --- Firestore Paths ---
+        // Using the projectId from firebaseConfig as the appId for collection paths
+        const getPostsCollectionRef = () => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts`);
+        const getCandidatesCollectionRef = (postId) => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts/${postId}/candidates`);
+
+        /**
+         * Starts the real-time listener for public vote data.
+         */
+        function startPublicListeners() {
+            // Unsubscribe from previous listener if it exists
+            if (unsubscribePublic) {
+                unsubscribePublic();
+            }
+
+            // Only query for posts where isLive is true
+            const postsQuery = query(getPostsCollectionRef(), where("isLive", "==", true));
+
+            unsubscribePublic = onSnapshot(postsQuery, async (postsSnapshot) => {
+                let allPostsData = [];
+                // Fetch posts first
+                const postPromises = postsSnapshot.docs.map(async (postDoc) => {
+                    const postData = { id: postDoc.id, ...postDoc.data() };
+                    const candidatesQuery = query(getCandidatesCollectionRef(postDoc.id));
+
+                    // Fetch candidates for each post
+                    const candidatesSnapshot = await getDocs(candidatesQuery);
+                    const candidates = candidatesSnapshot.docs.map(candDoc => ({ id: candDoc.id, ...candDoc.data() }));
+                    return { ...postData, candidates: candidates };
+                });
+
+                allPostsData = await Promise.all(postPromises);
+                updatePublicVoteDisplay(allPostsData);
+                if (lastUpdatedSpan) {
+                    lastUpdatedSpan.textContent = "Last Updated: " + new Date().toLocaleTimeString();
+                }
+            }, (error) => {
+                console.error("Error fetching public vote data:", error);
+                if (voteDisplayArea) {
+                    voteDisplayArea.innerHTML = "<p class='text-red-500 text-center'>⚠️ Error loading live vote data!</p>";
+                }
+            });
+        }
+
+        /**
+         * Updates the public display with vote counts.
+         * @param {Array<Object>} postsData - Array of post objects with their candidates.
+         */
+        function updatePublicVoteDisplay(postsData) {
+            if (!voteDisplayArea) return; // Exit if element not found
+
+            if (postsData.length === 0) {
+                voteDisplayArea.innerHTML = "<p class='text-gray-500 text-center'>No live vote data available yet. Please check back later!</p>";
+                return;
+            }
+
+            let htmlContent = "";
+
+            postsData.forEach(post => {
+                // Sort candidates by votes descending for public display
+                const candidates = post.candidates.sort((a, b) => b.votes - a.votes);
+                const maxVotes = candidates.length > 0 ? candidates[0].votes : 0;
+
+                htmlContent += `
+                    <div class="mb-8 p-6 bg-white rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4 text-center">${post.postName}</h3>
+                `;
+
+                if (post.postMessage) {
+                    htmlContent += `<div class="message-box">🔔 ${post.postMessage}</div>`;
+                }
+
+                htmlContent += `
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-4">Candidate</th>
+                                    <th class="py-3 px-4 text-center">Votes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                candidates.forEach(candidate => {
+                    const isLeading = candidate.votes === maxVotes && maxVotes > 0;
+                    const rowClass = isLeading ? 'leading-candidate-row' : '';
+                    const trophyIcon = isLeading ? ' 🔼 ' : ''; // Changed to upward triangle
+                    htmlContent += `
+                                <tr class="${rowClass}">
+                                    <td class="py-3 px-4">${candidate.candidateName}${trophyIcon}</td>
+                                    <td class="py-3 px-4 text-center">${candidate.votes}</td>
+                                </tr>
+                    `;
+                });
+
+                htmlContent += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+
+            voteDisplayArea.innerHTML = htmlContent;
+        }
+
+        // --- New Feature: Refresh Button ---
+        if (refreshButton) {
+            refreshButton.addEventListener('click', () => {
+                // Manually trigger a re-fetch of data
+                startPublicListeners();
+                if (lastUpdatedSpan) {
+                    lastUpdatedSpan.textContent = "Last Updated: Refreshing...";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

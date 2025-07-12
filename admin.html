@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Live Student Union Vote Count</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .message-box {
+            background-color: #fff3cd;
+            color: #664d03;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            border: 1px solid #ffecb5;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem; /* text-sm */
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb; /* Tailwind gray-50 */
+        }
+        .leading-candidate-row {
+            background-color: #d1fae5; /* Tailwind green-100 */
+            font-weight: 600;
+        }
+        .updated-time {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* Tailwind gray-500 */
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #2563eb; /* Tailwind blue-600 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+        }
+        .btn-danger {
+            background-color: #ef4444; /* Tailwind red-500 */
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626; /* Tailwind red-600 */
+        }
+        .btn-secondary {
+            background-color: #6b7280; /* Tailwind gray-500 */
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563; /* Tailwind gray-600 */
+        }
+        .input-field {
+            padding: 10px;
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal.open .modal-content {
+            transform: translateY(0);
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 50px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .success-feedback {
+            opacity: 1;
+            transition: opacity 2s ease-out;
+        }
+        .success-feedback.fade-out {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-spinner" class="spinner"></div>
+
+    <div id="app-container" class="hidden w-full flex flex-col items-center">
+        <h1 class="text-4xl font-extrabold text-blue-800 mb-6 text-center">🔐 Admin Dashboard</h1>
+
+        <!-- Auth Section -->
+        <div id="auth-section" class="container text-center mb-8">
+            <div id="logged-out-view">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Polling Official Login</h2>
+                <input type="email" id="login-email" placeholder="Email" class="input-field mb-3">
+                <input type="password" id="login-password" placeholder="Password" class="input-field mb-4">
+                <button id="login-button" class="btn btn-primary w-full">Login</button>
+                <p id="login-error" class="text-red-500 text-sm mt-2 hidden"></p>
+            </div>
+            <div id="logged-in-view" class="hidden">
+                <p class="text-lg font-semibold text-gray-700 mb-4">Welcome, <span id="user-email"></span>!</p>
+                <button id="logout-button" class="btn btn-danger w-full">Logout</button>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard (Hidden by default) -->
+        <div id="admin-dashboard" class="container hidden mt-8">
+            <h2 class="text-2xl font-bold text-green-700 mb-6 text-center">Manage Votes</h2>
+
+            <!-- Manage Posts and Candidates (Only update votes, delete posts) -->
+            <div id="manage-posts-section">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Manage Posts & Candidates</h3>
+                <div id="admin-posts-list" class="space-y-6">
+                    <p class="text-gray-500 text-center">Please login to manage posts.</p>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <p class="text-gray-600">View public vote counts: <a href="index.html" class="text-blue-600 hover:underline font-semibold">Public Page</a></p>
+                <p class="text-gray-600">For adding new posts and candidates: <a href="candidate_admin.html" class="text-purple-600 hover:underline font-semibold">Candidate Manager Page</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="message-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title" class="text-xl font-bold mb-4"></h3>
+            <p id="modal-message" class="mb-6"></p>
+            <button id="modal-close-button" class="btn btn-secondary w-full">Close</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Import firebaseConfig from the generated file
+        import { firebaseConfig } from './firebase-config.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null; // To store the authenticated user object
+
+        // DOM Elements
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const appContainer = document.getElementById('app-container');
+        const authSection = document.getElementById('auth-section');
+        const loggedOutView = document.getElementById('logged-out-view');
+        const loggedInView = document.getElementById('logged-in-view');
+        const userEmailSpan = document.getElementById('user-email');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+        const loginButton = document.getElementById('login-button');
+        const loginError = document.getElementById('login-error');
+        const logoutButton = document.getElementById('logout-button');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        // Removed newPostNameInput, newPostMessageInput, addPostButton, addPostMessage
+        const adminPostsList = document.getElementById('admin-posts-list');
+        const messageModal = document.getElementById('message-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseButton = document.getElementById('modal-close-button');
+
+        /**
+         * Displays a custom modal message to the user.
+         * @param {string} title - The title of the message.
+         * @param {string} message - The content of the message.
+         * @param {number} [duration] - Optional duration in milliseconds after which the modal will close.
+         */
+        function showModal(title, message, duration) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            messageModal.classList.add('open');
+            // Remove previous action buttons if any
+            const existingButtons = modalMessage.querySelectorAll('.modal-action-button');
+            existingButtons.forEach(btn => btn.remove());
+
+            if (duration) {
+                setTimeout(hideModal, duration);
+            }
+        }
+
+        /**
+         * Hides the custom modal message.
+         */
+        function hideModal() {
+            messageModal.classList.remove('open');
+        }
+
+        // Close modal button event listener
+        modalCloseButton.addEventListener('click', hideModal);
+
+        // --- Authentication Logic ---
+
+        /**
+         * Handles user login with email and password.
+         */
+        loginButton.addEventListener('click', async () => {
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            loginError.classList.add('hidden'); // Hide previous errors
+            if (!email || !password) {
+                loginError.textContent = "Please enter both email and password.";
+                loginError.classList.remove('hidden');
+                return;
+            }
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // Auth state change listener will handle UI update
+            } catch (error) {
+                console.error("Login error:", error);
+                let errorMessage = "Login failed. Please check your credentials.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = "Invalid email or password.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Invalid email format.";
+                }
+                loginError.textContent = errorMessage;
+                loginError.classList.remove('hidden');
+            }
+        });
+
+        /**
+         * Handles user logout.
+         */
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                // Auth state change listener will handle UI update
+            } catch (error) {
+                console.error("Logout error:", error);
+                showModal("Logout Failed", "There was an error logging out. Please try again.");
+            }
+        });
+
+        /**
+         * Observes authentication state changes and updates UI accordingly.
+         * In this simplified version, any authenticated user gains admin access.
+         */
+        onAuthStateChanged(auth, async (user) => {
+            loadingSpinner.classList.add('hidden'); // Hide spinner once auth state is known
+            appContainer.classList.remove('hidden'); // Show app container
+
+            currentUser = user;
+
+            if (user) {
+                loggedOutView.classList.add('hidden');
+                loggedInView.classList.remove('hidden');
+                userEmailSpan.textContent = user.email || "Authenticated User";
+
+                // *** IMPORTANT SECURITY NOTE: In this simplified version, any authenticated user
+                // *** is granted access to the admin dashboard.
+                // *** For true role-based access control, Firebase Custom Claims (requiring a server-side script)
+                // *** would be necessary.
+                adminDashboard.classList.remove('hidden');
+                startAdminListeners(); // Start admin-specific listeners
+            } else {
+                loggedOutView.classList.remove('hidden');
+                loggedInView.classList.add('hidden');
+                adminDashboard.classList.add('hidden');
+                // Stop admin listeners if user logs out
+                if (unsubscribeAdmin) {
+                    unsubscribeAdmin();
+                    unsubscribeAdmin = null;
+                }
+                adminPostsList.innerHTML = "<p class='text-gray-500 text-center'>Please login to manage posts.</p>";
+            }
+        });
+
+        // --- Firestore Paths ---
+        // Using the projectId from firebaseConfig as the appId for collection paths
+        const getPostsCollectionRef = () => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts`);
+        const getCandidatesCollectionRef = (postId) => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts/${postId}/candidates`);
+
+        // --- Admin Dashboard Logic ---
+
+        let unsubscribeAdmin = null; // To store the unsubscribe function for admin view
+
+        /**
+         * Starts the real-time listener for admin vote data.
+         */
+        function startAdminListeners() {
+            // Unsubscribe from previous listener if it exists
+            if (unsubscribeAdmin) {
+                unsubscribeAdmin();
+            }
+
+            const postsQuery = query(getPostsCollectionRef());
+
+            unsubscribeAdmin = onSnapshot(postsQuery, async (postsSnapshot) => {
+                let allPostsData = [];
+                const postPromises = postsSnapshot.docs.map(async (postDoc) => {
+                    const postData = { id: postDoc.id, ...postDoc.data() };
+                    const candidatesQuery = query(getCandidatesCollectionRef(postDoc.id));
+
+                    const candidatesSnapshot = await getDocs(candidatesQuery);
+                    const candidates = candidatesSnapshot.docs.map(candDoc => ({ id: candDoc.id, ...candDoc.data() }));
+                    return { ...postData, candidates: candidates };
+                });
+
+                allPostsData = await Promise.all(postPromises);
+                updateAdminDashboard(allPostsData);
+            }, (error) => {
+                console.error("Error fetching admin vote data:", error);
+                adminPostsList.innerHTML = "<p class='text-red-500 text-center'>⚠️ Error loading admin data! Check permissions or network.</p>";
+            });
+        }
+
+        /**
+         * Updates the admin dashboard with current posts and candidates.
+         * @param {Array<Object>} postsData - Array of post objects with their candidates.
+         */
+        function updateAdminDashboard(postsData) {
+            if (postsData.length === 0) {
+                adminPostsList.innerHTML = "<p class='text-gray-500 text-center'>No posts created yet. Please use the Candidate Manager Page to add posts and candidates.</p>";
+                return;
+            }
+
+            let htmlContent = "";
+            postsData.forEach(post => {
+                htmlContent += `
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xl font-bold text-blue-700">${post.postName}</h4>
+                            <!-- Removed "Delete Post" button -->
+                        </div>
+                        <p class="text-gray-600 mb-4">Message: <input type="text" data-post-id="${post.id}" class="edit-post-message-input input-field inline-block w-3/4" value="${post.postMessage || ''}" placeholder="Enter message"></p>
+                        <button data-post-id="${post.id}" class="save-post-message-btn btn btn-secondary text-sm px-3 py-1 mb-4">Save Message</button>
+
+                        <h5 class="text-lg font-semibold text-gray-700 mb-3">Candidates:</h5>
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden mb-4">
+                            <thead>
+                                <tr>
+                                    <th class="py-2 px-3">Candidate Name</th>
+                                    <th class="py-2 px-3 text-center">Votes</th>
+                                    <th class="py-2 px-3 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                if (post.candidates.length === 0) {
+                    htmlContent += `
+                                <tr>
+                                    <td colspan="3" class="py-3 px-4 text-center text-gray-500">No candidates for this post yet.</td>
+                                </tr>
+                    `;
+                } else {
+                    post.candidates.sort((a, b) => b.votes - a.votes).forEach(candidate => {
+                        htmlContent += `
+                                <tr>
+                                    <td class="py-3 px-4">${candidate.candidateName}</td>
+                                    <td class="py-3 px-4 text-center">
+                                        <input type="number" value="${candidate.votes}" min="0" class="vote-input-field input-field w-24 text-center inline-block m-0" data-post-id="${post.id}" data-candidate-id="${candidate.id}">
+                                    </td>
+                                    <td class="py-3 px-4 text-center flex items-center justify-center space-x-1">
+                                        <button data-post-id="${post.id}" data-candidate-id="${candidate.id}" class="update-vote-btn btn btn-primary text-xs px-2 py-1">Update</button>
+                                        <span id="feedback-${candidate.id}" class="success-feedback text-green-500 text-xs ml-2 hidden">Updated!</span>
+                                    </td>
+                                </tr>
+                        `;
+                    });
+                }
+
+                htmlContent += `
+                            </tbody>
+                        </table>
+                        <!-- Removed 'Add New Candidate' functionality from admin.html -->
+                        <!-- Removed 'Delete Candidate' functionality from admin.html -->
+                    </div>
+                `;
+            });
+            adminPostsList.innerHTML = htmlContent;
+
+            // Attach event listeners for dynamically created elements
+            document.querySelectorAll('.update-vote-btn').forEach(button => {
+                button.addEventListener('click', handleUpdateVote);
+            });
+            // Removed event listener for delete-candidate-btn
+            // Removed event listener for delete-post-btn
+            document.querySelectorAll('.save-post-message-btn').forEach(button => {
+                button.addEventListener('click', handleSavePostMessage);
+            });
+        }
+
+        // Removed addPostButton event listener and its function from admin.html
+
+        /**
+         * Handles updating votes for a candidate from the input field.
+         * @param {Event} event - The click event.
+         */
+        async function handleUpdateVote(event) {
+            const postId = event.target.dataset.postId;
+            const candidateId = event.target.dataset.candidateId;
+            const inputElement = event.target.closest('tr').querySelector('.vote-input-field');
+            const newVotes = parseInt(inputElement.value);
+            const feedbackSpan = event.target.closest('td').querySelector(`#feedback-${candidateId}`);
+
+
+            if (!postId || !candidateId || isNaN(newVotes) || newVotes < 0) {
+                showModal("Error", "Invalid vote count. Please enter a non-negative number.");
+                return;
+            }
+
+            const candidateDocRef = doc(getCandidatesCollectionRef(postId), candidateId);
+
+            try {
+                await updateDoc(candidateDocRef, { votes: newVotes });
+                if (feedbackSpan) {
+                    feedbackSpan.classList.remove('hidden', 'fade-out');
+                    feedbackSpan.classList.add('success-feedback');
+                    setTimeout(() => {
+                        feedbackSpan.classList.add('fade-out');
+                        setTimeout(() => feedbackSpan.classList.add('hidden'), 2000); // Hide after fade out
+                    }, 50); // Small delay to ensure transition starts
+                }
+            } catch (error) {
+                console.error("Error updating vote:", error);
+                showModal("Error", "Failed to update vote: " + error.message);
+            }
+        }
+
+        // Removed handleDeleteCandidate function from admin.html
+
+        /**
+         * Handles saving the message for a specific post.
+         * @param {Event} event - The click event.
+         */
+        async function handleSavePostMessage(event) {
+            const postId = event.target.dataset.postId;
+            const messageInput = document.querySelector(`.edit-post-message-input[data-post-id="${postId}"]`);
+            const newMessage = messageInput.value.trim();
+
+            if (!postId) {
+                showModal("Error", "Invalid post ID.");
+                return;
+            }
+
+            try {
+                await updateDoc(doc(getPostsCollectionRef(), postId), {
+                    postMessage: newMessage
+                });
+                showModal("Success", "Post message updated successfully!", 2000); // Modal disappears after 2 seconds
+            } catch (error) {
+                console.error("Error updating post message:", error);
+                showModal("Error", "Failed to update post message: " + error.message);
+            }
+        }
+
+    </script>
+</body>
+</html>
+

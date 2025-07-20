@@ -185,7 +185,7 @@
                 // First, try to sign in the user
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 showMessageBox("Student logged in successfully! Redirecting...", 'success');
-                window.location.href = 'student.html'; // Redirect to student dashboard
+                window.location.href = 'dashboard.html'; // Redirect to student dashboard
             } catch (error) {
                 // If login fails, check if it's due to user not found or wrong password
                 if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {

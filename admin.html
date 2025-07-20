@@ -3,531 +3,488 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Live Student Union Vote Count</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Admin Dashboard - UPSC Preparation Portal</title>
+    <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Inter Font for a clean and professional look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Custom styles to enhance Tailwind defaults and ensure consistent design */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 20px;
-            box-sizing: border-box;
+            background-color: #f0f2f5; /* Light gray background */
         }
         .container {
-            width: 100%;
-            max-width: 900px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 30px;
-            margin-bottom: 20px;
+            max-width: 1200px; /* Max width for content */
+            margin: 0 auto; /* Center the container */
+            padding: 2rem; /* Ample padding around content */
         }
-        .message-box {
-            background-color: #fff3cd;
-            color: #664d03;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: 500;
-            border: 1px solid #ffecb5;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            border: 1px solid #e5e7eb;
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background-color: #1d4ed8; /* Tailwind blue-700 */
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.875rem; /* text-sm */
-        }
-        tr:nth-child(even) {
-            background-color: #f9fafb; /* Tailwind gray-50 */
-        }
-        .leading-candidate-row {
-            background-color: #d1fae5; /* Tailwind green-100 */
-            font-weight: 600;
-        }
-        .updated-time {
-            font-size: 0.875rem; /* text-sm */
-            color: #6b7280; /* Tailwind gray-500 */
-            margin-top: 10px;
-        }
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Rounded corners for cards */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+            padding: 2rem;
         }
         .btn-primary {
-            background-color: #2563eb; /* Tailwind blue-600 */
-            color: white;
+            background-color: #4f46e5; /* Indigo-600 for primary actions */
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem; /* Rounded buttons */
+            font-weight: 600; /* Semi-bold text */
+            transition: background-color 0.2s ease-in-out; /* Smooth hover effect */
         }
         .btn-primary:hover {
-            background-color: #1d4ed8; /* Tailwind blue-700 */
-        }
-        .btn-danger {
-            background-color: #ef4444; /* Tailwind red-500 */
-            color: white;
-        }
-        .btn-danger:hover {
-            background-color: #dc2626; /* Tailwind red-600 */
+            background-color: #4338ca; /* Darker indigo on hover */
         }
         .btn-secondary {
-            background-color: #6b7280; /* Tailwind gray-500 */
-            color: white;
+            background-color: #e5e7eb; /* Gray-200 for secondary actions */
+            color: #374151; /* Dark gray text */
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
         }
         .btn-secondary:hover {
-            background-color: #4b5563; /* Tailwind gray-600 */
+            background-color: #d1d5db; /* Darker gray on hover */
         }
-        .input-field {
-            padding: 10px;
-            border: 1px solid #d1d5db; /* Tailwind gray-300 */
-            border-radius: 8px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 10px;
+        /* Styling for input fields and textareas */
+        input[type="text"], input[type="email"], input[type="password"], input[type="url"], input[type="date"], textarea {
+            border: 1px solid #d1d5db; /* Light gray border */
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%; /* Full width */
+            font-size: 1rem;
+            line-height: 1.5rem;
+            outline: none; /* Remove default outline */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="url"]:focus, input[type="date"]:focus, textarea:focus {
+            border-color: #6366f1; /* Indigo-500 border on focus */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Ring effect on focus */
         }
-        .modal.open {
-            opacity: 1;
-            visibility: visible;
+        /* Animation for message box */
+        @keyframes fade-in-down {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 500px;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease-in-out;
+        @keyframes fade-out-up {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
         }
-        .modal.open .modal-content {
-            transform: translateY(0);
-        }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #2563eb;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 50px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .success-feedback {
-            opacity: 1;
-            transition: opacity 2s ease-out;
-        }
-        .success-feedback.fade-out {
-            opacity: 0;
-        }
+        .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
+        .animate-fade-out-up { animation: fade-out-up 0.3s ease-in forwards; }
     </style>
 </head>
-<body>
-
-    <div id="loading-spinner" class="spinner"></div>
-
-    <div id="app-container" class="hidden w-full flex flex-col items-center">
-        <h1 class="text-4xl font-extrabold text-blue-800 mb-6 text-center">🔐 Admin Dashboard</h1>
-
-        <!-- Auth Section -->
-        <div id="auth-section" class="container text-center mb-8">
-            <div id="logged-out-view">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Polling Official Login</h2>
-                <input type="email" id="login-email" placeholder="Email" class="input-field mb-3">
-                <input type="password" id="login-password" placeholder="Password" class="input-field mb-4">
-                <button id="login-button" class="btn btn-primary w-full">Login</button>
-                <p id="login-error" class="text-red-500 text-sm mt-2 hidden"></p>
-            </div>
-            <div id="logged-in-view" class="hidden">
-                <p class="text-lg font-semibold text-gray-700 mb-4">Welcome, <span id="user-email"></span>!</p>
-                <button id="logout-button" class="btn btn-danger w-full">Logout</button>
-            </div>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header Section -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md">
+        <div class="container flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+            <nav>
+                <button id="logoutBtn" class="btn-secondary">Logout</button>
+            </nav>
         </div>
+    </header>
 
-        <!-- Admin Dashboard (Hidden by default) -->
-        <div id="admin-dashboard" class="container hidden mt-8">
-            <h2 class="text-2xl font-bold text-green-700 mb-6 text-center">Manage Votes</h2>
+    <!-- Main Content Area -->
+    <main class="flex-grow container mt-8">
+        <!-- Admin Login Section -->
+        <section id="adminLoginSection" class="flex flex-col justify-center items-center">
+            <div class="card w-full max-w-md">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-800">Admin Login</h2>
+                <form id="adminAuthForm" class="space-y-4">
+                    <div>
+                        <label for="adminEmail" class="block text-gray-700 text-sm font-medium mb-1">Email</label>
+                        <input type="email" id="adminEmail" placeholder="admin@mzr.in" required>
+                    </div>
+                    <div>
+                        <label for="adminPassword" class="block text-gray-700 text-sm font-medium mb-1">Password</label>
+                        <input type="password" id="adminPassword" placeholder="********" required>
+                    </div>
+                    <button type="submit" class="btn-primary w-full">Login as Admin</button>
+                </form>
+                <p class="text-center text-sm text-gray-600 mt-4">
+                    <a href="index.html" class="text-indigo-600 hover:underline">Back to Student Login</a>
+                </p>
+            </div>
+        </section>
 
-            <!-- Manage Posts and Candidates (Only update votes, delete posts) -->
-            <div id="manage-posts-section">
-                <h3 class="text-xl font-semibold text-gray-700 mb-4">Manage Posts & Candidates</h3>
-                <div id="admin-posts-list" class="space-y-6">
-                    <p class="text-gray-500 text-center">Please login to manage posts.</p>
+        <!-- Admin Dashboard Section -->
+        <section id="adminDashboard" class="hidden">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Admin Panel</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Verify Students Card -->
+                <div class="card">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Verify Students</h3>
+                    <div id="unverifiedStudentsList" class="space-y-4">
+                        <!-- List of unverified students will be loaded here -->
+                        <p class="text-gray-500">Loading unverified students...</p>
+                    </div>
+                </div>
+
+                <!-- Upload New Document Card -->
+                <div class="card">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Upload New Document</h3>
+                    <form id="uploadDocumentForm" class="space-y-4">
+                        <div>
+                            <label for="docTitle" class="block text-gray-700 text-sm font-medium mb-1">Document Title</label>
+                            <input type="text" id="docTitle" placeholder="e.g., Indian Economy PDF" required>
+                        </div>
+                        <div>
+                            <label for="docUrl" class="block text-gray-700 text-sm font-medium mb-1">Document URL (PDF link)</label>
+                            <input type="url" id="docUrl" placeholder="https://example.com/document.pdf" required>
+                        </div>
+                        <div>
+                            <label for="docDescription" class="block text-gray-700 text-sm font-medium mb-1">Description</label>
+                            <textarea id="docDescription" rows="3" placeholder="Brief description of the document"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary w-full">Upload Document</button>
+                    </form>
+                </div>
+
+                <!-- Add Daily Target Card -->
+                <div class="card">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Add Daily Target</h3>
+                    <form id="addTargetForm" class="space-y-4">
+                        <div>
+                            <label for="targetDate" class="block text-gray-700 text-sm font-medium mb-1">Target Date</label>
+                            <input type="date" id="targetDate" required>
+                        </div>
+                        <div>
+                            <label for="targetText" class="block text-gray-700 text-sm font-medium mb-1">Target Description</label>
+                            <textarea id="targetText" rows="4" placeholder="e.g., Complete Chapter 3 of Indian Polity" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary w-full">Add Target</button>
+                    </form>
+                </div>
+
+                <!-- Add General Note Card -->
+                <div class="card">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Add General Note</h3>
+                    <form id="addNoteForm" class="space-y-4">
+                        <div>
+                            <label for="noteTitle" class="block text-gray-700 text-sm font-medium mb-1">Note Title</label>
+                            <input type="text" id="noteTitle" placeholder="e.g., Important Current Affairs Update" required>
+                        </div>
+                        <div>
+                            <label for="noteText" class="block text-gray-700 text-sm font-medium mb-1">Note Content</label>
+                            <textarea id="noteText" rows="4" placeholder="Type your note here..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary w-full">Add Note</button>
+                    </form>
                 </div>
             </div>
-            <div class="mt-8 text-center">
-                <p class="text-gray-600">View public vote counts: <a href="index.html" class="text-blue-600 hover:underline font-semibold">Public Page</a></p>
-                <p class="text-gray-600">For adding new posts and candidates: <a href="candidate_admin.html" class="text-purple-600 hover:underline font-semibold">Candidate Manager Page</a></p>
-            </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <!-- Message Modal -->
-    <div id="message-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="modal-title" class="text-xl font-bold mb-4"></h3>
-            <p id="modal-message" class="mb-6"></p>
-            <button id="modal-close-button" class="btn btn-secondary w-full">Close</button>
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white p-4 mt-8">
+        <div class="container text-center text-sm">
+            &copy; 2025 UPSC Preparation Portal. All rights reserved.
         </div>
-    </div>
+    </footer>
 
-    <!-- Firebase SDK Scripts -->
+    <!-- Firebase SDKs - Loaded as a module for modern JavaScript -->
     <script type="module">
+        // Import necessary Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        // Import firebaseConfig from the generated file
-        import { firebaseConfig } from './firebase-config.js';
+        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Firebase Configuration provided by the user
+        const firebaseConfig = {
+            apiKey: "AIzaSyB47PN51DxVExryra_tYeW2kuGNK9wmyFo",
+            authDomain: "upscbuddymzr.firebaseapp.com",
+            projectId: "upscbuddymzr",
+            storageBucket: "upscbuddymzr.firebasestorage.app",
+            messagingSenderId: "478927698160",
+            appId: "1:478927698160:web:53fb75ad368005bd0b6a35",
+            measurementId: "G-P9P6K4VVEQ"
+        };
+        const appId = firebaseConfig.projectId; // Use projectId as appId for consistency with Firestore paths
 
-        let currentUser = null; // To store the authenticated user object
+        let app, db, auth, userId = null; // Declare Firebase instances and current user ID
 
-        // DOM Elements
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const appContainer = document.getElementById('app-container');
-        const authSection = document.getElementById('auth-section');
-        const loggedOutView = document.getElementById('logged-out-view');
-        const loggedInView = document.getElementById('logged-in-view');
-        const userEmailSpan = document.getElementById('user-email');
-        const loginEmailInput = document.getElementById('login-email');
-        const loginPasswordInput = document.getElementById('login-password');
-        const loginButton = document.getElementById('login-button');
-        const loginError = document.getElementById('login-error');
-        const logoutButton = document.getElementById('logout-button');
-        const adminDashboard = document.getElementById('admin-dashboard');
-        // Removed newPostNameInput, newPostMessageInput, addPostButton, addPostMessage
-        const adminPostsList = document.getElementById('admin-posts-list');
-        const messageModal = document.getElementById('message-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const modalCloseButton = document.getElementById('modal-close-button');
+        // Initialize Firebase services
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase initialized successfully.");
+        } catch (error) {
+            console.error("Error initializing Firebase:", error);
+            showMessageBox("Error initializing Firebase. Please check your configuration.", 'error');
+        }
+
+        // --- DOM Element References ---
+        const adminLoginSection = document.getElementById('adminLoginSection');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        const adminAuthForm = document.getElementById('adminAuthForm');
+        const adminEmailInput = document.getElementById('adminEmail');
+        const adminPasswordInput = document.getElementById('adminPassword');
+
+        const unverifiedStudentsList = document.getElementById('unverifiedStudentsList');
+        const uploadDocumentForm = document.getElementById('uploadDocumentForm');
+        const docTitleInput = document.getElementById('docTitle');
+        const docUrlInput = document.getElementById('docUrl');
+        const docDescriptionInput = document.getElementById('docDescription');
+
+        const addTargetForm = document.getElementById('addTargetForm');
+        const targetDateInput = document.getElementById('targetDate');
+        const targetTextInput = document.getElementById('targetText');
+
+        const addNoteForm = document.getElementById('addNoteForm');
+        const noteTitleInput = document.getElementById('noteTitle');
+        const noteTextInput = document.getElementById('noteText');
+
+        // --- Utility Functions ---
 
         /**
-         * Displays a custom modal message to the user.
-         * @param {string} title - The title of the message.
-         * @param {string} message - The content of the message.
-         * @param {number} [duration] - Optional duration in milliseconds after which the modal will close.
+         * Displays a custom, temporary message box to the user.
+         * This replaces the browser's default alert() for a better UX.
+         * @param {string} message The message content to display.
+         * @param {string} type The type of message ('success', 'error', 'info', 'warning') to determine styling.
          */
-        function showModal(title, message, duration) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            messageModal.classList.add('open');
-            // Remove previous action buttons if any
-            const existingButtons = modalMessage.querySelectorAll('.modal-action-button');
-            existingButtons.forEach(btn => btn.remove());
+        function showMessageBox(message, type = 'info') {
+            let bgColor = 'bg-blue-500'; // Default info color
+            if (type === 'success') bgColor = 'bg-green-500';
+            else if (type === 'error') bgColor = 'bg-red-500';
+            else if (type === 'warning') bgColor = 'bg-yellow-500';
 
-            if (duration) {
-                setTimeout(hideModal, duration);
-            }
+            const messageBox = document.createElement('div');
+            messageBox.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${bgColor} z-50 animate-fade-in-down`;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+
+            // Automatically remove the message box after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.add('animate-fade-out-up');
+                messageBox.addEventListener('animationend', () => messageBox.remove());
+            }, 3000);
         }
 
         /**
-         * Hides the custom modal message.
+         * Handles user logout and redirects to the login page.
          */
-        function hideModal() {
-            messageModal.classList.remove('open');
-        }
-
-        // Close modal button event listener
-        modalCloseButton.addEventListener('click', hideModal);
-
-        // --- Authentication Logic ---
-
-        /**
-         * Handles user login with email and password.
-         */
-        loginButton.addEventListener('click', async () => {
-            const email = loginEmailInput.value;
-            const password = loginPasswordInput.value;
-            loginError.classList.add('hidden'); // Hide previous errors
-            if (!email || !password) {
-                loginError.textContent = "Please enter both email and password.";
-                loginError.classList.remove('hidden');
-                return;
-            }
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // Auth state change listener will handle UI update
-            } catch (error) {
-                console.error("Login error:", error);
-                let errorMessage = "Login failed. Please check your credentials.";
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    errorMessage = "Invalid email or password.";
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = "Invalid email format.";
-                }
-                loginError.textContent = errorMessage;
-                loginError.classList.remove('hidden');
-            }
-        });
-
-        /**
-         * Handles user logout.
-         */
-        logoutButton.addEventListener('click', async () => {
+        logoutBtn.addEventListener('click', async () => {
             try {
                 await signOut(auth);
-                // Auth state change listener will handle UI update
+                showMessageBox("Logged out successfully.", 'info');
+                window.location.href = 'index.html'; // Redirect to login page
             } catch (error) {
-                console.error("Logout error:", error);
-                showModal("Logout Failed", "There was an error logging out. Please try again.");
+                console.error("Error during logout:", error);
+                showMessageBox(`Logout failed: ${error.message}`, 'error');
             }
         });
 
         /**
-         * Observes authentication state changes and updates UI accordingly.
-         * In this simplified version, any authenticated user gains admin access.
+         * Shows the admin login section and hides the dashboard.
+         */
+        function showAdminLogin() {
+            adminLoginSection.classList.remove('hidden');
+            adminDashboard.classList.add('hidden');
+            logoutBtn.classList.add('hidden'); // Hide logout button on login page
+        }
+
+        /**
+         * Shows the admin dashboard section and hides the login.
+         */
+        function showAdminDashboard() {
+            adminLoginSection.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
+            logoutBtn.classList.remove('hidden'); // Show logout button on dashboard
+            loadAdminContent(); // Load admin data
+        }
+
+        // --- Firebase Authentication State Listener ---
+
+        /**
+         * Listens for changes in the user's authentication state (login/logout).
+         * This is the central point for managing UI visibility based on user status.
          */
         onAuthStateChanged(auth, async (user) => {
-            loadingSpinner.classList.add('hidden'); // Hide spinner once auth state is known
-            appContainer.classList.remove('hidden'); // Show app container
-
-            currentUser = user;
-
             if (user) {
-                loggedOutView.classList.add('hidden');
-                loggedInView.classList.remove('hidden');
-                userEmailSpan.textContent = user.email || "Authenticated User";
+                userId = user.uid; // Set the global userId
+                // Fetch user's profile data from Firestore to determine role
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
+                const userDocSnap = await getDoc(userDocRef);
 
-                // *** IMPORTANT SECURITY NOTE: In this simplified version, any authenticated user
-                // *** is granted access to the admin dashboard.
-                // *** For true role-based access control, Firebase Custom Claims (requiring a server-side script)
-                // *** would be necessary.
-                adminDashboard.classList.remove('hidden');
-                startAdminListeners(); // Start admin-specific listeners
-            } else {
-                loggedOutView.classList.remove('hidden');
-                loggedInView.classList.add('hidden');
-                adminDashboard.classList.add('hidden');
-                // Stop admin listeners if user logs out
-                if (unsubscribeAdmin) {
-                    unsubscribeAdmin();
-                    unsubscribeAdmin = null;
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    if (userData.role === 'admin') {
+                        showAdminDashboard(); // Show admin dashboard
+                    } else {
+                        // If a student somehow lands on admin.html, redirect them
+                        showMessageBox("Access Denied: Redirecting to student login.", 'warning');
+                        window.location.href = 'index.html'; // Redirect to index.html if not admin
+                    }
+                } else {
+                    // If user profile not found, likely an error or not properly set up, redirect to login
+                    showMessageBox("User profile not found or role not defined. Please log in again.", 'error');
+                    await signOut(auth);
+                    window.location.href = 'index.html';
                 }
-                adminPostsList.innerHTML = "<p class='text-gray-500 text-center'>Please login to manage posts.</p>";
+            } else {
+                // If no user is logged in, show the admin login form
+                userId = null;
+                showAdminLogin();
             }
         });
 
-        // --- Firestore Paths ---
-        // Using the projectId from firebaseConfig as the appId for collection paths
-        const getPostsCollectionRef = () => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts`);
-        const getCandidatesCollectionRef = (postId) => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts/${postId}/candidates`);
+        // --- Admin Login Event Listener ---
+        adminAuthForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = adminEmailInput.value;
+            const password = adminPasswordInput.value;
 
-        // --- Admin Dashboard Logic ---
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
 
-        let unsubscribeAdmin = null; // To store the unsubscribe function for admin view
+                // After successful authentication, check the user's role in Firestore
+                const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
+                const userDocSnap = await getDoc(userDocRef);
 
-        /**
-         * Starts the real-time listener for admin vote data.
-         */
-        function startAdminListeners() {
-            // Unsubscribe from previous listener if it exists
-            if (unsubscribeAdmin) {
-                unsubscribeAdmin();
-            }
-
-            const postsQuery = query(getPostsCollectionRef());
-
-            unsubscribeAdmin = onSnapshot(postsQuery, async (postsSnapshot) => {
-                let allPostsData = [];
-                const postPromises = postsSnapshot.docs.map(async (postDoc) => {
-                    const postData = { id: postDoc.id, ...postDoc.data() };
-                    const candidatesQuery = query(getCandidatesCollectionRef(postDoc.id));
-
-                    const candidatesSnapshot = await getDocs(candidatesQuery);
-                    const candidates = candidatesSnapshot.docs.map(candDoc => ({ id: candDoc.id, ...candDoc.data() }));
-                    return { ...postData, candidates: candidates };
-                });
-
-                allPostsData = await Promise.all(postPromises);
-                updateAdminDashboard(allPostsData);
-            }, (error) => {
-                console.error("Error fetching admin vote data:", error);
-                adminPostsList.innerHTML = "<p class='text-red-500 text-center'>⚠️ Error loading admin data! Check permissions or network.</p>";
-            });
-        }
-
-        /**
-         * Updates the admin dashboard with current posts and candidates.
-         * @param {Array<Object>} postsData - Array of post objects with their candidates.
-         */
-        function updateAdminDashboard(postsData) {
-            if (postsData.length === 0) {
-                adminPostsList.innerHTML = "<p class='text-gray-500 text-center'>No posts created yet. Please use the Candidate Manager Page to add posts and candidates.</p>";
-                return;
-            }
-
-            let htmlContent = "";
-            postsData.forEach(post => {
-                htmlContent += `
-                    <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="text-xl font-bold text-blue-700">${post.postName}</h4>
-                            <!-- Removed "Delete Post" button -->
-                        </div>
-                        <p class="text-gray-600 mb-4">Message: <input type="text" data-post-id="${post.id}" class="edit-post-message-input input-field inline-block w-3/4" value="${post.postMessage || ''}" placeholder="Enter message"></p>
-                        <button data-post-id="${post.id}" class="save-post-message-btn btn btn-secondary text-sm px-3 py-1 mb-4">Save Message</button>
-
-                        <h5 class="text-lg font-semibold text-gray-700 mb-3">Candidates:</h5>
-                        <table class="min-w-full bg-white rounded-lg overflow-hidden mb-4">
-                            <thead>
-                                <tr>
-                                    <th class="py-2 px-3">Candidate Name</th>
-                                    <th class="py-2 px-3 text-center">Votes</th>
-                                    <th class="py-2 px-3 text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-                if (post.candidates.length === 0) {
-                    htmlContent += `
-                                <tr>
-                                    <td colspan="3" class="py-3 px-4 text-center text-gray-500">No candidates for this post yet.</td>
-                                </tr>
-                    `;
+                if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
+                    showMessageBox("Admin logged in successfully!", 'success');
+                    // onAuthStateChanged will handle showing the dashboard
                 } else {
-                    post.candidates.sort((a, b) => b.votes - a.votes).forEach(candidate => {
-                        htmlContent += `
-                                <tr>
-                                    <td class="py-3 px-4">${candidate.candidateName}</td>
-                                    <td class="py-3 px-4 text-center">
-                                        <input type="number" value="${candidate.votes}" min="0" class="vote-input-field input-field w-24 text-center inline-block m-0" data-post-id="${post.id}" data-candidate-id="${candidate.id}">
-                                    </td>
-                                    <td class="py-3 px-4 text-center flex items-center justify-center space-x-1">
-                                        <button data-post-id="${post.id}" data-candidate-id="${candidate.id}" class="update-vote-btn btn btn-primary text-xs px-2 py-1">Update</button>
-                                        <span id="feedback-${candidate.id}" class="success-feedback text-green-500 text-xs ml-2 hidden">Updated!</span>
-                                    </td>
-                                </tr>
-                        `;
-                    });
-                }
-
-                htmlContent += `
-                            </tbody>
-                        </table>
-                        <!-- Removed 'Add New Candidate' functionality from admin.html -->
-                        <!-- Removed 'Delete Candidate' functionality from admin.html -->
-                    </div>
-                `;
-            });
-            adminPostsList.innerHTML = htmlContent;
-
-            // Attach event listeners for dynamically created elements
-            document.querySelectorAll('.update-vote-btn').forEach(button => {
-                button.addEventListener('click', handleUpdateVote);
-            });
-            // Removed event listener for delete-candidate-btn
-            // Removed event listener for delete-post-btn
-            document.querySelectorAll('.save-post-message-btn').forEach(button => {
-                button.addEventListener('click', handleSavePostMessage);
-            });
-        }
-
-        // Removed addPostButton event listener and its function from admin.html
-
-        /**
-         * Handles updating votes for a candidate from the input field.
-         * @param {Event} event - The click event.
-         */
-        async function handleUpdateVote(event) {
-            const postId = event.target.dataset.postId;
-            const candidateId = event.target.dataset.candidateId;
-            const inputElement = event.target.closest('tr').querySelector('.vote-input-field');
-            const newVotes = parseInt(inputElement.value);
-            const feedbackSpan = event.target.closest('td').querySelector(`#feedback-${candidateId}`);
-
-
-            if (!postId || !candidateId || isNaN(newVotes) || newVotes < 0) {
-                showModal("Error", "Invalid vote count. Please enter a non-negative number.");
-                return;
-            }
-
-            const candidateDocRef = doc(getCandidatesCollectionRef(postId), candidateId);
-
-            try {
-                await updateDoc(candidateDocRef, { votes: newVotes });
-                if (feedbackSpan) {
-                    feedbackSpan.classList.remove('hidden', 'fade-out');
-                    feedbackSpan.classList.add('success-feedback');
-                    setTimeout(() => {
-                        feedbackSpan.classList.add('fade-out');
-                        setTimeout(() => feedbackSpan.classList.add('hidden'), 2000); // Hide after fade out
-                    }, 50); // Small delay to ensure transition starts
+                    // If the user is not an admin, sign them out and show an error
+                    await signOut(auth);
+                    showMessageBox("Access Denied: You do not have admin privileges.", 'error');
                 }
             } catch (error) {
-                console.error("Error updating vote:", error);
-                showModal("Error", "Failed to update vote: " + error.message);
+                console.error("Error during admin login:", error);
+                showMessageBox(`Admin login failed: ${error.message}`, 'error');
             }
-        }
+        });
 
-        // Removed handleDeleteCandidate function from admin.html
+        // --- Admin Dashboard Content Loading & Actions ---
 
         /**
-         * Handles saving the message for a specific post.
-         * @param {Event} event - The click event.
+         * Loads and displays unverified students for the admin dashboard.
+         * Also sets up event listeners for verifying students.
          */
-        async function handleSavePostMessage(event) {
-            const postId = event.target.dataset.postId;
-            const messageInput = document.querySelector(`.edit-post-message-input[data-post-id="${postId}"]`);
-            const newMessage = messageInput.value.trim();
-
-            if (!postId) {
-                showModal("Error", "Invalid post ID.");
-                return;
-            }
-
-            try {
-                await updateDoc(doc(getPostsCollectionRef(), postId), {
-                    postMessage: newMessage
+        function loadAdminContent() {
+            // Query for students whose 'isVerified' field is false
+            const q = query(collection(db, `artifacts/${appId}/users`), where("profile.data.role", "==", "student"), where("profile.data.isVerified", "==", false));
+            onSnapshot(q, (snapshot) => {
+                unverifiedStudentsList.innerHTML = ''; // Clear existing list
+                if (snapshot.empty) {
+                    unverifiedStudentsList.innerHTML = '<p class="text-gray-500">No unverified students at the moment.</p>';
+                    return;
+                }
+                // Iterate through unverified student documents and create HTML elements
+                snapshot.forEach(userDoc => {
+                    const studentData = userDoc.data().profile.data; // Access the nested profile.data
+                    const studentId = userDoc.id; // The user's UID is the document ID
+                    const studentElement = `
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold text-gray-800">${studentData.email}</p>
+                                <p class="text-sm text-gray-600">User ID: ${studentId}</p>
+                            </div>
+                            <button class="btn-primary btn-sm verify-student-btn" data-uid="${studentId}">Verify</button>
+                        </div>
+                    `;
+                    unverifiedStudentsList.innerHTML += studentElement;
                 });
-                showModal("Success", "Post message updated successfully!", 2000); // Modal disappears after 2 seconds
-            } catch (error) {
-                console.error("Error updating post message:", error);
-                showModal("Error", "Failed to update post message: " + error.message);
-            }
+
+                // Attach click event listeners to all newly rendered 'Verify' buttons
+                document.querySelectorAll('.verify-student-btn').forEach(button => {
+                    button.onclick = async (e) => {
+                        const uidToVerify = e.target.dataset.uid; // Get the UID from the button's data attribute
+                        try {
+                            // Update the student's document to set isVerified to true
+                            await updateDoc(doc(db, `artifacts/${appId}/users/${uidToVerify}/profile/data`), {
+                                isVerified: true
+                            });
+                            showMessageBox(`Student ${uidToVerify} verified successfully!`, 'success');
+                        } catch (error) {
+                            console.error("Error verifying student:", error);
+                            showMessageBox(`Failed to verify student: ${error.message}`, 'error');
+                        }
+                    };
+                });
+            }, (error) => {
+                console.error("Error fetching unverified students:", error);
+                showMessageBox("Failed to load unverified students for admin panel.", 'error');
+            });
         }
 
+        /**
+         * Handles the submission of the document upload form by admin.
+         */
+        uploadDocumentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = docTitleInput.value;
+            const url = docUrlInput.value;
+            const description = docDescriptionInput.value;
+
+            try {
+                // Add a new document record to the 'documents' collection
+                await addDoc(collection(db, `artifacts/${appId}/public/data/documents`), {
+                    title,
+                    url,
+                    description,
+                    uploadedAt: serverTimestamp() // Record the upload time
+                });
+                showMessageBox("Document uploaded successfully!", 'success');
+                uploadDocumentForm.reset(); // Clear the form fields
+            } catch (error) {
+                console.error("Error uploading document:", error);
+                showMessageBox(`Failed to upload document: ${error.message}`, 'error');
+            }
+        });
+
+        /**
+         * Handles the submission of the daily target form by admin.
+         */
+        addTargetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const date = targetDateInput.value; // Date in YYYY-MM-DD format
+            const text = targetTextInput.value;
+
+            try {
+                // Add a new target record to the 'targets' collection
+                await addDoc(collection(db, `artifacts/${appId}/public/data/targets`), {
+                    date,
+                    text,
+                    createdAt: serverTimestamp()
+                });
+                showMessageBox("Daily target added successfully!", 'success');
+                addTargetForm.reset(); // Clear the form fields
+            } catch (error) {
+                console.error("Error adding target:", error);
+                showMessageBox(`Failed to add target: ${error.message}`, 'error');
+            }
+        });
+
+        /**
+         * Handles the submission of the general note form by admin.
+         */
+        addNoteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = noteTitleInput.value;
+            const text = noteTextInput.value;
+
+            try {
+                // Add a new note record to the 'notes' collection
+                await addDoc(collection(db, `artifacts/${appId}/public/data/notes`), {
+                    title,
+                    text,
+                    createdAt: serverTimestamp()
+                });
+                showMessageBox("General note added successfully!", 'success');
+                addNoteForm.reset(); // Clear the form fields
+            } catch (error) {
+                console.error("Error adding note:", error);
+                showMessageBox(`Failed to add note: ${error.message}`, 'error');
+            }
+        });
     </script>
 </body>
 </html>
-

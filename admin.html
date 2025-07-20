@@ -88,94 +88,70 @@
 
     <!-- Main Content Area -->
     <main class="flex-grow container mt-8">
-        <!-- Admin Login Section -->
-        <section id="adminLoginSection" class="flex flex-col justify-center items-center">
-            <div class="card w-full max-w-md">
-                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-800">Admin Login</h2>
-                <form id="adminAuthForm" class="space-y-4">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Admin Panel</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Verify Students Card -->
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Verify Students</h3>
+                <div id="unverifiedStudentsList" class="space-y-4">
+                    <!-- List of unverified students will be loaded here -->
+                    <p class="text-gray-500">Loading unverified students...</p>
+                </div>
+            </div>
+
+            <!-- Upload New Document Card -->
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Upload New Document</h3>
+                <form id="uploadDocumentForm" class="space-y-4">
                     <div>
-                        <label for="adminEmail" class="block text-gray-700 text-sm font-medium mb-1">Email</label>
-                        <input type="email" id="adminEmail" placeholder="admin@mzr.in" required>
+                        <label for="docTitle" class="block text-gray-700 text-sm font-medium mb-1">Document Title</label>
+                        <input type="text" id="docTitle" placeholder="e.g., Indian Economy PDF" required>
                     </div>
                     <div>
-                        <label for="adminPassword" class="block text-gray-700 text-sm font-medium mb-1">Password</label>
-                        <input type="password" id="adminPassword" placeholder="********" required>
+                        <label for="docUrl" class="block text-gray-700 text-sm font-medium mb-1">Document URL (PDF link)</label>
+                        <input type="url" id="docUrl" placeholder="https://example.com/document.pdf" required>
                     </div>
-                    <button type="submit" class="btn-primary w-full">Login as Admin</button>
+                    <div>
+                        <label for="docDescription" class="block text-gray-700 text-sm font-medium mb-1">Description</label>
+                        <textarea id="docDescription" rows="3" placeholder="Brief description of the document"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary w-full">Upload Document</button>
                 </form>
-                <p class="text-center text-sm text-gray-600 mt-4">
-                    <a href="index.html" class="text-indigo-600 hover:underline">Back to Student Login</a>
-                </p>
             </div>
-        </section>
 
-        <!-- Admin Dashboard Section -->
-        <section id="adminDashboard" class="hidden">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Admin Panel</h2>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Verify Students Card -->
-                <div class="card">
-                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Verify Students</h3>
-                    <div id="unverifiedStudentsList" class="space-y-4">
-                        <!-- List of unverified students will be loaded here -->
-                        <p class="text-gray-500">Loading unverified students...</p>
+            <!-- Add Daily Target Card -->
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Add Daily Target</h3>
+                <form id="addTargetForm" class="space-y-4">
+                    <div>
+                        <label for="targetDate" class="block text-gray-700 text-sm font-medium mb-1">Target Date</label>
+                        <input type="date" id="targetDate" required>
                     </div>
-                </div>
-
-                <!-- Upload New Document Card -->
-                <div class="card">
-                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Upload New Document</h3>
-                    <form id="uploadDocumentForm" class="space-y-4">
-                        <div>
-                            <label for="docTitle" class="block text-gray-700 text-sm font-medium mb-1">Document Title</label>
-                            <input type="text" id="docTitle" placeholder="e.g., Indian Economy PDF" required>
-                        </div>
-                        <div>
-                            <label for="docUrl" class="block text-gray-700 text-sm font-medium mb-1">Document URL (PDF link)</label>
-                            <input type="url" id="docUrl" placeholder="https://example.com/document.pdf" required>
-                        </div>
-                        <div>
-                            <label for="docDescription" class="block text-gray-700 text-sm font-medium mb-1">Description</label>
-                            <textarea id="docDescription" rows="3" placeholder="Brief description of the document"></textarea>
-                        </div>
-                        <button type="submit" class="btn-primary w-full">Upload Document</button>
-                    </form>
-                </div>
-
-                <!-- Add Daily Target Card -->
-                <div class="card">
-                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Add Daily Target</h3>
-                    <form id="addTargetForm" class="space-y-4">
-                        <div>
-                            <label for="targetDate" class="block text-gray-700 text-sm font-medium mb-1">Target Date</label>
-                            <input type="date" id="targetDate" required>
-                        </div>
-                        <div>
-                            <label for="targetText" class="block text-gray-700 text-sm font-medium mb-1">Target Description</label>
-                            <textarea id="targetText" rows="4" placeholder="e.g., Complete Chapter 3 of Indian Polity" required></textarea>
-                        </div>
-                        <button type="submit" class="btn-primary w-full">Add Target</button>
-                    </form>
-                </div>
-
-                <!-- Add General Note Card -->
-                <div class="card">
-                    <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Add General Note</h3>
-                    <form id="addNoteForm" class="space-y-4">
-                        <div>
-                            <label for="noteTitle" class="block text-gray-700 text-sm font-medium mb-1">Note Title</label>
-                            <input type="text" id="noteTitle" placeholder="e.g., Important Current Affairs Update" required>
-                        </div>
-                        <div>
-                            <label for="noteText" class="block text-gray-700 text-sm font-medium mb-1">Note Content</label>
-                            <textarea id="noteText" rows="4" placeholder="Type your note here..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn-primary w-full">Add Note</button>
-                    </form>
-                </div>
+                    <div>
+                        <label for="targetText" class="block text-gray-700 text-sm font-medium mb-1">Target Description</label>
+                        <textarea id="targetText" rows="4" placeholder="e.g., Complete Chapter 3 of Indian Polity" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary w-full">Add Target</button>
+                </form>
             </div>
-        </section>
+
+            <!-- Add General Note Card -->
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Add General Note</h3>
+                <form id="addNoteForm" class="space-y-4">
+                    <div>
+                        <label for="noteTitle" class="block text-gray-700 text-sm font-medium mb-1">Note Title</label>
+                        <input type="text" id="noteTitle" placeholder="e.g., Important Current Affairs Update" required>
+                    </div>
+                    <div>
+                        <label for="noteText" class="block text-gray-700 text-sm font-medium mb-1">Note Content</label>
+                        <textarea id="noteText" rows="4" placeholder="Type your note here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary w-full">Add Note</button>
+                </form>
+            </div>
+        </div>
     </main>
 
     <!-- Footer Section -->
@@ -189,7 +165,7 @@
     <script type="module">
         // Import necessary Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase Configuration provided by the user
@@ -218,14 +194,7 @@
         }
 
         // --- DOM Element References ---
-        const adminLoginSection = document.getElementById('adminLoginSection');
-        const adminDashboard = document.getElementById('adminDashboard');
         const logoutBtn = document.getElementById('logoutBtn');
-
-        const adminAuthForm = document.getElementById('adminAuthForm');
-        const adminEmailInput = document.getElementById('adminEmail');
-        const adminPasswordInput = document.getElementById('adminPassword');
-
         const unverifiedStudentsList = document.getElementById('unverifiedStudentsList');
         const uploadDocumentForm = document.getElementById('uploadDocumentForm');
         const docTitleInput = document.getElementById('docTitle');
@@ -273,31 +242,12 @@
             try {
                 await signOut(auth);
                 showMessageBox("Logged out successfully.", 'info');
-                window.location.href = 'index.html'; // Redirect to login page
+                window.location.href = 'login.html'; // Redirect to login page
             } catch (error) {
                 console.error("Error during logout:", error);
                 showMessageBox(`Logout failed: ${error.message}`, 'error');
             }
         });
-
-        /**
-         * Shows the admin login section and hides the dashboard.
-         */
-        function showAdminLogin() {
-            adminLoginSection.classList.remove('hidden');
-            adminDashboard.classList.add('hidden');
-            logoutBtn.classList.add('hidden'); // Hide logout button on login page
-        }
-
-        /**
-         * Shows the admin dashboard section and hides the login.
-         */
-        function showAdminDashboard() {
-            adminLoginSection.classList.add('hidden');
-            adminDashboard.classList.remove('hidden');
-            logoutBtn.classList.remove('hidden'); // Show logout button on dashboard
-            loadAdminContent(); // Load admin data
-        }
 
         // --- Firebase Authentication State Listener ---
 
@@ -308,57 +258,19 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userId = user.uid; // Set the global userId
-                // Fetch user's profile data from Firestore to determine role
-                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
-                const userDocSnap = await getDoc(userDocRef);
-
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-                    if (userData.role === 'admin') {
-                        showAdminDashboard(); // Show admin dashboard
-                    } else {
-                        // If a student somehow lands on admin.html, redirect them
-                        showMessageBox("Access Denied: Redirecting to student login.", 'warning');
-                        window.location.href = 'index.html'; // Redirect to index.html if not admin
-                    }
+                // Check if the user's email ends with @mzr.in for admin access
+                if (user.email && user.email.endsWith('@mzr.in')) {
+                    loadAdminContent(); // Load admin-specific data
                 } else {
-                    // If user profile not found, likely an error or not properly set up, redirect to login
-                    showMessageBox("User profile not found or role not defined. Please log in again.", 'error');
-                    await signOut(auth);
-                    window.location.href = 'index.html';
+                    // If not an admin, redirect to student dashboard or login
+                    showMessageBox("Access Denied: Redirecting to student dashboard.", 'warning');
+                    window.location.href = 'student.html'; // Redirect to student.html if not admin
                 }
             } else {
-                // If no user is logged in, show the admin login form
+                // If no user is logged in, redirect to the login page
                 userId = null;
-                showAdminLogin();
-            }
-        });
-
-        // --- Admin Login Event Listener ---
-        adminAuthForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = adminEmailInput.value;
-            const password = adminPasswordInput.value;
-
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                // After successful authentication, check the user's role in Firestore
-                const userDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`);
-                const userDocSnap = await getDoc(userDocRef);
-
-                if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
-                    showMessageBox("Admin logged in successfully!", 'success');
-                    // onAuthStateChanged will handle showing the dashboard
-                } else {
-                    // If the user is not an admin, sign them out and show an error
-                    await signOut(auth);
-                    showMessageBox("Access Denied: You do not have admin privileges.", 'error');
-                }
-            } catch (error) {
-                console.error("Error during admin login:", error);
-                showMessageBox(`Admin login failed: ${error.message}`, 'error');
+                showMessageBox("You are not logged in. Redirecting to login page.", 'info');
+                window.location.href = 'login.html';
             }
         });
 
@@ -370,7 +282,8 @@
          */
         function loadAdminContent() {
             // Query for students whose 'isVerified' field is false
-            const q = query(collection(db, `artifacts/${appId}/users`), where("profile.data.role", "==", "student"), where("profile.data.isVerified", "==", false));
+            // Note: The 'profile.data.role' check is done implicitly by the security rules
+            const q = query(collection(db, `artifacts/${appId}/users`), where("profile.data.isVerified", "==", false));
             onSnapshot(q, (snapshot) => {
                 unverifiedStudentsList.innerHTML = ''; // Clear existing list
                 if (snapshot.empty) {
@@ -411,7 +324,7 @@
                 });
             }, (error) => {
                 console.error("Error fetching unverified students:", error);
-                showMessageBox("Failed to load unverified students for admin panel.", 'error');
+                showMessageBox("Failed to load unverified students for admin panel. Check console for details.", 'error');
             });
         }
 

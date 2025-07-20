@@ -3,288 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Student Union Vote Count</title>
-    <!-- Tailwind CSS CDN -->
+    <title>UPSC Preparation Portal - Login</title>
+    <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Inter Font for a clean and professional look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Custom styles to enhance Tailwind defaults and ensure consistent design */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 20px;
-            box-sizing: border-box;
+            background-color: #f0f2f5; /* Light gray background */
         }
         .container {
-            width: 100%;
-            max-width: 900px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 30px;
-            margin-bottom: 20px;
+            max-width: 1200px; /* Max width for content */
+            margin: 0 auto; /* Center the container */
+            padding: 2rem; /* Ample padding around content */
         }
-        .message-box {
-            background-color: #fff3cd;
-            color: #664d03;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: 500;
-            border: 1px solid #ffecb5;
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Rounded corners for cards */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+            padding: 2rem;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+        .btn-primary {
+            background-color: #4f46e5; /* Indigo-600 for primary actions */
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem; /* Rounded buttons */
+            font-weight: 600; /* Semi-bold text */
+            transition: background-color 0.2s ease-in-out; /* Smooth hover effect */
         }
-        th, td {
-            border: 1px solid #e5e7eb;
-            padding: 12px;
-            text-align: left;
+        .btn-primary:hover {
+            background-color: #4338ca; /* Darker indigo on hover */
         }
-        th {
-            background-color: #1d4ed8; /* Tailwind blue-700 */
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.875rem; /* text-sm */
+        /* Styling for input fields and textareas */
+        input[type="email"], input[type="password"] {
+            border: 1px solid #d1d5db; /* Light gray border */
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%; /* Full width */
+            font-size: 1rem;
+            line-height: 1.5rem;
+            outline: none; /* Remove default outline */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        tr:nth-child(even) {
-            background-color: #f9fafb; /* Tailwind gray-50 */
+        input[type="email"]:focus, input[type="password"]:focus {
+            border-color: #6366f1; /* Indigo-500 border on focus */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Ring effect on focus */
         }
-        .leading-candidate-row {
-            background-color: #d1fae5; /* Tailwind green-100 */
-            font-weight: 600;
+        /* Animation for message box */
+        @keyframes fade-in-down {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .updated-time {
-            font-size: 0.875rem; /* text-sm */
-            color: #6b7280; /* Tailwind gray-500 */
-            margin-top: 10px;
+        @keyframes fade-out-up {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
         }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #2563eb;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 50px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-        .btn-refresh {
-            background-color: #10b981; /* Tailwind green-500 */
-            color: white;
-        }
-        .btn-refresh:hover {
-            background-color: #059669; /* Tailwind green-600 */
-        }
+        .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
+        .animate-fade-out-up { animation: fade-out-up 0.3s ease-in forwards; }
     </style>
 </head>
-<body>
-
-    <div id="loading-spinner" class="spinner"></div>
-
-    <div id="app-container" class="hidden w-full flex flex-col items-center">
-        <h1 class="text-4xl font-extrabold text-blue-800 mb-6 text-center">📊 Live Student Union Vote Count</h1>
-
-        <!-- Public View -->
-        <div id="public-view" class="container">
-            <h2 class="text-2xl font-bold text-blue-700 mb-4 text-center">Current Vote Status</h2>
-            <div id="vote-display-area">
-                <!-- Vote data will be loaded here -->
-                <p class="text-gray-500 text-center">Loading vote data...</p>
-            </div>
-            <div class="mt-8 text-center flex flex-col items-center justify-center">
-                <p id="last-updated" class="updated-time text-center mb-3">Last Updated: Fetching...</p>
-                <button id="refresh-button" class="btn btn-refresh">Refresh Data</button>
-            </div>
-            <div class="mt-8 text-center">
-                <p class="text-gray-600">Are you a polling official? <a href="admin.html" class="text-blue-600 hover:underline font-semibold">Login here</a></p>
-            </div>
+<body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center">
+    <!-- Header Section -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md w-full absolute top-0">
+        <div class="container flex justify-between items-center">
+            <h1 class="text-2xl font-bold">UPSC Preparation Portal</h1>
         </div>
-    </div>
+    </header>
 
-    <!-- Firebase SDK Scripts -->
+    <!-- Main Content Area -->
+    <main class="flex-grow container mt-8 flex flex-col justify-center items-center">
+        <!-- Student Login / Registration Card -->
+        <section id="authSection" class="w-full max-w-md">
+            <div class="card w-full">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-800">Student Login / Register</h2>
+                <form id="studentAuthForm" class="space-y-4">
+                    <div>
+                        <label for="studentEmail" class="block text-gray-700 text-sm font-medium mb-1">Email</label>
+                        <input type="email" id="studentEmail" placeholder="student@example.com" required>
+                    </div>
+                    <div>
+                        <label for="studentPassword" class="block text-gray-700 text-sm font-medium mb-1">Password</label>
+                        <input type="password" id="studentPassword" placeholder="********" required>
+                    </div>
+                    <button type="submit" id="studentLoginRegisterBtn" class="btn-primary w-full">Login / Register</button>
+                    <p class="text-center text-sm text-gray-600 mt-4">
+                        New student? Register with your email and password.
+                    </p>
+                </form>
+            </div>
+            <!-- Admin Login Link/Button - for the admin to explicitly navigate -->
+            <div class="mt-6 text-center">
+                <a href="admin.html" class="btn-secondary inline-block">Admin Login</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white p-4 mt-8 w-full absolute bottom-0">
+        <div class="container text-center text-sm">
+            &copy; 2025 UPSC Preparation Portal. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs - Loaded as a module for modern JavaScript -->
     <script type="module">
+        // Import necessary Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, onSnapshot, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        // Import firebaseConfig from the generated file
-        import { firebaseConfig } from './firebase-config.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Firebase Configuration provided by the user
+        const firebaseConfig = {
+            apiKey: "AIzaSyB47PN51DxVExryra_tYeW2kuGNK9wmyFo",
+            authDomain: "upscbuddymzr.firebaseapp.com",
+            projectId: "upscbuddymzr",
+            storageBucket: "upscbuddymzr.firebasestorage.app",
+            messagingSenderId: "478927698160",
+            appId: "1:478927698160:web:53fb75ad368005bd0b6a35",
+            measurementId: "G-P9P6K4VVEQ"
+        };
+        const appId = firebaseConfig.projectId; // Use projectId as appId for consistency with Firestore paths
 
-        let userId = null; // To store the user ID for Firestore paths
-        let unsubscribePublic = null; // To store the unsubscribe function for public view
+        let app, db, auth; // Declare Firebase instances
 
-        // DOM Elements
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const appContainer = document.getElementById('app-container');
-        const voteDisplayArea = document.getElementById('vote-display-area');
-        const lastUpdatedSpan = document.getElementById('last-updated'); // Ensure this is correctly referenced
-        const refreshButton = document.getElementById('refresh-button'); // New refresh button
+        // Initialize Firebase services
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase initialized successfully.");
+        } catch (error) {
+            console.error("Error initializing Firebase:", error);
+            showMessageBox("Error initializing Firebase. Please check your configuration.", 'error');
+        }
+
+        // --- DOM Element References ---
+        const studentAuthForm = document.getElementById('studentAuthForm');
+        const studentEmailInput = document.getElementById('studentEmail');
+        const studentPasswordInput = document.getElementById('studentPassword');
+
+        // --- Utility Functions ---
 
         /**
-         * Observes authentication state changes and updates UI accordingly.
-         * For the public page, we always try to sign in anonymously.
+         * Displays a custom, temporary message box to the user.
+         * This replaces the browser's default alert() for a better UX.
+         * @param {string} message The message content to display.
+         * @param {string} type The type of message ('success', 'error', 'info', 'warning') to determine styling.
          */
-        onAuthStateChanged(auth, async (user) => {
-            if (loadingSpinner) {
-                loadingSpinner.classList.add('hidden'); // Hide spinner once auth state is known
-            }
-            if (appContainer) {
-                appContainer.classList.remove('hidden'); // Show app container
-            }
+        function showMessageBox(message, type = 'info') {
+            let bgColor = 'bg-blue-500'; // Default info color
+            if (type === 'success') bgColor = 'bg-green-500';
+            else if (type === 'error') bgColor = 'bg-red-500';
+            else if (type === 'warning') bgColor = 'bg-yellow-500';
 
-            userId = user ? user.uid : crypto.randomUUID(); // Use UID if logged in, else random UUID
+            const messageBox = document.createElement('div');
+            messageBox.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${bgColor} z-50 animate-fade-in-down`;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
 
-            if (!user) {
-                try {
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    console.error("Anonymous sign-in failed:", error);
-                    if (voteDisplayArea) { // Check before accessing
-                        voteDisplayArea.innerHTML = "<p class='text-red-500 text-center'>Error: Could not load public view. Please check network connection and ensure Anonymous authentication is enabled in Firebase.</p>";
+            // Automatically remove the message box after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.add('animate-fade-out-up');
+                messageBox.addEventListener('animationend', () => messageBox.remove());
+            }, 3000);
+        }
+
+        // --- Authentication Event Listeners ---
+
+        /**
+         * Handles the submission of the student login/registration form.
+         * Attempts to log in; if user not found, attempts to register them as a new student.
+         */
+        studentAuthForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+            const email = studentEmailInput.value;
+            const password = studentPasswordInput.value;
+
+            try {
+                // First, try to sign in the user
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                showMessageBox("Student logged in successfully! Redirecting...", 'success');
+                window.location.href = 'student.html'; // Redirect to student dashboard
+            } catch (error) {
+                // If login fails, check if it's due to user not found or wrong password
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    // If so, try to register the user
+                    try {
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        const user = userCredential.user;
+                        // Store new student's profile in Firestore, initially unverified
+                        await setDoc(doc(db, `artifacts/${appId}/users/${user.uid}/profile/data`), {
+                            email: user.email,
+                            role: 'student',
+                            isVerified: false, // New students require admin verification
+                            createdAt: serverTimestamp() // Timestamp for when the account was created
+                        });
+                        showMessageBox("Student registered successfully! Awaiting admin verification. Redirecting...", 'success');
+                        window.location.href = 'student.html'; // Redirect new student to their dashboard
+                    } catch (registerError) {
+                        console.error("Error during student registration:", registerError);
+                        showMessageBox(`Registration failed: ${registerError.message}`, 'error');
                     }
+                } else {
+                    console.error("Error during student login:", error);
+                    showMessageBox(`Login failed: ${error.message}`, 'error');
                 }
             }
-            startPublicListeners(); // Always start public listeners
         });
 
-        // --- Firestore Paths ---
-        // Using the projectId from firebaseConfig as the appId for collection paths
-        const getPostsCollectionRef = () => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts`);
-        const getCandidatesCollectionRef = (postId) => collection(db, `artifacts/${firebaseConfig.projectId}/public/data/posts/${postId}/candidates`);
-
-        /**
-         * Starts the real-time listener for public vote data.
-         */
-        function startPublicListeners() {
-            // Unsubscribe from previous listener if it exists
-            if (unsubscribePublic) {
-                unsubscribePublic();
+        // Redirect already logged-in users
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Check if user is already logged in and redirect based on role
+                // This requires fetching user role from Firestore.
+                // For simplicity here, we'll assume any logged-in user from index.html should go to student.html
+                // More robust role checking should happen on student.html and admin.html
+                window.location.href = 'student.html'; // Default redirect for authenticated users
             }
-
-            // Only query for posts where isLive is true
-            const postsQuery = query(getPostsCollectionRef(), where("isLive", "==", true));
-
-            unsubscribePublic = onSnapshot(postsQuery, async (postsSnapshot) => {
-                let allPostsData = [];
-                // Fetch posts first
-                const postPromises = postsSnapshot.docs.map(async (postDoc) => {
-                    const postData = { id: postDoc.id, ...postDoc.data() };
-                    const candidatesQuery = query(getCandidatesCollectionRef(postDoc.id));
-
-                    // Fetch candidates for each post
-                    const candidatesSnapshot = await getDocs(candidatesQuery);
-                    const candidates = candidatesSnapshot.docs.map(candDoc => ({ id: candDoc.id, ...candDoc.data() }));
-                    return { ...postData, candidates: candidates };
-                });
-
-                allPostsData = await Promise.all(postPromises);
-                updatePublicVoteDisplay(allPostsData);
-                if (lastUpdatedSpan) {
-                    lastUpdatedSpan.textContent = "Last Updated: " + new Date().toLocaleTimeString();
-                }
-            }, (error) => {
-                console.error("Error fetching public vote data:", error);
-                if (voteDisplayArea) {
-                    voteDisplayArea.innerHTML = "<p class='text-red-500 text-center'>⚠️ Error loading live vote data!</p>";
-                }
-            });
-        }
-
-        /**
-         * Updates the public display with vote counts.
-         * @param {Array<Object>} postsData - Array of post objects with their candidates.
-         */
-        function updatePublicVoteDisplay(postsData) {
-            if (!voteDisplayArea) return; // Exit if element not found
-
-            if (postsData.length === 0) {
-                voteDisplayArea.innerHTML = "<p class='text-gray-500 text-center'>No live vote data available yet. Please check back later!</p>";
-                return;
-            }
-
-            let htmlContent = "";
-
-            postsData.forEach(post => {
-                // Sort candidates by votes descending for public display
-                const candidates = post.candidates.sort((a, b) => b.votes - a.votes);
-                const maxVotes = candidates.length > 0 ? candidates[0].votes : 0;
-
-                htmlContent += `
-                    <div class="mb-8 p-6 bg-white rounded-lg shadow-md">
-                        <h3 class="text-2xl font-bold text-blue-800 mb-4 text-center">${post.postName}</h3>
-                `;
-
-                if (post.postMessage) {
-                    htmlContent += `<div class="message-box">🔔 ${post.postMessage}</div>`;
-                }
-
-                htmlContent += `
-                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
-                            <thead>
-                                <tr>
-                                    <th class="py-3 px-4">Candidate</th>
-                                    <th class="py-3 px-4 text-center">Votes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                candidates.forEach(candidate => {
-                    const isLeading = candidate.votes === maxVotes && maxVotes > 0;
-                    const rowClass = isLeading ? 'leading-candidate-row' : '';
-                    const trophyIcon = isLeading ? ' 🔼 ' : ''; // Changed to upward triangle
-                    htmlContent += `
-                                <tr class="${rowClass}">
-                                    <td class="py-3 px-4">${candidate.candidateName}${trophyIcon}</td>
-                                    <td class="py-3 px-4 text-center">${candidate.votes}</td>
-                                </tr>
-                    `;
-                });
-
-                htmlContent += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            });
-
-            voteDisplayArea.innerHTML = htmlContent;
-        }
-
-        // --- New Feature: Refresh Button ---
-        if (refreshButton) {
-            refreshButton.addEventListener('click', () => {
-                // Manually trigger a re-fetch of data
-                startPublicListeners();
-                if (lastUpdatedSpan) {
-                    lastUpdatedSpan.textContent = "Last Updated: Refreshing...";
-                }
-            });
-        }
+        });
     </script>
 </body>
 </html>
+

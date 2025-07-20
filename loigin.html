@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPSC Preparation Portal - Login</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font for a clean and professional look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to enhance Tailwind defaults and ensure consistent design */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+        }
+        .container {
+            max-width: 1200px; /* Max width for content */
+            margin: 0 auto; /* Center the container */
+            padding: 2rem; /* Ample padding around content */
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Rounded corners for cards */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+            padding: 2rem;
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* Indigo-600 for primary actions */
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem; /* Rounded buttons */
+            font-weight: 600; /* Semi-bold text */
+            transition: background-color 0.2s ease-in-out; /* Smooth hover effect */
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* Darker indigo on hover */
+        }
+        /* Styling for input fields and textareas */
+        input[type="email"], input[type="password"] {
+            border: 1px solid #d1d5db; /* Light gray border */
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%; /* Full width */
+            font-size: 1rem;
+            line-height: 1.5rem;
+            outline: none; /* Remove default outline */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        input[type="email"]:focus, input[type="password"]:focus {
+            border-color: #6366f1; /* Indigo-500 border on focus */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Ring effect on focus */
+        }
+        /* Animation for message box */
+        @keyframes fade-in-down {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-out-up {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
+        .animate-fade-out-up { animation: fade-out-up 0.3s ease-in forwards; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center">
+    <!-- Header Section -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md w-full absolute top-0">
+        <div class="container flex justify-between items-center">
+            <h1 class="text-2xl font-bold">UPSC Preparation Portal</h1>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mt-8 flex flex-col justify-center items-center">
+        <!-- Login Card -->
+        <section id="loginSection" class="w-full max-w-md">
+            <div class="card w-full">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-800">Login</h2>
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label for="userEmail" class="block text-gray-700 text-sm font-medium mb-1">Email</label>
+                        <input type="email" id="userEmail" placeholder="your_email@example.com or admin@mzr.in" required>
+                    </div>
+                    <div>
+                        <label for="userPassword" class="block text-gray-700 text-sm font-medium mb-1">Password</label>
+                        <input type="password" id="userPassword" placeholder="********" required>
+                    </div>
+                    <button type="submit" class="btn-primary w-full">Login</button>
+                    <p class="text-center text-sm text-gray-600 mt-4">
+                        New student? <a href="register.html" class="text-indigo-600 hover:underline">Register here</a>.
+                    </p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white p-4 mt-8 w-full absolute bottom-0">
+        <div class="container text-center text-sm">
+            &copy; 2025 UPSC Preparation Portal. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs - Loaded as a module for modern JavaScript -->
+    <script type="module">
+        // Import necessary Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration provided by the user
+        const firebaseConfig = {
+            apiKey: "AIzaSyB47PN51DxVExryra_tYeW2kuGNK9wmyFo",
+            authDomain: "upscbuddymzr.firebaseapp.com",
+            projectId: "upscbuddymzr",
+            storageBucket: "upscbuddymzr.firebasestorage.app",
+            messagingSenderId: "478927698160",
+            appId: "1:478927698160:web:53fb75ad368005bd0b6a35",
+            measurementId: "G-P9P6K4VVEQ"
+        };
+        const appId = firebaseConfig.projectId; // Use projectId as appId for consistency with Firestore paths
+
+        let app, db, auth; // Declare Firebase instances
+
+        // Initialize Firebase services
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase initialized successfully.");
+        } catch (error) {
+            console.error("Error initializing Firebase:", error);
+            showMessageBox("Error initializing Firebase. Please check your configuration.", 'error');
+        }
+
+        // --- DOM Element References ---
+        const loginForm = document.getElementById('loginForm');
+        const userEmailInput = document.getElementById('userEmail');
+        const userPasswordInput = document.getElementById('userPassword');
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a custom, temporary message box to the user.
+         * This replaces the browser's default alert() for a better UX.
+         * @param {string} message The message content to display.
+         * @param {string} type The type of message ('success', 'error', 'info', 'warning') to determine styling.
+         */
+        function showMessageBox(message, type = 'info') {
+            let bgColor = 'bg-blue-500'; // Default info color
+            if (type === 'success') bgColor = 'bg-green-500';
+            else if (type === 'error') bgColor = 'bg-red-500';
+            else if (type === 'warning') bgColor = 'bg-yellow-500';
+
+            const messageBox = document.createElement('div');
+            messageBox.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${bgColor} z-50 animate-fade-in-down`;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+
+            // Automatically remove the message box after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.add('animate-fade-out-up');
+                messageBox.addEventListener('animationend', () => messageBox.remove());
+            }, 3000);
+        }
+
+        // --- Login Event Listener ---
+
+        /**
+         * Handles the submission of the login form.
+         * Redirects based on email domain for admin or student role.
+         */
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+            const email = userEmailInput.value;
+            const password = userPasswordInput.value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                if (user.email && user.email.endsWith('@mzr.in')) {
+                    showMessageBox("Admin logged in successfully! Redirecting...", 'success');
+                    window.location.href = 'admin.html'; // Redirect to admin dashboard
+                } else {
+                    showMessageBox("Student logged in successfully! Redirecting...", 'success');
+                    window.location.href = 'student.html'; // Redirect to student dashboard
+                }
+            } catch (error) {
+                console.error("Error during login:", error);
+                showMessageBox(`Login failed: ${error.message}`, 'error');
+            }
+        });
+
+        // Redirect already logged-in users
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                if (user.email && user.email.endsWith('@mzr.in')) {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'student.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

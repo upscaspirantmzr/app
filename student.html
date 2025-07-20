@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - UPSC Preparation Portal</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font for a clean and professional look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to enhance Tailwind defaults and ensure consistent design */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+        }
+        .container {
+            max-width: 1200px; /* Max width for content */
+            margin: 0 auto; /* Center the container */
+            padding: 2rem; /* Ample padding around content */
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Rounded corners for cards */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+            padding: 2rem;
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* Indigo-600 for primary actions */
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem; /* Rounded buttons */
+            font-weight: 600; /* Semi-bold text */
+            transition: background-color 0.2s ease-in-out; /* Smooth hover effect */
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* Darker indigo on hover */
+        }
+        .btn-secondary {
+            background-color: #e5e7eb; /* Gray-200 for secondary actions */
+            color: #374151; /* Dark gray text */
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db; /* Darker gray on hover */
+        }
+        /* Animation for message box */
+        @keyframes fade-in-down {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-out-up {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
+        .animate-fade-out-up { animation: fade-out-up 0.3s ease-in forwards; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header Section -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md">
+        <div class="container flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Student Dashboard</h1>
+            <nav>
+                <button id="logoutBtn" class="btn-secondary">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mt-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Welcome, Student!</h2>
+        
+        <!-- Verification Status Message -->
+        <div id="verificationStatus" class="card mb-6 text-center text-lg font-semibold border-2 border-red-400 bg-red-50 hidden">
+            <p class="text-red-700">Your account is not yet verified by the admin.</p>
+            <p class="text-red-600 mt-2">Please complete payment and await admin verification to access course materials.</p>
+            <!-- Placeholder for the universal payment link -->
+            <a href="https://example.com/your-payment-link" target="_blank" class="btn-primary mt-4 inline-block">Complete Payment</a>
+        </div>
+
+        <!-- Verified Content Area (hidden until student is verified) -->
+        <div id="verifiedContent" class="hidden grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Daily Targets Card -->
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Daily Targets</h3>
+                <div id="targetsList" class="space-y-4">
+                    <!-- Daily targets will be dynamically loaded here -->
+                    <p class="text-gray-500">Loading daily targets...</p>
+                </div>
+            </div>
+
+            <!-- Important Documents/PDFs Card -->
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Important Documents</h3>
+                <div id="documentsList" class="space-y-4">
+                    <!-- Documents will be dynamically loaded here -->
+                    <p class="text-gray-500">Loading documents...</p>
+                </div>
+            </div>
+
+            <!-- General Notes Card -->
+            <div class="card col-span-1 md:col-span-2">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">General Notes</h3>
+                <div id="notesList" class="space-y-4">
+                    <!-- General notes will be dynamically loaded here -->
+                    <p class="text-gray-500">Loading general notes...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white p-4 mt-8">
+        <div class="container text-center text-sm">
+            &copy; 2025 UPSC Preparation Portal. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs - Loaded as a module for modern JavaScript -->
+    <script type="module">
+        // Import necessary Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration provided by the user
+        const firebaseConfig = {
+            apiKey: "AIzaSyB47PN51DxVExryra_tYeW2kuGNK9wmyFo",
+            authDomain: "upscbuddymzr.firebaseapp.com",
+            projectId: "upscbuddymzr",
+            storageBucket: "upscbuddymzr.firebasestorage.app",
+            messagingSenderId: "478927698160",
+            appId: "1:478927698160:web:53fb75ad368005bd0b6a35",
+            measurementId: "G-P9P6K4VVEQ"
+        };
+        const appId = firebaseConfig.projectId; // Use projectId as appId for consistency with Firestore paths
+
+        let app, db, auth, userId = null; // Declare Firebase instances and current user ID
+
+        // Initialize Firebase services
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase initialized successfully.");
+        } catch (error) {
+            console.error("Error initializing Firebase:", error);
+            showMessageBox("Error initializing Firebase. Please check your configuration.", 'error');
+        }
+
+        // --- DOM Element References ---
+        const logoutBtn = document.getElementById('logoutBtn');
+        const verificationStatusDiv = document.getElementById('verificationStatus');
+        const verifiedContentDiv = document.getElementById('verifiedContent');
+        const targetsList = document.getElementById('targetsList');
+        const documentsList = document.getElementById('documentsList');
+        const notesList = document.getElementById('notesList');
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a custom, temporary message box to the user.
+         * This replaces the browser's default alert() for a better UX.
+         * @param {string} message The message content to display.
+         * @param {string} type The type of message ('success', 'error', 'info', 'warning') to determine styling.
+         */
+        function showMessageBox(message, type = 'info') {
+            let bgColor = 'bg-blue-500'; // Default info color
+            if (type === 'success') bgColor = 'bg-green-500';
+            else if (type === 'error') bgColor = 'bg-red-500';
+            else if (type === 'warning') bgColor = 'bg-yellow-500';
+
+            const messageBox = document.createElement('div');
+            messageBox.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${bgColor} z-50 animate-fade-in-down`;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+
+            // Automatically remove the message box after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.add('animate-fade-out-up');
+                messageBox.addEventListener('animationend', () => messageBox.remove());
+            }, 3000);
+        }
+
+        /**
+         * Handles user logout and redirects to the login page.
+         */
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showMessageBox("Logged out successfully.", 'info');
+                window.location.href = 'login.html'; // Redirect to login page
+            } catch (error) {
+                console.error("Error during logout:", error);
+                showMessageBox(`Logout failed: ${error.message}`, 'error');
+            }
+        });
+
+        // --- Firebase Authentication State Listener ---
+
+        /**
+         * Listens for changes in the user's authentication state (login/logout).
+         * This is the central point for managing UI visibility based on user status.
+         */
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid; // Set the global userId
+                // Fetch user's profile data from Firestore to determine role and verification status
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    if (userData.role === 'student') {
+                        if (userData.isVerified) {
+                            verificationStatusDiv.classList.add('hidden'); // Hide verification message
+                            verifiedContentDiv.classList.remove('hidden'); // Show verified content
+                            loadStudentContent(); // Load student-specific data
+                        } else {
+                            verificationStatusDiv.classList.remove('hidden'); // Show verification message
+                            verifiedContentDiv.classList.add('hidden'); // Hide verified content
+                        }
+                    } else {
+                        // If an admin somehow lands on student.html, redirect them
+                        showMessageBox("Access Denied: Redirecting to admin panel.", 'warning');
+                        window.location.href = 'admin.html';
+                    }
+                } else {
+                    // If user profile not found, likely a new user or error, redirect to login
+                    showMessageBox("User profile not found. Please log in again.", 'error');
+                    await signOut(auth);
+                    window.location.href = 'login.html';
+                }
+            } else {
+                // If no user is logged in, redirect to the login page
+                userId = null;
+                showMessageBox("You are not logged in. Redirecting to login page.", 'info');
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- Student Dashboard Content Loading ---
+
+        /**
+         * Loads and displays daily targets, documents, and general notes for the student dashboard.
+         * Uses Firestore's onSnapshot for real-time updates.
+         */
+        function loadStudentContent() {
+            // Listen for daily targets in real-time
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/targets`), (snapshot) => {
+                targetsList.innerHTML = ''; // Clear existing targets
+                if (snapshot.empty) {
+                    targetsList.innerHTML = '<p class="text-gray-500">No targets available yet. Check back soon!</p>';
+                    return;
+                }
+                // Iterate through target documents and create HTML elements
+                snapshot.forEach(doc => {
+                    const target = doc.data();
+                    const targetElement = `
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-semibold text-gray-800">${target.date ? new Date(target.date).toLocaleDateString() : 'No Date'}</h4>
+                            <p class="text-gray-700">${target.text}</p>
+                        </div>
+                    `;
+                    targetsList.innerHTML += targetElement;
+                });
+            }, (error) => {
+                console.error("Error fetching targets:", error);
+                showMessageBox("Failed to load daily targets. Please try again.", 'error');
+            });
+
+            // Listen for important documents in real-time
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/documents`), (snapshot) => {
+                documentsList.innerHTML = ''; // Clear existing documents
+                if (snapshot.empty) {
+                    documentsList.innerHTML = '<p class="text-gray-500">No documents available yet. New materials will be uploaded soon!</p>';
+                    return;
+                }
+                // Iterate through document documents and create HTML elements
+                snapshot.forEach(doc => {
+                    const document = doc.data();
+                    const documentElement = `
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-semibold text-gray-800">${document.title}</h4>
+                            <p class="text-gray-700 text-sm mb-2">${document.description || 'No description provided.'}</p>
+                            <a href="${document.url}" target="_blank" class="text-indigo-600 hover:underline font-medium">View Document</a>
+                        </div>
+                    `;
+                    documentsList.innerHTML += documentElement;
+                });
+            }, (error) => {
+                console.error("Error fetching documents:", error);
+                showMessageBox("Failed to load documents. Please try again.", 'error');
+            });
+
+            // Listen for general notes in real-time
+            onSnapshot(collection(db, `artifacts/${appId}/public/data/notes`), (snapshot) => {
+                notesList.innerHTML = ''; // Clear existing notes
+                if (snapshot.empty) {
+                    notesList.innerHTML = '<p class="text-gray-500">No general notes available yet.</p>';
+                    return;
+                }
+                // Iterate through note documents and create HTML elements
+                snapshot.forEach(doc => {
+                    const note = doc.data();
+                    const noteElement = `
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h4 class="text-lg font-semibold text-gray-800">${note.title}</h4>
+                            <p class="text-gray-700">${note.text}</p>
+                        </div>
+                    `;
+                    notesList.innerHTML += noteElement;
+                });
+            }, (error) => {
+                console.error("Error fetching notes:", error);
+                showMessageBox("Failed to load general notes. Please try again.", 'error');
+            });
+        }
+    </script>
+</body>
+</html>

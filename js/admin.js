@@ -176,21 +176,18 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = `<tr><td colspan="${colspan}" class="py-4 text-center text-gray-500">Loading ${collectionName}...</td></tr>`;
 
         try {
-            // Order by date for current affairs to show latest first
             const q = window.collection(window.db, `artifacts/${window.appId}/public/data/${collectionName}`);
-            // Note: Firebase `orderBy` requires an index. If you encounter errors, remove `orderBy`
-            // and sort in JavaScript after fetching. For now, let's assume it's fine or you'll add index.
-            // const qWithOrder = collectionName === 'currentAffairs' ? window.query(q, window.orderBy('date', 'desc')) : q;
 
             // Use onSnapshot for real-time updates
-            window.onSnapshot(q, (querySnapshot) => { // Use q directly, without orderBy for now
+            window.onSnapshot(q, (querySnapshot) => {
                 let htmlContent = '';
                 if (querySnapshot.empty) {
                     htmlContent = `<tr><td colspan="${colspan}" class="py-4 text-center text-gray-600">No ${collectionName} added yet.</td></tr>`;
                 } else {
-                    // Sort by date in JavaScript if orderBy in query is problematic or not used
-                    const sortedDocs = querySnapshot.docs.sort((a, b) => {
+                    // Sort by date in JavaScript for current affairs, otherwise no specific sorting
+                    const sortedDocs = Array.from(querySnapshot.docs).sort((a, b) => {
                         if (collectionName === 'currentAffairs') {
+                            // Assuming 'date' is in YYYY-MM-DD format for string comparison
                             return new Date(b.data().date) - new Date(a.data().date); // Descending date
                         }
                         return 0; // No specific sorting for other collections

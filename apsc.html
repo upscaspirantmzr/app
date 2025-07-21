@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPSC Ascent - Ace the UPSC Exam</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light gray background */
+            line-height: 1.6;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Subtle background pattern for hero section - inspired by image */
+        .bg-hero-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+            }
+            0% { opacity: 0; transform: scale3d(.3, .3, .3); }
+            20% { transform: scale3d(1.1, 1.1, 1.1); }
+            40% { transform: scale3d(.9, .9, .9); }
+            60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+            80% { transform: scale3d(.97, .97, .97); }
+            100% { opacity: 1; transform: scale3d(1, 1, 1); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fade-in-down { animation: fadeInDown 0.8s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards 0.2s; }
+        .animate-bounce-in { animation: bounceIn 1s ease-out forwards 0.4s; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header - Directly embedded for immediate visibility -->
+    <header class="bg-white text-gray-800 p-4 shadow-md fixed w-full z-10">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <a href="index.html" class="text-3xl font-bold mb-2 md:mb-0 text-blue-800">UPSC</a>
+            <nav>
+                <ul class="flex flex-wrap justify-center md:justify-end space-x-4 md:space-x-6">
+                    <li>
+                        <a href="index.html" class="text-lg font-medium hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-md">Home</a>
+                    </li>
+                    <li>
+                        <a href="syllabus.html" class="text-lg font-medium hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-md">Syllabus</a>
+                    </li>
+                    <li>
+                        <a href="study-planner.html" class="text-lg font-medium hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-md">Study Planner</a>
+                    </li>
+                    <li>
+                        <a href="study-material.html" class="text-lg font-medium hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-md">Study Material</a>
+                    </li>
+                    <li>
+                        <a href="current-affairs.html" class="text-lg font-medium hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-md">Current Affairs & Quizzes</a>
+                    </li>
+                    <li>
+                        <a href="pyqs.html" class="text-lg font-medium hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-md">PYQs</a>
+                    </li>
+                    <li>
+                        <a href="answer-writing.html" class="text-lg font-medium hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-md">Answer Writing</a>
+                    </li>
+                    <li>
+                        <a href="admin.html" class="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-200 shadow-md">Admin Login</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow pt-20 md:pt-24">
+        <!-- Hero Section - Designed to match the image -->
+        <section class="bg-blue-50 relative overflow-hidden py-12 md:py-20">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
+                <!-- Left Content -->
+                <div class="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
+                    <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight mb-4 animate-fade-in-down">
+                        ACE THE <br class="hidden md:block"> UPSC EXAM
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-700 mb-8 animate-fade-in-up">
+                        UPSC Exam Preparation Portal <br class="hidden md:block"> Developed by an Aspirant
+                    </p>
+                    <a href="study-material.html" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-lg transform hover:scale-105 animate-bounce-in">
+                        Get Started
+                    </a>
+                </div>
+
+                <!-- Right Image/Illustration -->
+                <div class="md:w-1/2 flex justify-center md:justify-end">
+                    <!-- Placeholder for the illustration. In a real scenario, you'd use an SVG or image here. -->
+                    <img src="https://placehold.co/500x350/E0E7FF/3B82F6?text=UPSC+Aspirant+Illustration" alt="UPSC Aspirant Illustration" class="max-w-full h-auto rounded-lg shadow-xl animate-fade-in">
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features Section - Designed to match the image -->
+        <section class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature Card 1: Free Courses (Placeholder, will be Study Material) -->
+                <div class="bg-white p-8 rounded-xl shadow-md text-center border border-gray-100 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in">
+                    <i data-lucide="video" class="mx-auto text-blue-600 mb-4 w-12 h-12"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Free Courses</h3>
+                    <p class="text-gray-600 leading-relaxed">Access high-quality courses covering the entire UPSC syllabus.</p>
+                </div>
+                <!-- Feature Card 2: Mock Tests -->
+                <div class="bg-white p-8 rounded-xl shadow-md text-center border border-gray-100 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in">
+                    <i data-lucide="clipboard-check" class="mx-auto text-blue-600 mb-4 w-12 h-12"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Mock Tests</h3>
+                    <p class="text-gray-600 leading-relaxed">Take mock exams to simulate the real test and assess your performance.</p>
+                </div>
+                <!-- Feature Card 3: Study Materials -->
+                <div class="bg-white p-8 rounded-xl shadow-md text-center border border-gray-100 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in">
+                    <i data-lucide="book" class="mx-auto text-blue-600 mb-4 w-12 h-12"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Study Materials</h3>
+                    <p class="text-gray-600 leading-relaxed">Download notes, reference books, and other study resources.</p>
+                </div>
+                <!-- Feature Card 4: Current Affairs -->
+                <div class="bg-white p-8 rounded-xl shadow-md text-center border border-gray-100 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in">
+                    <i data-lucide="newspaper" class="mx-auto text-blue-600 mb-4 w-12 h-12"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Current Affairs</h3>
+                    <p class="text-gray-600 leading-relaxed">Stay updated with daily news analysis and important events.</p>
+                </div>
+                <!-- Feature Card 5: PYQs -->
+                <div class="bg-white p-8 rounded-xl shadow-md text-center border border-gray-100 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in">
+                    <i data-lucide="history" class="mx-auto text-blue-600 mb-4 w-12 h-12"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Previous Year Questions</h3>
+                    <p class="text-gray-600 leading-relaxed">Practice with past year question papers for better preparation.</p>
+                </div>
+                <!-- Feature Card 6: Answer Writing -->
+                <div class="bg-white p-8 rounded-xl shadow-md text-center border border-gray-100 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1 animate-fade-in">
+                    <i data-lucide="pencil-ruler" class="mx-auto text-blue-600 mb-4 w-12 h-12"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Answer Writing Practice</h3>
+                    <p class="text-gray-600 leading-relaxed">Improve your answer writing skills with guided practice.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Latest Current Affairs Section (Dynamic Content) -->
+        <section class="container mx-auto px-4 py-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-10">Latest Current Affairs</h2>
+            <div id="latest-current-affairs-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Current affairs cards will be loaded here by common.js -->
+                <p class="text-center text-gray-500 col-span-full py-8">Loading latest current affairs...</p>
+            </div>
+            <div class="text-center mt-10">
+                <a href="current-affairs.html" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md transform hover:scale-105">
+                    View All Current Affairs
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer - Directly embedded -->
+    <footer class="bg-gray-800 text-white p-6 text-center mt-12 rounded-t-lg shadow-inner">
+        <div class="container mx-auto">
+            <p class="mb-2">&copy; ${new Date().getFullYear()} UPSC Ascent. All rights reserved.</p>
+            <p class="text-sm opacity-80">Designed for UPSC Aspirants with dedication and precision.</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Privacy Policy</a>
+                <span class="text-gray-500">|</span>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Terms of Service</a>
+                <span class="text-gray-500">|</span>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs - Initialized here for direct page access -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, query, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Global variables for Firebase instances
+        window.firebaseApp = null;
+        window.db = null;
+        window.auth = null;
+        window.userId = null;
+        window.isAuthReady = false; // Flag to indicate auth state is ready
+
+        // Firebase configuration and app ID from the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        window.firebaseApp = initializeApp(firebaseConfig);
+        window.db = getFirestore(window.firebaseApp);
+        window.auth = getAuth(window.firebaseApp);
+
+        // Authenticate user
+        async function authenticateUser() {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(window.auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(window.auth);
+                }
+                console.log("Firebase authentication successful.");
+            } catch (error) {
+                console.error("Firebase authentication failed:", error);
+            }
+        }
+
+        // Listen for auth state changes and trigger content load
+        onAuthStateChanged(window.auth, (user) => {
+            if (user) {
+                window.userId = user.uid;
+                console.log("User ID:", window.userId);
+            } else {
+                window.userId = null;
+                console.log("No user signed in.");
+            }
+            window.isAuthReady = true; // Set flag when auth state is determined
+            // Trigger content loading for the current page once auth is ready
+            if (window.loadPageContent) { // Check if common.js is loaded
+                window.loadPageContent();
+            }
+        });
+
+        // Call authentication function
+        authenticateUser();
+
+        // Make Firebase functions globally available for common.js
+        window.getFirestore = getFirestore;
+        window.collection = collection;
+        window.query = query;
+        window.limit = limit;
+        window.getDocs = getDocs;
+
+        // Custom modal function (instead of alert/confirm)
+        window.showCustomModal = function(title, message, type = 'info', callback = null) {
+            const modalId = 'custom-modal-' + Date.now();
+            const modalHtml = `
+                <div id="${modalId}" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-auto p-6 transform transition-all duration-300 scale-95 opacity-0" style="animation: modal-fade-in 0.3s forwards;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold ${type === 'error' ? 'text-red-600' : 'text-blue-600'}">${title}</h3>
+                            <button class="text-gray-500 hover:text-gray-700 close-modal-btn" data-modal-id="${modalId}">&times;</button>
+                        </div>
+                        <p class="text-gray-700 mb-6">${message}</p>
+                        <div class="flex justify-end">
+                            <button class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 close-modal-btn" data-modal-id="${modalId}">OK</button>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes modal-fade-in {
+                        from { opacity: 0; transform: scale(0.95); }
+                        to { opacity: 1; transform: scale(1); }
+                    }
+                    @keyframes modal-fade-out {
+                        from { opacity: 1; transform: scale(1); }
+                        to { opacity: 0; transform: scale(0.95); }
+                    }
+                </style>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            const modalElement = document.getElementById(modalId);
+            modalElement.querySelectorAll('.close-modal-btn').forEach(button => {
+                button.onclick = () => {
+                    modalElement.style.animation = 'modal-fade-out 0.3s forwards';
+                    modalElement.addEventListener('animationend', () => modalElement.remove());
+                    if (callback) callback();
+                };
+            });
+        };
+    </script>
+    <!-- Common JavaScript for content loading based on page -->
+    <script type="module" src="js/common.js"></script>
+    <script>
+        // Initialize Lucide icons after content is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

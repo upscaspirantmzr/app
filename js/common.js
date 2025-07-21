@@ -88,7 +88,7 @@ window.loadContent = function(collectionName, containerId, limitCount = null) {
 window.loadPageContent = function() {
     const path = window.location.pathname;
 
-    if (path.includes('index.html') || path === '/') {
+    if (path.includes('index.html') || path === '/' || path.includes('apsc.html')) { // Added apsc.html check
         window.loadContent('currentAffairs', 'latest-current-affairs-container', 3); // Load 3 latest for home
     } else if (path.includes('syllabus.html')) {
         window.loadContent('syllabus', 'syllabus-container');

@@ -99,6 +99,38 @@
         .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards 0.2s; }
         .animate-bounce-in { animation: bounceIn 1s ease-out forwards 0.4s; }
         .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+
+        /* Styling for current affairs cards on index page */
+        .ca-index-card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem;
+        }
+        .ca-index-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+        }
+        .ca-index-card .ca-link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            background-color: #3B82F6;
+            color: white;
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            margin-top: auto;
+        }
+        .ca-index-card .ca-link-btn:hover {
+            background-color: #2563EB;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -227,7 +259,7 @@
         <section class="container mx-auto px-4 py-12 md:py-16">
             <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-10">Latest Current Affairs</h2>
             <div id="latest-current-affairs-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Current affairs cards will be loaded here by common.js -->
+                <!-- Current affairs cards will be loaded here by JS -->
                 <p class="text-center text-gray-500 col-span-full py-8">Loading latest current affairs...</p>
             </div>
             <div class="text-center mt-10">
@@ -243,16 +275,20 @@
         <div class="container mx-auto">
             <p class="mb-2">&copy; 2025 UPSC Ascent. All rights reserved.</p>
             <p class="text-sm opacity-80">Designed for UPSC Aspirants with dedication and precision.</p>
-            
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Privacy Policy</a>
+                <span class="text-gray-500">|</span>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Terms of Service</a>
+                <span class="text-gray-500">|</span>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Contact Us</a>
+            </div>
         </div>
     </footer>
 
-    <!-- Firebase SDKs - Initialized here for direct page access -->
+    <!-- Firebase SDKs and Integrated JavaScript -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        // Removed signInAnonymously as it's not needed for public read access with the new rules
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, query, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, query, limit, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -266,115 +302,31 @@
         };
 
         // Global variables for Firebase instances
-        window.firebaseApp = null;
-        window.db = null;
-        window.auth = null;
-        window.userId = null; // Will be null for unauthenticated users
-        window.appId = firebaseConfig.appId.split(':')[1]; // Extract appId from the provided config
-        window.isAuthReady = false; // Flag to indicate Firebase is initialized
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const currentAppId = firebaseConfig.appId.split(':')[1]; // Extract appId from the provided config
 
-        // Initialize Firebase
-        window.firebaseApp = initializeApp(firebaseConfig);
-        window.db = getFirestore(window.firebaseApp);
-        window.auth = getAuth(window.firebaseApp);
+        // Store unsubscribe functions for real-time listeners to prevent memory leaks
+        const unsubscribeFunctions = {};
 
-        // No explicit authentication call needed for public read access with new rules.
-        // onAuthStateChanged will still fire, but user will be null.
-        onAuthStateChanged(window.auth, (user) => {
-            if (user) {
-                window.userId = user.uid;
-                console.log("User ID (if authenticated):", window.userId);
-            } else {
-                window.userId = null;
-                console.log("No user authenticated (public read allowed).");
-            }
-            window.isAuthReady = true; // Firebase is initialized and auth state determined
-            // Trigger content loading for the current page once Firebase is ready
-            if (window.loadPageContent) { // Check if common.js is loaded
-                window.loadPageContent();
-            }
-        });
-
-        // Make Firebase functions globally available for common.js
-        window.getFirestore = getFirestore;
-        window.collection = collection;
-        window.query = query;
-        window.limit = limit;
-        window.onSnapshot = onSnapshot; // Ensure onSnapshot is available
-
-        // Custom modal function (instead of alert/confirm)
-        window.showCustomModal = function(title, message, type = 'info', callback = null) {
-            const modalId = 'custom-modal-' + Date.now();
-            const modalHtml = `
-                <div id="${modalId}" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-                    <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-auto p-6 transform transition-all duration-300 scale-95 opacity-0" style="animation: modal-fade-in 0.3s forwards;">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-xl font-semibold ${type === 'error' ? 'text-red-600' : 'text-blue-600'}">${title}</h3>
-                            <button class="text-gray-500 hover:text-gray-700 close-modal-btn" data-modal-id="${modalId}">&times;</button>
-                        </div>
-                        <p class="text-gray-700 mb-6">${message}</p>
-                        <div class="flex justify-end">
-                            <button class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 close-modal-btn" data-modal-id="${modalId}">OK</button>
-                        </div>
+        // Function to create HTML for a current affairs card on the index page
+        function createCurrentAffairsIndexCardHtml(item) {
+            const previewContent = (item.summaryContent || 'No summary available.').substring(0, 150) + (item.summaryContent && item.summaryContent.length > 150 ? '...' : '');
+            return `
+                <div class="ca-index-card animate-fade-in">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${item.summaryTitle || 'Daily Current Affairs'}</h3>
+                        ${item.date ? `<p class="text-sm text-gray-500 mb-2">${item.date}</p>` : ''}
+                        <p class="text-gray-600 mb-4">${previewContent}</p>
                     </div>
+                    <a href="current-affairs.html" class="ca-link-btn">
+                        View Daily Digest
+                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
                 </div>
-                <style>
-                    @keyframes modal-fade-in {
-                        from { opacity: 0; transform: scale(0.95); }
-                        to { opacity: 1; transform: scale(1); }
-                    }
-                    @keyframes modal-fade-out {
-                        from { opacity: 1; transform: scale(1); }
-                        to { opacity: 0; transform: scale(0.95); }
-                    }
-                </style>
             `;
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
 
-            const modalElement = document.getElementById(modalId);
-            modalElement.querySelectorAll('.close-modal-btn').forEach(button => {
-                button.onclick = () => {
-                    modalElement.style.animation = 'modal-fade-out 0.3s forwards';
-                    modalElement.addEventListener('animationend', () => modalElement.remove());
-                    if (callback) callback();
-                };
-            });
-        };
-    </script>
-    <!-- Common JavaScript for content loading based on page -->
-    <script type="module" src="js/common.js"></script>
-    <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const closeMobileMenuButton = document.getElementById('close-mobile-menu');
-            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-            const mobileMenu = mobileMenuOverlay.querySelector('div');
-
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenuOverlay.classList.remove('hidden');
-                setTimeout(() => {
-                    mobileMenu.classList.remove('translate-x-full');
-                }, 10); // Small delay to allow display change to register
-            });
-
-            closeMobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.add('translate-x-full');
-                mobileMenu.addEventListener('transitionend', () => {
-                    mobileMenuOverlay.classList.add('hidden');
-                }, { once: true });
-            });
-
-            // Close mobile menu if a link is clicked
-            mobileMenu.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenu.classList.add('translate-x-full');
-                    mobileMenu.addEventListener('transitionend', () => {
-                        mobileMenuOverlay.classList.add('hidden');
-                    }, { once: true });
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+        /**
+         * Generic function to load content for a given collection using real-time listeners (onSnapshot).
+         * @param {string} collectionName - 

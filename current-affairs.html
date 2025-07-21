@@ -37,6 +37,86 @@
             to { opacity: 1; }
         }
         .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+
+        /* Specific styling for daily digest cards */
+        .daily-digest-card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+            transition: all 0.3s ease;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+            margin-bottom: 1.5rem; /* Spacing between digests */
+        }
+        .daily-digest-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Even larger shadow on hover */
+            transform: translateY(-5px); /* Lift effect */
+        }
+
+        .daily-digest-summary {
+            display: block; /* Make summary fill width for click area */
+            padding: 1.5rem;
+            cursor: pointer;
+            background-color: #E0F2F7; /* Light blue background for summary */
+            border-bottom: 1px solid #B3E5FC; /* Light blue border */
+            font-weight: 600;
+            color: #2D3748;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.25rem; /* text-xl */
+            border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners */
+        }
+        details[open] .daily-digest-summary {
+            border-bottom: 1px solid #90CAF9; /* Darker border when open */
+        }
+        .daily-digest-content {
+            padding: 1.5rem;
+            line-height: 1.8;
+            color: #4A5568;
+            font-size: 1rem;
+        }
+        .daily-digest-content p {
+            margin-bottom: 1rem; /* Spacing for paragraphs within content */
+        }
+        .daily-digest-content ul, .daily-digest-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            list-style-type: disc; /* Default list style */
+        }
+        .daily-digest-content ol {
+            list-style-type: decimal;
+        }
+        .daily-digest-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .daily-digest-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            background-color: #3B82F6; /* blue-500 */
+            color: white;
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            margin-top: 1rem; /* Space above button */
+        }
+        .daily-digest-link:hover {
+            background-color: #2563EB; /* blue-600 */
+            transform: translateY(-2px);
+        }
+
+        /* Arrow icon for expand/collapse */
+        .daily-digest-summary::after {
+            content: '▼'; /* Down arrow */
+            margin-left: 1rem;
+            transition: transform 0.2s;
+        }
+        details[open] .daily-digest-summary::after {
+            content: '▲'; /* Up arrow */
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -82,13 +162,15 @@
         </div>
     </header>
 
-    <main class="flex-grow pt-20"> <!-- Added pt-20 to account for fixed header -->
+    <main class="flex-grow pt-24 pb-12"> <!-- Adjusted padding for header and footer -->
         <section class="container mx-auto px-4 py-8">
-            <h1 class="text-4xl font-bold text-center text-gray-800 mb-10">Current Affairs & Quizzes</h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-center text-gray-800 mb-12 leading-tight">
+                Daily Current Affairs <br class="md:hidden"> & Quizzes
+            </h1>
 
-            <div id="current-affairs-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="current-affairs-container" class="grid grid-cols-1 gap-6">
                 <!-- Current affairs and quizzes will be loaded here by JS -->
-                <p class="text-center text-gray-500 col-span-full py-8">Loading current affairs...</p>
+                <p class="text-center text-gray-500 col-span-full py-8 text-lg">Loading daily digests...</p>
             </div>
         </section>
     </main>
@@ -111,7 +193,7 @@
     <!-- Firebase SDKs and Integrated JavaScript -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, query, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, query, limit, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -132,17 +214,25 @@
         // Store unsubscribe functions for real-time listeners to prevent memory leaks
         const unsubscribeFunctions = {};
 
-        // Card Component HTML structure (used by content-loading functions)
-        function createCardHtml(item) {
+        // Function to create HTML for a daily digest
+        function createDailyDigestHtml(item) {
             return `
-                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 transform hover:-translate-y-1 animate-fade-in">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">${item.title || 'No Title'}</h3>
-                    ${item.date ? `<p class="text-sm text-gray-500 mb-2">${item.date}</p>` : ''}
-                    <p class="text-gray-600 mb-4">${item.description || 'No description available.'}</p>
-                    <a href="${item.link || '#'}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center">
-                        Read More
-                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
-                    </a>
+                <div class="daily-digest-card animate-fade-in">
+                    <details>
+                        <summary class="daily-digest-summary">
+                            <span>${item.summaryTitle || 'Daily Current Affairs'}</span>
+                            <span class="text-sm font-normal text-gray-600">${item.date || 'N/A'}</span>
+                        </summary>
+                        <div class="daily-digest-content">
+                            ${item.summaryContent ? `<p>${item.summaryContent.replace(/\n/g, '<br>')}</p>` : '<p>No detailed summary available.</p>'}
+                            ${item.dailyReportLink ? `
+                                <a href="${item.dailyReportLink}" target="_blank" class="daily-digest-link">
+                                    View Full Report
+                                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </details>
                 </div>
             `;
         }
@@ -166,10 +256,14 @@
                 delete unsubscribeFunctions[containerId];
             }
 
-            container.innerHTML = `<p class="text-center text-gray-500 col-span-full py-8">Loading ${collectionName}...</p>`;
+            container.innerHTML = `<p class="text-center text-gray-500 col-span-full py-8 text-lg">Loading ${collectionName}...</p>`;
 
             try {
                 let q = collection(db, `artifacts/${currentAppId}/public/data/${collectionName}`);
+                // Order by date in descending order for current affairs
+                if (collectionName === 'currentAffairs') {
+                    q = query(q, orderBy('date', 'desc'));
+                }
                 if (limitCount) {
                     q = query(q, limit(limitCount));
                 }
@@ -178,11 +272,28 @@
                 const unsubscribe = onSnapshot(q, (querySnapshot) => {
                     let htmlContent = '';
                     if (querySnapshot.empty) {
-                        htmlContent = `<p class="text-center text-gray-600 text-lg col-span-full py-8">No ${collectionName} available yet. Check back soon!</p>`;
+                        htmlContent = `<p class="text-center text-gray-600 text-xl col-span-full py-8">No ${collectionName} available yet. Check back soon!</p>`;
                     } else {
                         querySnapshot.forEach((doc) => {
                             const data = doc.data();
-                            htmlContent += createCardHtml(data);
+                            if (collectionName === 'currentAffairs') {
+                                htmlContent += createDailyDigestHtml(data);
+                            } else {
+                                // Fallback for other collections if this script were used for them
+                                // For index.html, it will use createDailyDigestHtml for currentAffairs
+                                // For other pages, they would have their own specific createCardHtml
+                                htmlContent += `
+                                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 transform hover:-translate-y-1 animate-fade-in">
+                                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${data.title || 'No Title'}</h3>
+                                        ${data.date ? `<p class="text-sm text-gray-500 mb-2">${data.date}</p>` : ''}
+                                        <p class="text-gray-600 mb-4">${data.description || 'No description available.'}</p>
+                                        <a href="${data.link || '#'}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                                            Read More
+                                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </a>
+                                    </div>
+                                `;
+                            }
                         });
                     }
                     container.innerHTML = htmlContent;

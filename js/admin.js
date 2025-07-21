@@ -21,13 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const smTableBody = document.getElementById('sm-table-body');
     const smCancelEditBtn = document.getElementById('sm-cancel-edit');
 
-    // Current Affairs
+    // Current Affairs - UPDATED ELEMENTS
     const caForm = document.getElementById('current-affairs-form');
     const caDocId = document.getElementById('ca-doc-id');
-    const caTitle = document.getElementById('ca-title');
-    const caDescription = document.getElementById('ca-description');
-    const caDate = document.getElementById('ca-date');
-    const caLink = document.getElementById('ca-link');
+    const caDate = document.getElementById('ca-date'); // This will be the document ID
+    const caSummaryTitle = document.getElementById('ca-summary-title');
+    const caSummaryContent = document.getElementById('ca-summary-content');
+    const caDailyReportLink = document.getElementById('ca-daily-report-link');
     const caTableBody = document.getElementById('ca-table-body');
     const caCancelEditBtn = document.getElementById('ca-cancel-edit');
 
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let colspan;
         switch (collectionName) {
             case 'studyMaterials': tableBody = smTableBody; colspan = 4; break;
-            case 'currentAffairs': tableBody = caTableBody; colspan = 5; break;
+            case 'currentAffairs': tableBody = caTableBody; colspan = 5; break; // Colspan might change
             case 'pyqs': tableBody = pyqsTableBody; colspan = 5; break;
             case 'answerWriting': tableBody = awTableBody; colspan = 4; break;
             case 'syllabus': tableBody = syllTableBody; colspan = 4; break;
@@ -176,21 +176,33 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = `<tr><td colspan="${colspan}" class="py-4 text-center text-gray-500">Loading ${collectionName}...</td></tr>`;
 
         try {
+            // Order by date for current affairs to show latest first
             const q = window.collection(window.db, `artifacts/${window.appId}/public/data/${collectionName}`);
+            // Note: Firebase `orderBy` requires an index. If you encounter errors, remove `orderBy`
+            // and sort in JavaScript after fetching. For now, let's assume it's fine or you'll add index.
+            // const qWithOrder = collectionName === 'currentAffairs' ? window.query(q, window.orderBy('date', 'desc')) : q;
+
             // Use onSnapshot for real-time updates
-            window.onSnapshot(q, (querySnapshot) => {
+            window.onSnapshot(q, (querySnapshot) => { // Use q directly, without orderBy for now
                 let htmlContent = '';
                 if (querySnapshot.empty) {
                     htmlContent = `<tr><td colspan="${colspan}" class="py-4 text-center text-gray-600">No ${collectionName} added yet.</td></tr>`;
                 } else {
-                    querySnapshot.forEach((doc) => {
+                    // Sort by date in JavaScript if orderBy in query is problematic or not used
+                    const sortedDocs = querySnapshot.docs.sort((a, b) => {
+                        if (collectionName === 'currentAffairs') {
+                            return new Date(b.data().date) - new Date(a.data().date); // Descending date
+                        }
+                        return 0; // No specific sorting for other collections
+                    });
+
+                    sortedDocs.forEach((doc) => {
                         const data = doc.data();
                         const docId = doc.id;
                         htmlContent += createTableRow(collectionName, docId, data);
                     });
                 }
                 tableBody.innerHTML = htmlContent;
-                // No specific JS call needed for SVG icons; they are rendered by the browser.
             }, (error) => {
                 console.error(`Error listening to ${collectionName}:`, error);
                 tableBody.innerHTML = `<tr><td colspan="${colspan}" class="py-4 text-center text-red-600">Failed to load ${collectionName}.</td></tr>`;
@@ -207,32 +219,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper to create table rows for each content type
     function createTableRow(collectionName, docId, data) {
         let cells = '';
-        let descriptionPreview = (data.description || data.content || data.topic || '').substring(0, 70);
-        if ((data.description || data.content || data.topic || '').length > 70) {
-            descriptionPreview += '...';
+        let contentPreview = (data.description || data.content || data.topic || data.summaryContent || '').substring(0, 70);
+        if ((data.description || data.content || data.topic || data.summaryContent || '').length > 70) {
+            contentPreview += '...';
         }
 
         switch (collectionName) {
             case 'studyMaterials':
                 cells = `
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.title || 'N/A'}</td>
-                    <td class="py-3 px-6 text-left">${descriptionPreview}</td>
+                    <td class="py-3 px-6 text-left">${contentPreview}</td>
                     <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
-            case 'currentAffairs':
+            case 'currentAffairs': // UPDATED FOR DAILY DIGEST
                 cells = `
-                    <td class="py-3 px-6 text-left whitespace-nowrap">${data.title || 'N/A'}</td>
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.date || 'N/A'}</td>
-                    <td class="py-3 px-6 text-left">${descriptionPreview}</td>
-                    <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
+                    <td class="py-3 px-6 text-left whitespace-nowrap">${data.summaryTitle || 'N/A'}</td>
+                    <td class="py-3 px-6 text-left">${contentPreview}</td>
+                    <td class="py-3 px-6 text-left"><a href="${data.dailyReportLink || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.dailyReportLink ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
             case 'pyqs':
                 cells = `
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.year || 'N/A'}</td>
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.paper || 'N/A'}</td>
-                    <td class="py-3 px-6 text-left">${descriptionPreview}</td>
+                    <td class="py-3 px-6 text-left">${contentPreview}</td>
                     <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
@@ -246,14 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'syllabus':
                 cells = `
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.title || 'N/A'}</td>
-                    <td class="py-3 px-6 text-left">${descriptionPreview}</td>
+                    <td class="py-3 px-6 text-left">${contentPreview}</td>
                     <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
             case 'studyPlanners':
                 cells = `
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.title || 'N/A'}</td>
-                    <td class="py-3 px-6 text-left">${descriptionPreview}</td>
+                    <td class="py-3 px-6 text-left">${contentPreview}</td>
                     <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
@@ -289,16 +301,32 @@ document.addEventListener('DOMContentLoaded', () => {
             data[field.name] = field.element.value || '';
         });
 
-        try {
-            if (docId) {
-                // Update existing document
-                await window.updateDoc(window.doc(window.db, `artifacts/${window.appId}/public/data/${collectionName}`, docId), data);
-                window.showCustomModal('Success', `${collectionName.slice(0, -1)} updated successfully!`, 'info');
-            } else {
-                // Add new document
-                await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/public/data/${collectionName}`), data);
-                window.showCustomModal('Success', `${collectionName.slice(0, -1)} added successfully!`, 'info');
+        // Special handling for Current Affairs to use date as doc ID
+        let targetDocId = docId;
+        if (collectionName === 'currentAffairs') {
+            targetDocId = caDate.value; // Use the date as the document ID
+            if (!targetDocId) {
+                window.showCustomModal('Error', 'Date is required for Current Affairs digest.', 'error');
+                return;
             }
+        }
+
+        try {
+            if (targetDocId) { // Check if we have a doc ID (for update or new with specific ID)
+                const docRef = window.doc(window.db, `artifacts/${window.appId}/public/data/${collectionName}`, targetDocId);
+                // Use setDoc with merge: true for updates, or addDoc for new if no specific ID
+                if (docId) { // This means it's an existing document being edited
+                    await window.setDoc(docRef, data, { merge: true }); // Use setDoc with merge for updates
+                    window.showCustomModal('Success', `${collectionName.slice(0, -1)} updated successfully!`, 'info');
+                } else { // This means it's a brand new document with a date-based ID
+                    await window.setDoc(docRef, data); // Use setDoc for creating with specific ID
+                    window.showCustomModal('Success', `${collectionName.slice(0, -1)} added successfully!`, 'info');
+                }
+            } else { // Fallback for other collections if docIdField is empty and no specific ID logic
+                 await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/public/data/${collectionName}`), data);
+                 window.showCustomModal('Success', `${collectionName.slice(0, -1)} added successfully!`, 'info');
+            }
+
             e.target.reset(); // Clear form
             docIdField.value = ''; // Clear doc ID
             cancelEditBtn.classList.add('hidden'); // Hide cancel button
@@ -317,10 +345,10 @@ document.addEventListener('DOMContentLoaded', () => {
     ], smCancelEditBtn));
 
     caForm.addEventListener('submit', (e) => handleFormSubmit(e, 'currentAffairs', caDocId, [
-        { name: 'title', element: caTitle },
-        { name: 'description', element: caDescription },
-        { name: 'date', element: caDate },
-        { name: 'link', element: caLink }
+        { name: 'date', element: caDate }, // Date is now part of data and used as doc ID
+        { name: 'summaryTitle', element: caSummaryTitle },
+        { name: 'summaryContent', element: caSummaryContent },
+        { name: 'dailyReportLink', element: caDailyReportLink }
     ], caCancelEditBtn));
 
     pyqsForm.addEventListener('submit', (e) => handleFormSubmit(e, 'pyqs', pyqsDocId, [
@@ -375,13 +403,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             smLink.value = data.link || '';
                             cancelEditBtn = smCancelEditBtn;
                             break;
-                        case 'currentAffairs':
+                        case 'currentAffairs': // UPDATED FOR DAILY DIGEST
                             formToFill = caForm;
                             docIdField = caDocId;
-                            caTitle.value = data.title || '';
-                            caDescription.value = data.description || '';
-                            caDate.value = data.date || '';
-                            caLink.value = data.link || '';
+                            caDate.value = data.date || ''; // Populate date field
+                            caSummaryTitle.value = data.summaryTitle || '';
+                            caSummaryContent.value = data.summaryContent || '';
+                            caDailyReportLink.value = data.dailyReportLink || '';
                             cancelEditBtn = caCancelEditBtn;
                             break;
                         case 'pyqs':

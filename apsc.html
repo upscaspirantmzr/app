@@ -256,8 +256,9 @@
     <!-- Firebase SDKs - Initialized here for direct page access -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, query, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // Removed signInAnonymously as it's not needed for public read access with the new rules
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, query, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -274,56 +275,112 @@
         window.firebaseApp = null;
         window.db = null;
         window.auth = null;
-        window.userId = null;
+        window.userId = null; // Will be null for unauthenticated users
         window.appId = firebaseConfig.appId.split(':')[1]; // Extract appId from the provided config
-        window.isAuthReady = false; // Flag to indicate auth state is ready
+        window.isAuthReady = false; // Flag to indicate Firebase is initialized
 
         // Initialize Firebase
         window.firebaseApp = initializeApp(firebaseConfig);
         window.db = getFirestore(window.firebaseApp);
         window.auth = getAuth(window.firebaseApp);
 
-        // Authenticate user anonymously for public access (READ ONLY)
-        async function authenticateUser() {
-            try {
-                await signInAnonymously(window.auth);
-                console.log("Firebase anonymous authentication successful for public access.");
-            } catch (error) {
-                console.error("Firebase anonymous authentication failed:", error);
-                // If anonymous auth fails, perhaps due to rules, log it but don't block page.
-                // The loadContent function will handle read failures.
-            }
-        }
-
-        // Listen for auth state changes and trigger content load
+        // No explicit authentication call needed for public read access with new rules.
+        // onAuthStateChanged will still fire, but user will be null.
         onAuthStateChanged(window.auth, (user) => {
             if (user) {
                 window.userId = user.uid;
-                console.log("User ID:", window.userId);
+                console.log("User ID (if authenticated):", window.userId);
             } else {
                 window.userId = null;
-                console.log("No user signed in (anonymous or otherwise).");
+                console.log("No user authenticated (public read allowed).");
             }
-            window.isAuthReady = true; // Set flag when auth state is determined
-            // Trigger content loading for the current page once auth is ready
+            window.isAuthReady = true; // Firebase is initialized and auth state determined
+            // Trigger content loading for the current page once Firebase is ready
             if (window.loadPageContent) { // Check if common.js is loaded
                 window.loadPageContent();
             }
         });
-
-        // Call authentication function
-        authenticateUser();
 
         // Make Firebase functions globally available for common.js
         window.getFirestore = getFirestore;
         window.collection = collection;
         window.query = query;
         window.limit = limit;
-        window.getDocs = getDocs;
+        window.onSnapshot = onSnapshot; // Ensure onSnapshot is available
 
         // Custom modal function (instead of alert/confirm)
         window.showCustomModal = function(title, message, type = 'info', callback = null) {
             const modalId = 'custom-modal-' + Date.now();
             const modalHtml = `
                 <div id="${modalId}" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-                    <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-auto p-6 transform transition-all duration-300 scale-95 opacity-0" style="animation: modal-fade-i
+                    <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-auto p-6 transform transition-all duration-300 scale-95 opacity-0" style="animation: modal-fade-in 0.3s forwards;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold ${type === 'error' ? 'text-red-600' : 'text-blue-600'}">${title}</h3>
+                            <button class="text-gray-500 hover:text-gray-700 close-modal-btn" data-modal-id="${modalId}">&times;</button>
+                        </div>
+                        <p class="text-gray-700 mb-6">${message}</p>
+                        <div class="flex justify-end">
+                            <button class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 close-modal-btn" data-modal-id="${modalId}">OK</button>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes modal-fade-in {
+                        from { opacity: 0; transform: scale(0.95); }
+                        to { opacity: 1; transform: scale(1); }
+                    }
+                    @keyframes modal-fade-out {
+                        from { opacity: 1; transform: scale(1); }
+                        to { opacity: 0; transform: scale(0.95); }
+                    }
+                </style>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            const modalElement = document.getElementById(modalId);
+            modalElement.querySelectorAll('.close-modal-btn').forEach(button => {
+                button.onclick = () => {
+                    modalElement.style.animation = 'modal-fade-out 0.3s forwards';
+                    modalElement.addEventListener('animationend', () => modalElement.remove());
+                    if (callback) callback();
+                };
+            });
+        };
+    </script>
+    <!-- Common JavaScript for content loading based on page -->
+    <script type="module" src="js/common.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const mobileMenu = mobileMenuOverlay.querySelector('div');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenuOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    mobileMenu.classList.remove('translate-x-full');
+                }, 10); // Small delay to allow display change to register
+            });
+
+            closeMobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.add('translate-x-full');
+                mobileMenu.addEventListener('transitionend', () => {
+                    mobileMenuOverlay.classList.add('hidden');
+                }, { once: true });
+            });
+
+            // Close mobile menu if a link is clicked
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('translate-x-full');
+                    mobileMenu.addEventListener('transitionend', () => {
+                        mobileMenuOverlay.classList.add('hidden');
+                    }, { once: true });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

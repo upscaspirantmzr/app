@@ -41,12 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const pyqsTableBody = document.getElementById('pyqs-table-body');
     const pyqsCancelEditBtn = document.getElementById('pyqs-cancel-edit');
 
-    // Answer Writing
+    // Answer Writing - UPDATED ELEMENTS
     const awForm = document.getElementById('answer-writing-form');
     const awDocId = document.getElementById('aw-doc-id');
-    const awTopic = document.getElementById('aw-topic');
-    const awDate = document.getElementById('aw-date');
-    const awLink = document.getElementById('aw-link');
+    const awDate = document.getElementById('aw-date'); // This will be the document ID
+    const awQuestion = document.getElementById('aw-question');
+    const awModelAnswerContent = document.getElementById('aw-model-answer-content');
+    const awDifficulty = document.getElementById('aw-difficulty');
+    const awMarks = document.getElementById('aw-marks');
+    const awTimeLimitMinutes = document.getElementById('aw-time-limit-minutes');
+    const awOfficialLink = document.getElementById('aw-official-link');
     const awTableBody = document.getElementById('aw-table-body');
     const awCancelEditBtn = document.getElementById('aw-cancel-edit');
 
@@ -165,9 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let colspan;
         switch (collectionName) {
             case 'studyMaterials': tableBody = smTableBody; colspan = 4; break;
-            case 'currentAffairs': tableBody = caTableBody; colspan = 5; break; // Colspan might change
+            case 'currentAffairs': tableBody = caTableBody; colspan = 5; break;
             case 'pyqs': tableBody = pyqsTableBody; colspan = 5; break;
-            case 'answerWriting': tableBody = awTableBody; colspan = 4; break;
+            case 'answerWriting': tableBody = awTableBody; colspan = 7; break; // Increased colspan for new fields
             case 'syllabus': tableBody = syllTableBody; colspan = 4; break;
             case 'studyPlanners': tableBody = spTableBody; colspan = 4; break;
             default: return;
@@ -184,11 +188,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (querySnapshot.empty) {
                     htmlContent = `<tr><td colspan="${colspan}" class="py-4 text-center text-gray-600">No ${collectionName} added yet.</td></tr>`;
                 } else {
-                    // Sort by date in JavaScript for current affairs, otherwise no specific sorting
+                    // Sort by date in JavaScript for current affairs and answer writing, otherwise no specific sorting
                     const sortedDocs = Array.from(querySnapshot.docs).sort((a, b) => {
-                        if (collectionName === 'currentAffairs') {
+                        if (collectionName === 'currentAffairs' || collectionName === 'answerWriting') {
                             // Assuming 'date' is in YYYY-MM-DD format for string comparison
                             return new Date(b.data().date) - new Date(a.data().date); // Descending date
+                        } else if (collectionName === 'syllabus') {
+                            const titleA = a.data().title || '';
+                            const titleB = b.data().title || '';
+                            return titleA.localeCompare(titleB); // Alphabetical sort for syllabus
                         }
                         return 0; // No specific sorting for other collections
                     });
@@ -216,8 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper to create table rows for each content type
     function createTableRow(collectionName, docId, data) {
         let cells = '';
-        let contentPreview = (data.description || data.content || data.topic || data.summaryContent || '').substring(0, 70);
-        if ((data.description || data.content || data.topic || data.summaryContent || '').length > 70) {
+        let contentPreview = (data.description || data.content || data.topic || data.summaryContent || data.question || '').substring(0, 70);
+        if ((data.description || data.content || data.topic || data.summaryContent || data.question || '').length > 70) {
             contentPreview += '...';
         }
 
@@ -245,11 +253,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
-            case 'answerWriting':
+            case 'answerWriting': // UPDATED FOR NEW FIELDS
                 cells = `
-                    <td class="py-3 px-6 text-left whitespace-nowrap">${data.topic || 'N/A'}</td>
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.date || 'N/A'}</td>
-                    <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
+                    <td class="py-3 px-6 text-left">${contentPreview}</td>
+                    <td class="py-3 px-6 text-left">${data.difficulty || 'N/A'}</td>
+                    <td class="py-3 px-6 text-left">${data.marks || 'N/A'}</td>
+                    <td class="py-3 px-6 text-left">${data.timeLimitMinutes ? `${data.timeLimitMinutes} min` : 'N/A'}</td>
+                    <td class="py-3 px-6 text-left"><a href="${data.officialLink || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.officialLink ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
             case 'syllabus':
@@ -292,18 +303,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add/Update Logic (Generalized)
     async function handleFormSubmit(e, collectionName, docIdField, fields, cancelEditBtn) {
         e.preventDefault();
+        console.log(`Attempting to submit form for collection: ${collectionName}`); // Debug log
         const docId = docIdField.value;
         const data = {};
         fields.forEach(field => {
-            data[field.name] = field.element.value || '';
+            // Handle number conversions for marks and timeLimitMinutes
+            if (field.name === 'marks' || field.name === 'timeLimitMinutes') {
+                data[field.name] = field.element.value ? parseInt(field.element.value) : null;
+            } else {
+                data[field.name] = field.element.value || '';
+            }
         });
 
-        // Special handling for Current Affairs to use date as doc ID
+        // Special handling for Current Affairs and Answer Writing to use date as doc ID
         let targetDocId = docId;
         if (collectionName === 'currentAffairs') {
             targetDocId = caDate.value; // Use the date as the document ID
             if (!targetDocId) {
                 window.showCustomModal('Error', 'Date is required for Current Affairs digest.', 'error');
+                return;
+            }
+        } else if (collectionName === 'answerWriting') {
+            targetDocId = awDate.value; // Use the date as the document ID for Answer Writing
+            if (!targetDocId) {
+                window.showCustomModal('Error', 'Date is required for Answer Writing question.', 'error');
                 return;
             }
         }
@@ -327,6 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.reset(); // Clear form
             docIdField.value = ''; // Clear doc ID
             cancelEditBtn.classList.add('hidden'); // Hide cancel button
+            console.log(`Form submission successful for ${collectionName}.`); // Debug log
             // onSnapshot listener handles real-time update, no need to call loadContent explicitly
         } catch (error) {
             console.error(`Error saving ${collectionName.slice(0, -1)}:`, error);
@@ -356,9 +380,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ], pyqsCancelEditBtn));
 
     awForm.addEventListener('submit', (e) => handleFormSubmit(e, 'answerWriting', awDocId, [
-        { name: 'topic', element: awTopic },
-        { name: 'date', element: awDate },
-        { name: 'link', element: awLink }
+        { name: 'date', element: awDate }, // Ensure date is included in fields
+        { name: 'question', element: awQuestion },
+        { name: 'modelAnswerContent', element: awModelAnswerContent },
+        { name: 'difficulty', element: awDifficulty },
+        { name: 'marks', element: awMarks },
+        { name: 'timeLimitMinutes', element: awTimeLimitMinutes },
+        { name: 'officialLink', element: awOfficialLink }
     ], awCancelEditBtn));
 
     syllForm.addEventListener('submit', (e) => handleFormSubmit(e, 'syllabus', syllDocId, [
@@ -418,12 +446,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             pyqsLink.value = data.link || '';
                             cancelEditBtn = pyqsCancelEditBtn;
                             break;
-                        case 'answerWriting':
+                        case 'answerWriting': // UPDATED FOR NEW FIELDS
                             formToFill = awForm;
                             docIdField = awDocId;
-                            awTopic.value = data.topic || '';
                             awDate.value = data.date || '';
-                            awLink.value = data.link || '';
+                            awQuestion.value = data.question || '';
+                            awModelAnswerContent.value = data.modelAnswerContent || '';
+                            awDifficulty.value = data.difficulty || '';
+                            awMarks.value = data.marks || '';
+                            awTimeLimitMinutes.value = data.timeLimitMinutes || '';
+                            awOfficialLink.value = data.officialLink || '';
                             cancelEditBtn = awCancelEditBtn;
                             break;
                         case 'syllabus':

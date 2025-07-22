@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add/Update Logic (Generalized)
     async function handleFormSubmit(e, collectionName, docIdField, fields, cancelEditBtn) {
         e.preventDefault();
-        console.log(`Attempting to submit form for collection: ${collectionName}`); // Debug log
+        console.log(`[handleFormSubmit] Attempting to submit form for collection: ${collectionName}`); // Debug log
         const docId = docIdField.value;
         const data = {};
         fields.forEach(field => {
@@ -321,15 +321,20 @@ document.addEventListener('DOMContentLoaded', () => {
             targetDocId = caDate.value; // Use the date as the document ID
             if (!targetDocId) {
                 window.showCustomModal('Error', 'Date is required for Current Affairs digest.', 'error');
+                console.error('[handleFormSubmit] Date is missing for Current Affairs.');
                 return;
             }
         } else if (collectionName === 'answerWriting') {
             targetDocId = awDate.value; // Use the date as the document ID for Answer Writing
             if (!targetDocId) {
                 window.showCustomModal('Error', 'Date is required for Answer Writing question.', 'error');
+                console.error('[handleFormSubmit] Date is missing for Answer Writing.');
                 return;
             }
         }
+        console.log(`[handleFormSubmit] Data to be saved for ${collectionName}:`, data); // Debug log
+        console.log(`[handleFormSubmit] Target Document ID: ${targetDocId}`); // Debug log
+
 
         try {
             if (targetDocId) { // Check if we have a doc ID (for update or new with specific ID)
@@ -350,10 +355,10 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.reset(); // Clear form
             docIdField.value = ''; // Clear doc ID
             cancelEditBtn.classList.add('hidden'); // Hide cancel button
-            console.log(`Form submission successful for ${collectionName}.`); // Debug log
+            console.log(`[handleFormSubmit] Form submission successful for ${collectionName}.`); // Debug log
             // onSnapshot listener handles real-time update, no need to call loadContent explicitly
         } catch (error) {
-            console.error(`Error saving ${collectionName.slice(0, -1)}:`, error);
+            console.error(`[handleFormSubmit] Error saving ${collectionName.slice(0, -1)}:`, error);
             window.showCustomModal('Error', `Failed to save ${collectionName.slice(0, -1)}. Error: ${error.message}`, 'error');
         }
     }
@@ -379,15 +384,19 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'link', element: pyqsLink }
     ], pyqsCancelEditBtn));
 
-    awForm.addEventListener('submit', (e) => handleFormSubmit(e, 'answerWriting', awDocId, [
-        { name: 'date', element: awDate }, // Ensure date is included in fields
-        { name: 'question', element: awQuestion },
-        { name: 'modelAnswerContent', element: awModelAnswerContent },
-        { name: 'difficulty', element: awDifficulty },
-        { name: 'marks', element: awMarks },
-        { name: 'timeLimitMinutes', element: awTimeLimitMinutes },
-        { name: 'officialLink', element: awOfficialLink }
-    ], awCancelEditBtn));
+    // IMPORTANT: Ensure this listener is correctly set up and the fields are correctly referenced.
+    awForm.addEventListener('submit', (e) => {
+        console.log('[AW Form Listener] Submit event triggered for Answer Writing form.'); // Debug log
+        handleFormSubmit(e, 'answerWriting', awDocId, [
+            { name: 'date', element: awDate }, // Ensure date is included in fields
+            { name: 'question', element: awQuestion },
+            { name: 'modelAnswerContent', element: awModelAnswerContent },
+            { name: 'difficulty', element: awDifficulty },
+            { name: 'marks', element: awMarks },
+            { name: 'timeLimitMinutes', element: awTimeLimitMinutes },
+            { name: 'officialLink', element: awOfficialLink }
+        ], awCancelEditBtn);
+    });
 
     syllForm.addEventListener('submit', (e) => handleFormSubmit(e, 'syllabus', syllDocId, [
         { name: 'title', element: syllTitle },

@@ -73,6 +73,38 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* blue-500 with opacity */
         }
 
+        /* Multi-select specific styling */
+        select[multiple] {
+            min-height: 150px; /* Increased height to show more options */
+            padding: 0.5rem;
+            /* Ensure it takes full width and aligns */
+            display: block; /* Ensures it behaves like a block element */
+            width: 100%; /* Takes full width of its parent */
+            border: 1px solid #cbd5e0; /* Consistent border */
+            border-radius: 0.5rem; /* Consistent rounded corners */
+            background-color: #fff; /* White background */
+            font-size: 1rem; /* Consistent font size */
+            color: #334155; /* Consistent text color */
+        }
+        select[multiple] option {
+            padding: 0.75rem 1rem; /* Increased padding for better touch targets */
+            border-radius: 0.25rem;
+            margin-bottom: 2px;
+            transition: background-color 0.1s ease;
+            white-space: nowrap; /* Prevent text wrapping within option */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Add ellipsis for overflow */
+        }
+        select[multiple] option:checked {
+            background-color: #bfdbfe; /* blue-200 */
+            color: #1e40af; /* blue-800 */
+            font-weight: 600;
+        }
+        select[multiple] option:hover {
+            background-color: #eff6ff; /* blue-50 */
+        }
+
+
         /* Buttons */
         .btn-primary {
             background-color: #3b82f6; /* blue-500 */
@@ -276,15 +308,15 @@
                         </div>
 
                         <div>
-                            <label for="selectedSubject" class="block text-gray-700 text-sm font-semibold mb-2">Select Subject:</label>
-                            <select id="selectedSubject" class="w-full">
-                                <option value="">-- Select a Subject --</option>
+                            <label for="selectedSubject" class="block text-gray-700 text-sm font-semibold mb-2">Select Subject(s) (Hold Ctrl/Cmd to select multiple):</label>
+                            <select id="selectedSubject" class="w-full" multiple size="5">
+                                <option value="">-- Loading Subjects... --</option>
                                 <!-- Subjects will be loaded here by JS -->
                             </select>
                         </div>
 
                         <div>
-                            <label for="selectedTopic" class="block text-gray-700 text-sm font-semibold mb-2">Select Topic (Optional):</label>
+                            <label for="selectedTopic" class="block text-gray-700 text-sm font-semibold mb-2">Select Topic (Optional, only if one subject is selected):</label>
                             <select id="selectedTopic" class="w-full" disabled>
                                 <option value="">-- Select a Topic --</option>
                                 <!-- Topics will be loaded here by JS -->
@@ -309,11 +341,11 @@
                 <div class="lg:col-span-1 card">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Relevant Resources</h2>
                     <div id="resourcesList" class="space-y-4">
-                        <p class="text-gray-500 text-center">Select a subject/topic to see resources.</p>
+                        <p class="text-gray-500 text-center">Select a subject(s) to see resources.</p>
                         <!-- Resources will be loaded here by JS -->
                     </div>
                     <button id="generateResourcesPdfBtn" class="btn-success w-full mt-6" disabled>
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 2 0 01.707.293l5.414 5.414a1 2 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Generate Resources PDF
                     </button>
                 </div>
@@ -327,8 +359,8 @@
                         <thead>
                             <tr>
                                 <th>Day</th>
-                                <th>Topic</th>
-                                <th>Study Hours</th>
+                                <th>Session 1 (Topic & Hours)</th>
+                                <th>Session 2 (Topic & Hours)</th>
                             </tr>
                         </thead>
                         <tbody id="planTableBody">
@@ -337,7 +369,7 @@
                     </table>
                 </div>
                 <button id="generatePlanPdfBtn" class="btn-success w-full mt-6">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 2 0 01.707.293l5.414 5.414a1 2 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Generate Plan PDF
                 </button>
             </div>
@@ -372,7 +404,7 @@
             apiKey: "AIzaSyAn0XLw2XA26UBf4OevQkqp5UESakQI8kg",
             authDomain: "upscbuddy-5050d.firebaseapp.com",
             projectId: "upscbuddy-5050d",
-            storageBucket: "upscbuddy-5050d.firebasestorage.app",
+            storageBucket: "upscbuddy-5050d.firebase-storage.app",
             messagingSenderId: "632136482996",
             appId: "1:632136482996:web:4bebdeb43c266398d697e1",
             measurementId: "G-QLVRYRJFL2"
@@ -397,4 +429,566 @@
         const planGeneratorForm = document.getElementById('planGeneratorForm');
         const planDisplayDiv = document.getElementById('planDisplay');
         const planTableBody = document.getElementById('planTableBody');
-        const weeklyHoursInput 
+        const weeklyHoursInput = document.getElementById('weeklyHours');
+        const generatePlanPdfBtn = document.getElementById('generatePlanPdfBtn');
+        const generateResourcesPdfBtn = document.getElementById('generateResourcesPdfBtn');
+        const clearPlanBtn = document.getElementById('clearPlanBtn');
+        const messageBox = document.getElementById('message-box');
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a temporary message box.
+         * @param {string} message - The message to display.
+         * @param {string} type - 'success', 'error', or 'info'.
+         */
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = `message-box show ${type}`;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+                messageBox.classList.add('hidden');
+            }, 3000); // Message disappears after 3 seconds
+        }
+
+        // --- Firebase Data Loading ---
+
+        /**
+         * Loads all syllabus topics from Firestore.
+         */
+        function loadSyllabusTopics() {
+            console.log('[loadSyllabusTopics] Attempting to load syllabus topics...');
+            const q = collection(db, `artifacts/${currentAppId}/public/data/weeklyPlanSyllabus`);
+            onSnapshot(q, (querySnapshot) => {
+                allSyllabusTopics = [];
+                querySnapshot.forEach((doc) => {
+                    allSyllabusTopics.push({ id: doc.id, ...doc.data() });
+                });
+                console.log('[loadSyllabusTopics] Syllabus Topics loaded:', allSyllabusTopics);
+                populateSubjectDropdown();
+                if (allSyllabusTopics.length > 0) {
+                    showMessage('Syllabus topics loaded!', 'success');
+                } else {
+                    showMessage('No syllabus topics found. Please add some via the admin panel.', 'info');
+                    selectedSubjectSelect.innerHTML = '<option value="">-- No Subjects Available --</option>';
+                }
+            }, (error) => {
+                console.error("[loadSyllabusTopics] Error loading syllabus topics:", error);
+                showMessage('Failed to load syllabus topics. Check console for details.', 'error');
+            });
+        }
+
+        /**
+         * Loads all resources from Firestore.
+         */
+        function loadResources() {
+            console.log('[loadResources] Attempting to load resources...');
+            const q = collection(db, `artifacts/${currentAppId}/public/data/weeklyPlanResources`);
+            onSnapshot(q, (querySnapshot) => {
+                allResources = [];
+                querySnapshot.forEach((doc) => {
+                    allResources.push({ id: doc.id, ...doc.data() });
+                });
+                console.log('[loadResources] Resources loaded:', allResources);
+                filterAndDisplayResources(); // Re-filter resources if subject/topic is already selected
+                if (allResources.length > 0) {
+                    // This message might be too frequent if no resources are expected initially.
+                    // showMessage('Resources loaded!', 'success');
+                } else {
+                    // showMessage('No resources found. Add some via the admin panel.', 'info');
+                }
+            }, (error) => {
+                console.error("[loadResources] Error loading resources:", error);
+                showMessage('Failed to load resources. Check console for details.', 'error');
+            });
+        }
+
+        // --- Dropdown Population and Filtering ---
+
+        /**
+         * Populates the subject dropdown with unique subjects from allSyllabusTopics.
+         */
+        function populateSubjectDropdown() {
+            console.log('[populateSubjectDropdown] Populating subject dropdown...');
+            selectedSubjectSelect.innerHTML = ''; // Clear existing options
+            const subjects = [...new Set(allSyllabusTopics.map(item => item.subject))].sort();
+            console.log('[populateSubjectDropdown] Unique subjects found:', subjects);
+
+            if (subjects.length === 0) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "-- No Subjects Available --";
+                selectedSubjectSelect.appendChild(option);
+            } else {
+                subjects.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject;
+                    option.textContent = subject;
+                    selectedSubjectSelect.appendChild(option);
+                });
+            }
+            // Ensure topic dropdown is reset and disabled initially
+            selectedTopicSelect.innerHTML = '<option value="">-- Select a Topic --</option>';
+            selectedTopicSelect.disabled = true;
+            topicDescriptionP.classList.add('hidden');
+            topicDescriptionP.textContent = '';
+        }
+
+        /**
+         * Handles change event for selected subjects.
+         * Populates topic dropdown or disables it based on number of selected subjects.
+         */
+        selectedSubjectSelect.addEventListener('change', () => {
+            console.log('[selectedSubjectSelect] Change event triggered.');
+            const selectedSubjects = Array.from(selectedSubjectSelect.selectedOptions).map(option => option.value);
+            console.log('[selectedSubjectSelect] Currently selected subjects:', selectedSubjects);
+
+            selectedTopicSelect.innerHTML = '<option value="">-- Select a Topic --</option>';
+            topicDescriptionP.classList.add('hidden');
+            topicDescriptionP.textContent = '';
+
+            if (selectedSubjects.length === 1) {
+                const singleSelectedSubject = selectedSubjects[0];
+                const topicsForSubject = allSyllabusTopics
+                    .filter(item => item.subject === singleSelectedSubject)
+                    .map(item => ({ topic: item.topic, description: item.description }));
+
+                topicsForSubject.sort((a, b) => a.topic.localeCompare(b.topic));
+
+                topicsForSubject.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.topic;
+                    option.textContent = item.topic;
+                    option.dataset.description = item.description || '';
+                    selectedTopicSelect.appendChild(option);
+                });
+                selectedTopicSelect.disabled = false;
+                console.log(`[selectedSubjectSelect] Topics for single subject (${singleSelectedSubject}):`, topicsForSubject);
+            } else {
+                selectedTopicSelect.disabled = true;
+                console.log('[selectedSubjectSelect] Topic selection disabled (multiple or no subjects selected).');
+            }
+            filterAndDisplayResources();
+        });
+
+        /**
+         * Displays the description for the selected topic.
+         */
+        selectedTopicSelect.addEventListener('change', () => {
+            console.log('[selectedTopicSelect] Change event triggered.');
+            const selectedOption = selectedTopicSelect.options[selectedTopicSelect.selectedIndex];
+            const description = selectedOption ? selectedOption.dataset.description : '';
+            if (description) {
+                topicDescriptionP.textContent = `Description: ${description}`;
+                topicDescriptionP.classList.remove('hidden');
+                console.log(`[selectedTopicSelect] Topic description: ${description}`);
+            } else {
+                topicDescriptionP.classList.add('hidden');
+                console.log('[selectedTopicSelect] No topic description.');
+            }
+            filterAndDisplayResources();
+        });
+
+        /**
+         * Filters and displays resources based on selected subject(s) and topic (if applicable).
+         */
+        function filterAndDisplayResources() {
+            console.log('[filterAndDisplayResources] Filtering resources...');
+            const selectedSubjects = Array.from(selectedSubjectSelect.selectedOptions).map(option => option.value);
+            const selectedTopic = selectedSubjects.length === 1 ? selectedTopicSelect.value : ''; // Only consider topic if single subject
+            resourcesListDiv.innerHTML = '';
+            currentResources = []; // Reset resources for PDF
+
+            if (selectedSubjects.length === 0) {
+                resourcesListDiv.innerHTML = '<p class="text-gray-500 text-center">Select a subject(s) to see resources.</p>';
+                generateResourcesPdfBtn.disabled = true;
+                console.log('[filterAndDisplayResources] No subjects selected.');
+                return;
+            }
+
+            const filtered = allResources.filter(resource => {
+                // Check if resource is associated with ANY of the selected subjects
+                const matchesAnySubject = selectedSubjects.some(sub => resource.associatedSubjects && resource.associatedSubjects.includes(sub));
+
+                if (selectedSubjects.length === 1 && selectedTopic) {
+                    // If single subject AND specific topic, must match both
+                    const singleSelectedSubject = selectedSubjects[0];
+                    const matchesSpecificTopic = resource.associatedTopics && resource.associatedTopics.includes(selectedTopic);
+                    return matchesAnySubject && matchesSpecificTopic;
+                } else {
+                    // If multiple subjects, or single subject with no specific topic, just match any subject
+                    return matchesAnySubject;
+                }
+            });
+            console.log('[filterAndDisplayResources] Filtered resources:', filtered);
+
+
+            if (filtered.length === 0) {
+                resourcesListDiv.innerHTML = '<p class="text-gray-500 text-center">No resources found for the selected criteria.</p>';
+                generateResourcesPdfBtn.disabled = true;
+                return;
+            }
+
+            // Sort resources alphabetically by name
+            filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+            filtered.forEach(resource => {
+                const resourceDiv = document.createElement('div');
+                resourceDiv.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm';
+                resourceDiv.innerHTML = `
+                    <h3 class="font-semibold text-lg text-gray-800">${resource.name || 'N/A'}</h3>
+                    <p class="text-sm text-gray-600 mb-2">Type: ${resource.type || 'N/A'}</p>
+                    ${resource.link ? `<a href="${resource.link}" target="_blank" class="text-blue-600 hover:underline text-sm flex items-center">View Resource <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>` : '<p class="text-sm text-gray-500">No link available.</p>'}
+                `;
+                resourcesListDiv.appendChild(resourceDiv);
+            });
+            currentResources = filtered; // Store for PDF generation
+            generateResourcesPdfBtn.disabled = false;
+        }
+
+
+        // --- Plan Generation Logic ---
+
+        planGeneratorForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            console.log('[planGeneratorForm] Submit event triggered.');
+            generatePlan();
+        });
+
+        clearPlanBtn.addEventListener('click', () => {
+            console.log('[clearPlanBtn] Clicked.');
+            planDisplayDiv.classList.add('hidden');
+            planTableBody.innerHTML = '';
+            currentPlan = [];
+            showMessage('Plan cleared!', 'info');
+        });
+
+        function generatePlan() {
+            const weeklyHours = parseInt(weeklyHoursInput.value);
+            const selectedSubjects = Array.from(selectedSubjectSelect.selectedOptions).map(option => option.value);
+            const selectedTopic = selectedSubjects.length === 1 ? selectedTopicSelect.value : ''; // Only consider topic if single subject
+
+            console.log(`[generatePlan] Weekly Hours: ${weeklyHours}, Subjects: ${selectedSubjects}, Topic: ${selectedTopic}`);
+
+            if (isNaN(weeklyHours) || weeklyHours <= 0) {
+                showMessage('Please enter valid weekly study hours.', 'error');
+                return;
+            }
+            if (selectedSubjects.length === 0) {
+                showMessage('Please select at least one subject.', 'error');
+                return;
+            }
+            if (allSyllabusTopics.length === 0) {
+                showMessage('No syllabus topics loaded. Please add some via the admin panel first.', 'error');
+                return;
+            }
+
+            planTableBody.innerHTML = '';
+            currentPlan = [];
+            planDisplayDiv.classList.remove('hidden');
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const baseHoursPerDay = weeklyHours / days.length; // Base hours for each day
+
+            let topicsToStudy = [];
+            if (selectedSubjects.length === 1 && selectedTopic) {
+                // Single subject, specific topic
+                const singleSelectedSubject = selectedSubjects[0];
+                const topicData = allSyllabusTopics.find(t => t.subject === singleSelectedSubject && t.topic === selectedTopic);
+                if (topicData) {
+                    topicsToStudy.push({ subject: singleSelectedSubject, topic: topicData.topic });
+                    console.log(`[generatePlan] Specific topic selected: ${topicData.topic}`);
+                } else {
+                    showMessage('Selected topic not found in loaded data.', 'error');
+                    return;
+                }
+            } else {
+                // Multiple subjects OR single subject with no specific topic (all topics for selected subjects)
+                selectedSubjects.forEach(sub => {
+                    const topicsForSubject = allSyllabusTopics
+                        .filter(item => item.subject === sub)
+                        .map(item => ({ subject: sub, topic: item.topic }));
+                    topicsToStudy.push(...topicsForSubject);
+                });
+                topicsToStudy.sort((a, b) => a.topic.localeCompare(b.topic)); // Sort combined topics for consistent plan
+                console.log(`[generatePlan] All topics for selected subjects:`, topicsToStudy);
+            }
+
+            if (topicsToStudy.length === 0) {
+                showMessage('No topics found for the selected subject(s)/topic. Please add topics in the admin panel.', 'error');
+                return;
+            }
+
+            let topicIndex = 0;
+            for (let i = 0; i < days.length; i++) {
+                const day = days[i];
+                let session1Topic, session2Topic;
+                let session1Hours, session2Hours;
+                let dailyTotalHours = baseHoursPerDay;
+
+                if (day === 'Sunday') {
+                    const specialHours = 2; // 1 hr CA + 1 hr AW
+                    const remainingHours = baseHoursPerDay - specialHours;
+
+                    if (remainingHours >= 0) {
+                        // Assign special sessions
+                        session1Topic = { subject: 'Special Session', topic: 'Current Affairs' };
+                        session1Hours = 1;
+                        session2Topic = { subject: 'Special Session', topic: 'Answer Writing Practice' };
+                        session2Hours = 1;
+
+                        // Distribute remaining hours to regular topics if available
+                        if (remainingHours > 0) {
+                            const regularHoursPerSession = remainingHours / 2; // Divide remaining hours for two regular sessions
+                            const firstRegularTopic = topicsToStudy[topicIndex % topicsToStudy.length];
+                            topicIndex++;
+                            const secondRegularTopic = topicsToStudy[topicIndex % topicsToStudy.length];
+                            topicIndex++;
+
+                            // Append regular topics to the special sessions
+                            session1Topic.topic += ` (+ ${firstRegularTopic.subject}: ${firstRegularTopic.topic})`;
+                            session1Hours += regularHoursPerSession;
+                            session2Topic.topic += ` (+ ${secondRegularTopic.subject}: ${secondRegularTopic.topic})`;
+                            session2Hours += regularHoursPerSession;
+                        }
+                    } else {
+                        // If total hours are too low, Sunday might only have special sessions
+                        session1Topic = { subject: 'Special Session', topic: 'Current Affairs' };
+                        session1Hours = baseHoursPerDay / 2; // Distribute available hours
+                        session2Topic = { subject: 'Special Session', topic: 'Answer Writing Practice' };
+                        session2Hours = baseHoursPerDay / 2;
+                        if (baseHoursPerDay < 2) {
+                             showMessage(`Warning: Sunday's total study hours (${baseHoursPerDay.toFixed(1)} hrs) are less than 2 hours. Current Affairs and Answer Writing will share available time.`, 'info');
+                        }
+                    }
+                } else {
+                    // Regular weekdays: two topics
+                    if (topicsToStudy.length < 2) {
+                        showMessage('Not enough unique topics to fill two sessions per day. Topics will repeat.', 'info');
+                    }
+                    session1Topic = topicsToStudy[topicIndex % topicsToStudy.length];
+                    topicIndex++;
+                    session2Topic = topicsToStudy[topicIndex % topicsToStudy.length];
+                    topicIndex++;
+
+                    session1Hours = dailyTotalHours / 2;
+                    session2Hours = dailyTotalHours / 2;
+                }
+
+                const displayTopic1 = `${session1Topic.subject === 'Special Session' ? '' : `${session1Topic.subject}: `}${session1Topic.topic}`;
+                const displayTopic2 = `${session2Topic.subject === 'Special Session' ? '' : `${session2Topic.subject}: `}${session2Topic.topic}`;
+
+                const row = `
+                    <tr>
+                        <td>${day}</td>
+                        <td>${displayTopic1} (${session1Hours.toFixed(1)} hrs)</td>
+                        <td>${displayTopic2} (${session2Hours.toFixed(1)} hrs)</td>
+                    </tr>
+                `;
+                planTableBody.insertAdjacentHTML('beforeend', row);
+                currentPlan.push({
+                    day,
+                    session1: { topic: displayTopic1, hours: parseFloat(session1Hours.toFixed(1)) },
+                    session2: { topic: displayTopic2, hours: parseFloat(session2Hours.toFixed(1)) }
+                });
+            }
+            showMessage('Weekly plan generated successfully!', 'success');
+            console.log('[generatePlan] Plan generated:', currentPlan);
+        }
+
+        // --- PDF Generation Logic ---
+
+        generatePlanPdfBtn.addEventListener('click', () => {
+            console.log('[generatePlanPdfBtn] Clicked.');
+            if (currentPlan.length === 0) {
+                showMessage('Generate a plan first before generating PDF.', 'error');
+                return;
+            }
+            generatePlanPdf();
+        });
+
+        generateResourcesPdfBtn.addEventListener('click', () => {
+            console.log('[generateResourcesPdfBtn] Clicked.');
+            if (currentResources.length === 0) {
+                showMessage('Select subjects/topics to filter resources first.', 'error');
+                return;
+            }
+            generateResourcesPdf();
+        });
+
+        function generatePlanPdf() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const margin = 20;
+            let currentY = margin;
+
+            doc.setFontSize(22);
+            doc.setTextColor(51, 65, 85); // slate-700
+            doc.text("UPSC Weekly Study Plan", margin, currentY);
+            currentY += 15;
+
+            doc.setFontSize(12);
+            doc.setTextColor(71, 85, 105); // slate-600
+            const selectedSubjectsForPdf = Array.from(selectedSubjectSelect.selectedOptions).map(option => option.value).join(', ') || 'N/A';
+            doc.text(`Total Weekly Study Hours: ${weeklyHoursInput.value}`, margin, currentY);
+            currentY += 10;
+            doc.text(`Selected Subject(s): ${selectedSubjectsForPdf}`, margin, currentY);
+            currentY += 10;
+            doc.text(`Selected Topic: ${selectedSubjectsForPdf.split(',').length === 1 ? selectedTopicSelect.value || 'All' : 'N/A (multiple subjects selected)'}`, margin, currentY);
+            currentY += 20;
+
+            const tableColumn = ["Day", "Session 1 (Topic & Hours)", "Session 2 (Topic & Hours)"];
+            const tableRows = [];
+
+            currentPlan.forEach(item => {
+                tableRows.push([
+                    item.day,
+                    `${item.session1.topic} (${item.session1.hours.toFixed(1)} hrs)`,
+                    `${item.session2.topic} (${item.session2.hours.toFixed(1)} hrs)`
+                ]);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: currentY,
+                theme: 'grid',
+                styles: {
+                    font: 'helvetica',
+                    fontSize: 10,
+                    cellPadding: 4,
+                    lineColor: [226, 232, 240], // gray-200
+                    lineWidth: 0.5,
+                    overflow: 'linebreak',
+                    valign: 'middle',
+                    halign: 'left'
+                },
+                headStyles: {
+                    fillColor: [241, 245, 249], // gray-100
+                    textColor: [71, 85, 105], // slate-700
+                    fontStyle: 'bold',
+                    fontSize: 11
+                },
+                margin: { top: margin, bottom: margin, left: margin, right: margin },
+                didDrawPage: function (data) {
+                    // Page number in footer
+                    doc.setFontSize(8);
+                    doc.setTextColor(150);
+                    doc.text(`Page ${data.pageNumber}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 20, { align: 'right' });
+                }
+            });
+
+            doc.save('UPSC_Study_Plan.pdf');
+            showMessage('Study Plan PDF generated successfully!', 'success');
+            console.log('[generatePlanPdf] Plan PDF generated.');
+        }
+
+        function generateResourcesPdf() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const margin = 20;
+            let currentY = margin;
+
+            doc.setFontSize(22);
+            doc.setTextColor(51, 65, 85); // slate-700
+            doc.text("UPSC Study Resources", margin, currentY);
+            currentY += 15;
+
+            doc.setFontSize(12);
+            doc.setTextColor(71, 85, 105); // slate-600
+            const selectedSubjectsForPdf = Array.from(selectedSubjectSelect.selectedOptions).map(option => option.value).join(', ') || 'All';
+            doc.text(`Resources for Subject(s): ${selectedSubjectsForPdf}`, margin, currentY);
+            currentY += 10;
+            doc.text(`Resources for Topic: ${selectedSubjectsForPdf.split(',').length === 1 ? selectedTopicSelect.value || 'All' : 'N/A (multiple subjects selected)'}`, margin, currentY);
+            currentY += 20;
+
+            const tableColumn = ["Resource Name", "Type", "Link", "Associated Subjects", "Associated Topics"];
+            const tableRows = [];
+
+            currentResources.forEach(resource => {
+                tableRows.push([
+                    resource.name || 'N/A',
+                    resource.type || 'N/A',
+                    resource.link || 'N/A',
+                    (resource.associatedSubjects || []).join(', ') || 'N/A',
+                    (resource.associatedTopics || []).join(', ') || 'N/A'
+                ]);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: currentY,
+                theme: 'grid',
+                styles: {
+                    font: 'helvetica',
+                    fontSize: 8,
+                    cellPadding: 4,
+                    lineColor: [226, 232, 240],
+                    lineWidth: 0.5,
+                    overflow: 'linebreak',
+                    valign: 'top',
+                    halign: 'left'
+                },
+                headStyles: {
+                    fillColor: [240, 244, 248],
+                    textColor: [51, 65, 85],
+                    fontStyle: 'bold',
+                    fontSize: 9
+                },
+                margin: { top: margin, bottom: margin, left: margin, right: margin },
+                didDrawPage: function (data) {
+                    // Page number in footer
+                    doc.setFontSize(8);
+                    doc.setTextColor(150);
+                    doc.text(`Page ${data.pageNumber}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 20, { align: 'right' });
+                }
+            });
+
+            doc.save('UPSC_Resources.pdf');
+            showMessage('Resources PDF generated successfully!', 'success');
+            console.log('[generateResourcesPdf] Resources PDF generated.');
+        }
+
+
+        // --- Mobile Menu Toggle (Replicated for consistency) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const mobileMenu = mobileMenuOverlay.querySelector('div');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenuOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    mobileMenu.classList.remove('translate-x-full');
+                }, 10); // Small delay to allow display change to register
+            });
+
+            closeMobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.add('translate-x-full');
+                mobileMenu.addEventListener('transitionend', () => {
+                    mobileMenuOverlay.classList.add('hidden');
+                }, { once: true });
+            });
+
+            // Close mobile menu if a link is clicked
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('translate-x-full');
+                    mobileMenu.addEventListener('transitionend', () => {
+                        mobileMenuOverlay.classList.add('hidden');
+                    }, { once: true });
+                });
+            });
+
+            // Initial data load on page load
+            loadSyllabusTopics();
+            loadResources();
+        });
+    </script>
+</body>
+</html>

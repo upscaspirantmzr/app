@@ -90,6 +90,7 @@
                 <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="answerWriting">Answer Writing</button>
                 <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="syllabus">Syllabus</button>
                 <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="studyPlanners">Study Planners</button>
+                <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="weeklyPlan">Weekly Plan</button> <!-- NEW TAB -->
             </div>
 
             <!-- Tab Content: Study Materials -->
@@ -365,6 +366,113 @@
                             <tr><td colspan="4" class="py-4 text-center">Loading planners...</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- NEW Tab Content: Weekly Plan -->
+            <div id="tab-content-weeklyPlan" class="tab-content hidden bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Manage Weekly Plan Data</h3>
+
+                <!-- Sub-tab Navigation for Weekly Plan -->
+                <div class="flex flex-wrap justify-start mb-6 bg-gray-100 rounded-lg p-2 shadow-inner">
+                    <button class="sub-tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium active" data-sub-tab="wpSyllabusTopics">Syllabus Topics</button>
+                    <button class="sub-tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-sub-tab="wpResources">Resources</button>
+                </div>
+
+                <!-- Sub-tab Content: Syllabus Topics -->
+                <div id="sub-tab-content-wpSyllabusTopics" class="sub-tab-content">
+                    <h4 class="text-xl font-bold text-gray-700 mb-4">Add/Edit Syllabus Topic</h4>
+                    <form id="wp-syllabus-topic-form" class="space-y-4 mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <input type="hidden" id="wp-syll-doc-id">
+                        <div>
+                            <label for="wp-syll-subject" class="block text-gray-700 text-sm font-semibold mb-2">Subject:</label>
+                            <input type="text" id="wp-syll-subject" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="e.g., History, Polity">
+                        </div>
+                        <div>
+                            <label for="wp-syll-topic" class="block text-gray-700 text-sm font-semibold mb-2">Topic:</label>
+                            <input type="text" id="wp-syll-topic" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="e.g., Ancient Indian History, Indian Constitution">
+                        </div>
+                        <div>
+                            <label for="wp-syll-description" class="block text-gray-700 text-sm font-semibold mb-2">Description (Optional):</label>
+                            <textarea id="wp-syll-description" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20" placeholder="Brief details about the topic."></textarea>
+                        </div>
+                        <div class="flex space-x-4">
+                            <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Add/Update Topic</button>
+                            <button type="button" id="wp-syll-cancel-edit" class="bg-gray-400 text-white py-2 px-6 rounded-md hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-md hidden">Cancel Edit</button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left">Subject</th>
+                                    <th class="py-3 px-6 text-left">Topic</th>
+                                    <th class="py-3 px-6 text-left">Description</th>
+                                    <th class="py-3 px-6 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wp-syll-table-body" class="text-gray-600 text-sm font-light">
+                                <tr><td colspan="4" class="py-4 text-center">Loading syllabus topics...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sub-tab Content: Resources -->
+                <div id="sub-tab-content-wpResources" class="sub-tab-content hidden">
+                    <h4 class="text-xl font-bold text-gray-700 mb-4">Add/Edit Resource</h4>
+                    <form id="wp-resource-form" class="space-y-4 mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <input type="hidden" id="wp-resource-doc-id">
+                        <div>
+                            <label for="wp-resource-name" class="block text-gray-700 text-sm font-semibold mb-2">Resource Name:</label>
+                            <input type="text" id="wp-resource-name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="e.g., NCERT Class 11 Geography">
+                        </div>
+                        <div>
+                            <label for="wp-resource-type" class="block text-gray-700 text-sm font-semibold mb-2">Type:</label>
+                            <select id="wp-resource-type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Type</option>
+                                <option value="Book">Book</option>
+                                <option value="Notes">Notes</option>
+                                <option value="Video Series">Video Series</option>
+                                <option value="Website">Website</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="wp-resource-link" class="block text-gray-700 text-sm font-semibold mb-2">Link (URL, Optional):</label>
+                            <input type="url" id="wp-resource-link" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="URL to the resource.">
+                        </div>
+                        <div>
+                            <label for="wp-resource-associated-subjects" class="block text-gray-700 text-sm font-semibold mb-2">Associated Subjects (Comma-separated):</label>
+                            <input type="text" id="wp-resource-associated-subjects" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., History, Geography">
+                        </div>
+                        <div>
+                            <label for="wp-resource-associated-topics" class="block text-gray-700 text-sm font-semibold mb-2">Associated Topics (Comma-separated):</label>
+                            <input type="text" id="wp-resource-associated-topics" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Physical Geography, Indian Constitution">
+                        </div>
+                        <div class="flex space-x-4">
+                            <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Add/Update Resource</button>
+                            <button type="button" id="wp-resource-cancel-edit" class="bg-gray-400 text-white py-2 px-6 rounded-md hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-md hidden">Cancel Edit</button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left">Name</th>
+                                    <th class="py-3 px-6 text-left">Type</th>
+                                    <th class="py-3 px-6 text-left">Subjects</th>
+                                    <th class="py-3 px-6 text-left">Topics</th>
+                                    <th class="py-3 px-6 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wp-resource-table-body" class="text-gray-600 text-sm font-light">
+                                <tr><td colspan="5" class="py-4 text-center">Loading resources...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

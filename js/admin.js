@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
 
+    // Weekly Plan Sub-tab elements
+    const weeklyPlanSubTabButtons = document.querySelectorAll('.sub-tab-button');
+    const weeklyPlanSubTabContents = document.querySelectorAll('.sub-tab-content');
+
     // Forms and tables for each content type
     // Study Materials
     const smForm = document.getElementById('study-material-form');
@@ -21,10 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const smTableBody = document.getElementById('sm-table-body');
     const smCancelEditBtn = document.getElementById('sm-cancel-edit');
 
-    // Current Affairs - UPDATED ELEMENTS
+    // Current Affairs
     const caForm = document.getElementById('current-affairs-form');
     const caDocId = document.getElementById('ca-doc-id');
-    const caDate = document.getElementById('ca-date'); // This will be the document ID
+    const caDate = document.getElementById('ca-date');
     const caSummaryTitle = document.getElementById('ca-summary-title');
     const caSummaryContent = document.getElementById('ca-summary-content');
     const caDailyReportLink = document.getElementById('ca-daily-report-link');
@@ -41,10 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const pyqsTableBody = document.getElementById('pyqs-table-body');
     const pyqsCancelEditBtn = document.getElementById('pyqs-cancel-edit');
 
-    // Answer Writing - UPDATED ELEMENTS
+    // Answer Writing
     const awForm = document.getElementById('answer-writing-form');
     const awDocId = document.getElementById('aw-doc-id');
-    const awDate = document.getElementById('aw-date'); // This will be the document ID
+    const awDate = document.getElementById('aw-date');
     const awQuestion = document.getElementById('aw-question');
     const awModelAnswerContent = document.getElementById('aw-model-answer-content');
     const awDifficulty = document.getElementById('aw-difficulty');
@@ -71,6 +75,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const spLink = document.getElementById('sp-link');
     const spTableBody = document.getElementById('sp-table-body');
     const spCancelEditBtn = document.getElementById('sp-cancel-edit');
+
+    // NEW: Weekly Plan Syllabus Topics
+    const wpSyllabusTopicForm = document.getElementById('wp-syllabus-topic-form');
+    const wpSyllDocId = document.getElementById('wp-syll-doc-id');
+    const wpSyllSubject = document.getElementById('wp-syll-subject');
+    const wpSyllTopic = document.getElementById('wp-syll-topic');
+    const wpSyllDescription = document.getElementById('wp-syll-description');
+    const wpSyllTableBody = document.getElementById('wp-syll-table-body');
+    const wpSyllCancelEditBtn = document.getElementById('wp-syll-cancel-edit');
+
+    // NEW: Weekly Plan Resources
+    const wpResourceForm = document.getElementById('wp-resource-form');
+    const wpResourceDocId = document.getElementById('wp-resource-doc-id');
+    const wpResourceName = document.getElementById('wp-resource-name');
+    const wpResourceType = document.getElementById('wp-resource-type');
+    const wpResourceLink = document.getElementById('wp-resource-link');
+    const wpResourceAssociatedSubjects = document.getElementById('wp-resource-associated-subjects');
+    const wpResourceAssociatedTopics = document.getElementById('wp-resource-associated-topics');
+    const wpResourceTableBody = document.getElementById('wp-resource-table-body');
+    const wpResourceCancelEditBtn = document.getElementById('wp-resource-cancel-edit');
 
 
     let currentUserId = null; // Store the authenticated user's ID
@@ -135,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Tab Switching Logic ---
+    // --- Main Tab Switching Logic ---
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tab = button.dataset.tab;
@@ -152,29 +176,64 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
 
             loadContent(tab); // Load content for the selected tab
+
+            // Special handling for Weekly Plan tab to activate its first sub-tab
+            if (tab === 'weeklyPlan') {
+                const firstSubTabButton = document.querySelector('#tab-content-weeklyPlan .sub-tab-button');
+                if (firstSubTabButton) {
+                    firstSubTabButton.click(); // Simulate click to activate
+                }
+            }
         });
     });
+
+    // --- Weekly Plan Sub-tab Switching Logic ---
+    weeklyPlanSubTabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const subTab = button.dataset.subTab;
+
+            weeklyPlanSubTabButtons.forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-700', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            button.classList.add('active', 'bg-blue-700', 'text-white');
+            button.classList.remove('bg-gray-200', 'text-gray-700');
+
+            weeklyPlanSubTabContents.forEach(content => content.classList.add('hidden'));
+            document.getElementById(`sub-tab-content-${subTab}`).classList.remove('hidden');
+
+            // Load content for the selected sub-tab
+            if (subTab === 'wpSyllabusTopics') {
+                loadContent('weeklyPlanSyllabus', 'wp-syll-table-body');
+            } else if (subTab === 'wpResources') {
+                loadContent('weeklyPlanResources', 'wp-resource-table-body');
+            }
+        });
+    });
+
 
     // --- CRUD Operations ---
 
     // Generic function to load content for a given collection
-    async function loadContent(collectionName) {
+    async function loadContent(collectionName, tableBodyId) {
         if (!window.db || !window.isAuthReady || !currentUserId) {
             console.log(`Firebase not ready or user not authenticated for ${collectionName}. Retrying...`);
-            setTimeout(() => loadContent(collectionName), 500);
+            setTimeout(() => loadContent(collectionName, tableBodyId), 500);
             return;
         }
 
-        let tableBody;
+        const tableBody = document.getElementById(tableBodyId);
         let colspan;
         switch (collectionName) {
-            case 'studyMaterials': tableBody = smTableBody; colspan = 4; break;
-            case 'currentAffairs': tableBody = caTableBody; colspan = 5; break;
-            case 'pyqs': tableBody = pyqsTableBody; colspan = 5; break;
-            case 'answerWriting': tableBody = awTableBody; colspan = 7; break; // Increased colspan for new fields
-            case 'syllabus': tableBody = syllTableBody; colspan = 4; break;
-            case 'studyPlanners': tableBody = spTableBody; colspan = 4; break;
-            default: return;
+            case 'studyMaterials': colspan = 4; break;
+            case 'currentAffairs': colspan = 5; break;
+            case 'pyqs': colspan = 5; break;
+            case 'answerWriting': colspan = 7; break;
+            case 'syllabus': colspan = 4; break;
+            case 'studyPlanners': colspan = 4; break;
+            case 'weeklyPlanSyllabus': colspan = 4; break; // NEW
+            case 'weeklyPlanResources': colspan = 5; break; // NEW
+            default: colspan = 1; // Fallback
         }
 
         tableBody.innerHTML = `<tr><td colspan="${colspan}" class="py-4 text-center text-gray-500">Loading ${collectionName}...</td></tr>`;
@@ -188,15 +247,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (querySnapshot.empty) {
                     htmlContent = `<tr><td colspan="${colspan}" class="py-4 text-center text-gray-600">No ${collectionName} added yet.</td></tr>`;
                 } else {
-                    // Sort by date in JavaScript for current affairs and answer writing, otherwise no specific sorting
+                    // Sort by date for current affairs and answer writing, by title for syllabus/weeklyPlanSyllabus, by name for weeklyPlanResources
                     const sortedDocs = Array.from(querySnapshot.docs).sort((a, b) => {
                         if (collectionName === 'currentAffairs' || collectionName === 'answerWriting') {
-                            // Assuming 'date' is in YYYY-MM-DD format for string comparison
                             return new Date(b.data().date) - new Date(a.data().date); // Descending date
-                        } else if (collectionName === 'syllabus') {
-                            const titleA = a.data().title || '';
-                            const titleB = b.data().title || '';
-                            return titleA.localeCompare(titleB); // Alphabetical sort for syllabus
+                        } else if (collectionName === 'syllabus' || collectionName === 'weeklyPlanSyllabus') {
+                            const titleA = a.data().title || a.data().topic || '';
+                            const titleB = b.data().title || b.data().topic || '';
+                            return titleA.localeCompare(titleB); // Alphabetical sort
+                        } else if (collectionName === 'weeklyPlanResources') {
+                            const nameA = a.data().name || '';
+                            const nameB = b.data().name || '';
+                            return nameA.localeCompare(nameB); // Alphabetical sort
                         }
                         return 0; // No specific sorting for other collections
                     });
@@ -224,8 +286,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper to create table rows for each content type
     function createTableRow(collectionName, docId, data) {
         let cells = '';
-        let contentPreview = (data.description || data.content || data.topic || data.summaryContent || data.question || '').substring(0, 70);
-        if ((data.description || data.content || data.topic || data.summaryContent || data.question || '').length > 70) {
+        let contentPreview = (data.description || data.content || data.topic || data.summaryContent || data.question || data.name || '').substring(0, 70);
+        if ((data.description || data.content || data.topic || data.summaryContent || data.question || data.name || '').length > 70) {
             contentPreview += '...';
         }
 
@@ -237,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
-            case 'currentAffairs': // UPDATED FOR DAILY DIGEST
+            case 'currentAffairs':
                 cells = `
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.date || 'N/A'}</td>
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.summaryTitle || 'N/A'}</td>
@@ -253,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
-            case 'answerWriting': // UPDATED FOR NEW FIELDS
+            case 'answerWriting':
                 cells = `
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.date || 'N/A'}</td>
                     <td class="py-3 px-6 text-left">${contentPreview}</td>
@@ -274,6 +336,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 cells = `
                     <td class="py-3 px-6 text-left whitespace-nowrap">${data.title || 'N/A'}</td>
                     <td class="py-3 px-6 text-left">${contentPreview}</td>
+                    <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
+                `;
+                break;
+            case 'weeklyPlanSyllabus': // NEW
+                cells = `
+                    <td class="py-3 px-6 text-left whitespace-nowrap">${data.subject || 'N/A'}</td>
+                    <td class="py-3 px-6 text-left">${data.topic || 'N/A'}</td>
+                    <td class="py-3 px-6 text-left">${contentPreview}</td>
+                `;
+                break;
+            case 'weeklyPlanResources': // NEW
+                cells = `
+                    <td class="py-3 px-6 text-left whitespace-nowrap">${data.name || 'N/A'}</td>
+                    <td class="py-3 px-6 text-left">${data.type || 'N/A'}</td>
+                    <td class="py-3 px-6 text-left">${(data.associatedSubjects || []).join(', ') || 'N/A'}</td>
                     <td class="py-3 px-6 text-left"><a href="${data.link || '#'}" target="_blank" class="text-blue-500 hover:underline">${data.link ? 'Link' : 'N/A'}</a></td>
                 `;
                 break;
@@ -310,6 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Handle number conversions for marks and timeLimitMinutes
             if (field.name === 'marks' || field.name === 'timeLimitMinutes') {
                 data[field.name] = field.element.value ? parseInt(field.element.value) : null;
+            } else if (field.name === 'associatedSubjects' || field.name === 'associatedTopics') { // NEW: Handle comma-separated strings to arrays
+                data[field.name] = field.element.value ? field.element.value.split(',').map(s => s.trim()).filter(s => s) : [];
             } else {
                 data[field.name] = field.element.value || '';
             }
@@ -332,22 +411,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
         }
+        // For weeklyPlanSyllabus and weeklyPlanResources, use auto-generated IDs unless editing
+        // If docId is empty, addDoc will generate a new ID. If docId exists, setDoc will update.
         console.log(`[handleFormSubmit] Data to be saved for ${collectionName}:`, data); // Debug log
         console.log(`[handleFormSubmit] Target Document ID: ${targetDocId}`); // Debug log
 
 
         try {
-            if (targetDocId) { // Check if we have a doc ID (for update or new with specific ID)
-                const docRef = window.doc(window.db, `artifacts/${window.appId}/public/data/${collectionName}`, targetDocId);
-                // Use setDoc with merge: true for updates, or addDoc for new if no specific ID
-                if (docId) { // This means it's an existing document being edited
-                    await window.setDoc(docRef, data, { merge: true }); // Use setDoc with merge for updates
-                    window.showCustomModal('Success', `${collectionName.slice(0, -1)} updated successfully!`, 'info');
-                } else { // This means it's a brand new document with a date-based ID
-                    await window.setDoc(docRef, data); // Use setDoc for creating with specific ID
-                    window.showCustomModal('Success', `${collectionName.slice(0, -1)} added successfully!`, 'info');
-                }
-            } else { // Fallback for other collections if docIdField is empty and no specific ID logic
+            if (docId) { // If docIdField has a value, it's an update
+                const docRef = window.doc(window.db, `artifacts/${window.appId}/public/data/${collectionName}`, docId);
+                await window.setDoc(docRef, data, { merge: true }); // Use setDoc with merge for updates
+                window.showCustomModal('Success', `${collectionName.slice(0, -1)} updated successfully!`, 'info');
+            } else { // Otherwise, it's a new document
                  await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/public/data/${collectionName}`), data);
                  window.showCustomModal('Success', `${collectionName.slice(0, -1)} added successfully!`, 'info');
             }
@@ -384,7 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'link', element: pyqsLink }
     ], pyqsCancelEditBtn));
 
-    // IMPORTANT: Ensure this listener is correctly set up and the fields are correctly referenced.
     awForm.addEventListener('submit', (e) => {
         console.log('[AW Form Listener] Submit event triggered for Answer Writing form.'); // Debug log
         handleFormSubmit(e, 'answerWriting', awDocId, [
@@ -409,6 +483,22 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'description', element: spDescription },
         { name: 'link', element: spLink }
     ], spCancelEditBtn));
+
+    // NEW: Weekly Plan Syllabus Topic Form
+    wpSyllabusTopicForm.addEventListener('submit', (e) => handleFormSubmit(e, 'weeklyPlanSyllabus', wpSyllDocId, [
+        { name: 'subject', element: wpSyllSubject },
+        { name: 'topic', element: wpSyllTopic },
+        { name: 'description', element: wpSyllDescription }
+    ], wpSyllCancelEditBtn));
+
+    // NEW: Weekly Plan Resource Form
+    wpResourceForm.addEventListener('submit', (e) => handleFormSubmit(e, 'weeklyPlanResources', wpResourceDocId, [
+        { name: 'name', element: wpResourceName },
+        { name: 'type', element: wpResourceType },
+        { name: 'link', element: wpResourceLink },
+        { name: 'associatedSubjects', element: wpResourceAssociatedSubjects },
+        { name: 'associatedTopics', element: wpResourceAssociatedTopics }
+    ], wpResourceCancelEditBtn));
 
 
     // Edit Logic (Delegated event listeners for table buttons)
@@ -437,10 +527,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             smLink.value = data.link || '';
                             cancelEditBtn = smCancelEditBtn;
                             break;
-                        case 'currentAffairs': // UPDATED FOR DAILY DIGEST
+                        case 'currentAffairs':
                             formToFill = caForm;
                             docIdField = caDocId;
-                            caDate.value = data.date || ''; // Populate date field
+                            caDate.value = data.date || '';
                             caSummaryTitle.value = data.summaryTitle || '';
                             caSummaryContent.value = data.summaryContent || '';
                             caDailyReportLink.value = data.dailyReportLink || '';
@@ -455,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             pyqsLink.value = data.link || '';
                             cancelEditBtn = pyqsCancelEditBtn;
                             break;
-                        case 'answerWriting': // UPDATED FOR NEW FIELDS
+                        case 'answerWriting':
                             formToFill = awForm;
                             docIdField = awDocId;
                             awDate.value = data.date || '';
@@ -482,6 +572,24 @@ document.addEventListener('DOMContentLoaded', () => {
                             spDescription.value = data.description || '';
                             spLink.value = data.link || '';
                             cancelEditBtn = spCancelEditBtn;
+                            break;
+                        case 'weeklyPlanSyllabus': // NEW
+                            formToFill = wpSyllabusTopicForm;
+                            docIdField = wpSyllDocId;
+                            wpSyllSubject.value = data.subject || '';
+                            wpSyllTopic.value = data.topic || '';
+                            wpSyllDescription.value = data.description || '';
+                            cancelEditBtn = wpSyllCancelEditBtn;
+                            break;
+                        case 'weeklyPlanResources': // NEW
+                            formToFill = wpResourceForm;
+                            docIdField = wpResourceDocId;
+                            wpResourceName.value = data.name || '';
+                            wpResourceType.value = data.type || '';
+                            wpResourceLink.value = data.link || '';
+                            wpResourceAssociatedSubjects.value = (data.associatedSubjects || []).join(', ');
+                            wpResourceAssociatedTopics.value = (data.associatedTopics || []).join(', ');
+                            cancelEditBtn = wpResourceCancelEditBtn;
                             break;
                         default:
                             return;
@@ -527,4 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     awCancelEditBtn.addEventListener('click', () => { awForm.reset(); awDocId.value = ''; awCancelEditBtn.classList.add('hidden'); });
     syllCancelEditBtn.addEventListener('click', () => { syllForm.reset(); syllDocId.value = ''; syllCancelEditBtn.classList.add('hidden'); });
     spCancelEditBtn.addEventListener('click', () => { spForm.reset(); spDocId.value = ''; spCancelEditBtn.classList.add('hidden'); });
+    // NEW: Weekly Plan Cancel Edit buttons
+    wpSyllCancelEditBtn.addEventListener('click', () => { wpSyllabusTopicForm.reset(); wpSyllDocId.value = ''; wpSyllCancelEditBtn.classList.add('hidden'); });
+    wpResourceCancelEditBtn.addEventListener('click', () => { wpResourceForm.reset(); wpResourceDocId.value = ''; wpResourceCancelEditBtn.classList.add('hidden'); });
 });

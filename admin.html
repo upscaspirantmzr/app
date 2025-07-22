@@ -491,14 +491,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         // ADDED setDoc to the import list
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Import getDoc here
 
         // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAn0XLw2XA26UBf4OevQkqp5UESakQI8kg",
             authDomain: "upscbuddy-5050d.firebaseapp.com",
             projectId: "upscbuddy-5050d",
-            storageBucket: "upscbuddy-5050d.firebasestorage.app",
+            storageBucket: "upscbuddy-5050d.firebase-storage.app",
             messagingSenderId: "632136482996",
             appId: "1:632136482996:web:4bebdeb43c266398d697e1",
             measurementId: "G-QLVRYRJFL2"
@@ -526,7 +526,8 @@
         window.updateDoc = updateDoc;
         window.deleteDoc = deleteDoc;
         window.onSnapshot = onSnapshot;
-        window.setDoc = setDoc; // EXPOSED setDoc GLOBALLY
+        window.setDoc = setDoc;
+        window.getDoc = getDoc; // <--- THIS IS THE CRUCIAL LINE I ADDED
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
         window.signOut = signOut;
         window.onAuthStateChanged = onAuthStateChanged;

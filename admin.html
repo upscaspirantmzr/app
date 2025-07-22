@@ -3,401 +3,495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - UPSC Preparation Portal</title>
-    <!-- Tailwind CSS CDN for modern styling -->
+    <title>UPSC Ascent - Admin Portal</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font for a clean and professional look -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles to enhance Tailwind defaults and ensure consistent design */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; /* Light gray background */
+            background-color: #f8fafc;
+            line-height: 1.6;
         }
-        .container {
-            max-width: 1200px; /* Max width for content */
-            margin: 0 auto; /* Center the container */
-            padding: 2rem; /* Ample padding around content */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        .card {
-            background-color: #ffffff;
-            border-radius: 0.75rem; /* Rounded corners for cards */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow */
-            padding: 2rem;
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
         }
-        .btn-primary {
-            background-color: #4f46e5; /* Indigo-600 for primary actions */
-            color: #ffffff;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem; /* Rounded buttons */
-            font-weight: 600; /* Semi-bold text */
-            transition: background-color 0.2s ease-in-out; /* Smooth hover effect */
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
         }
-        .btn-primary:hover {
-            background-color: #4338ca; /* Darker indigo on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
-        .btn-secondary {
-            background-color: #e5e7eb; /* Gray-200 for secondary actions */
-            color: #374151; /* Dark gray text */
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease-in-out;
+        /* Style for active tab */
+        .tab-button.active {
+            background-color: #1a56db; /* Blue-700 */
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .btn-secondary:hover {
-            background-color: #d1d5db; /* Darker gray on hover */
+        /* Animations for modal */
+        @keyframes modal-fade-in {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
-        /* Styling for input fields and textareas */
-        input[type="text"], input[type="email"], input[type="password"], input[type="url"], input[type="date"], textarea {
-            border: 1px solid #d1d5db; /* Light gray border */
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            width: 100%; /* Full width */
-            font-size: 1rem;
-            line-height: 1.5rem;
-            outline: none; /* Remove default outline */
-            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        @keyframes modal-fade-out {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.95); }
         }
-        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="url"]:focus, input[type="date"]:focus, textarea:focus {
-            border-color: #6366f1; /* Indigo-500 border on focus */
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Ring effect on focus */
+        .icon-svg-action {
+            fill: currentColor; /* Allows Tailwind text-color classes to control SVG fill */
         }
-        /* Animation for message box */
-        @keyframes fade-in-down {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fade-out-up {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-20px); }
-        }
-        .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
-        .animate-fade-out-up { animation: fade-out-up 0.3s ease-in forwards; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-    <!-- Header Section -->
-    <header class="bg-indigo-600 text-white p-4 shadow-md">
-        <div class="container flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-            <nav>
-                <button id="logoutBtn" class="btn-secondary">Logout</button>
-            </nav>
+<body class="min-h-screen flex flex-col">
+    <!-- Header - Directly embedded for immediate visibility -->
+    <header class="bg-gradient-to-r from-blue-700 to-blue-900 text-white p-4 shadow-lg rounded-b-lg">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-3xl font-bold mb-2 md:mb-0">UPSC Ascent Admin</h1>
+            <div id="admin-header-controls" class="flex items-center space-x-4">
+                <span id="user-info" class="text-lg"></span>
+                <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors duration-200 hidden">Logout</button>
+                <a href="index.html" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200">Go to Portal</a>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow container mt-8">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Admin Panel</h2>
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- Login Section - Initially shown, hidden if logged in -->
+        <div id="login-section" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-xl border border-gray-200 mt-10">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Admin Login</h2>
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">Email:</label>
+                    <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password:</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Login</button>
+                <p id="login-error" class="text-red-600 text-sm text-center mt-2 hidden"></p>
+            </form>
+        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Verify Students Card -->
-            <div class="card">
-                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Verify Students</h3>
-                <div id="unverifiedStudentsList" class="space-y-4">
-                    <!-- List of unverified students will be loaded here -->
-                    <p class="text-gray-500">Loading unverified students...</p>
+        <!-- Admin Dashboard - Initially hidden, shown if logged in -->
+        <div id="admin-dashboard" class="hidden mt-10">
+            <h2 class="text-4xl font-bold text-gray-800 mb-8 text-center">Admin Dashboard</h2>
+
+            <!-- Tab Navigation -->
+            <div class="flex flex-wrap justify-center mb-8 bg-gray-100 rounded-lg p-2 shadow-inner">
+                <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium active" data-tab="studyMaterials">Study Materials</button>
+                <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="currentAffairs">Current Affairs</button>
+                <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="pyqs">PYQs</button>
+                <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="answerWriting">Answer Writing</button>
+                <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="syllabus">Syllabus</button>
+                <button class="tab-button px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-blue-100 transition-colors duration-200 font-medium ml-2 mt-2 md:mt-0" data-tab="studyPlanners">Study Planners</button>
+            </div>
+
+            <!-- Tab Content: Study Materials -->
+            <div id="tab-content-studyMaterials" class="tab-content bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Manage Study Materials</h3>
+                <form id="study-material-form" class="space-y-4 mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <input type="hidden" id="sm-doc-id">
+                    <div>
+                        <label for="sm-title" class="block text-gray-700 text-sm font-semibold mb-2">Title:</label>
+                        <input type="text" id="sm-title" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="sm-description" class="block text-gray-700 text-sm font-semibold mb-2">Description:</label>
+                        <textarea id="sm-description" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24" required></textarea>
+                    </div>
+                    <div>
+                        <label for="sm-link" class="block text-gray-700 text-sm font-semibold mb-2">Link (URL):</label>
+                        <input type="url" id="sm-link" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Add/Update Material</button>
+                        <button type="button" id="sm-cancel-edit" class="bg-gray-400 text-white py-2 px-6 rounded-md hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-md hidden">Cancel Edit</button>
+                    </div>
+                </form>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">Title</th>
+                                <th class="py-3 px-6 text-left">Description</th>
+                                <th class="py-3 px-6 text-left">Link</th>
+                                <th class="py-3 px-6 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sm-table-body" class="text-gray-600 text-sm font-light">
+                            <tr><td colspan="4" class="py-4 text-center">Loading materials...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Upload New Document Card -->
-            <div class="card">
-                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Upload New Document</h3>
-                <form id="uploadDocumentForm" class="space-y-4">
+            <!-- Tab Content: Current Affairs - UPDATED FOR DAILY DIGEST -->
+            <div id="tab-content-currentAffairs" class="tab-content hidden bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Manage Daily Current Affairs Digests</h3>
+                <form id="current-affairs-form" class="space-y-4 mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <input type="hidden" id="ca-doc-id">
                     <div>
-                        <label for="docTitle" class="block text-gray-700 text-sm font-medium mb-1">Document Title</label>
-                        <input type="text" id="docTitle" placeholder="e.g., Indian Economy PDF" required>
+                        <label for="ca-date" class="block text-gray-700 text-sm font-semibold mb-2">Date (YYYY-MM-DD):</label>
+                        <input type="date" id="ca-date" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
-                        <label for="docUrl" class="block text-gray-700 text-sm font-medium mb-1">Document URL (PDF link)</label>
-                        <input type="url" id="docUrl" placeholder="https://example.com/document.pdf" required>
+                        <label for="ca-summary-title" class="block text-gray-700 text-sm font-semibold mb-2">Summary Title (e.g., Daily CA: July 22, 2025):</label>
+                        <input type="text" id="ca-summary-title" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
-                        <label for="docDescription" class="block text-gray-700 text-sm font-medium mb-1">Description</label>
-                        <textarea id="docDescription" rows="3" placeholder="Brief description of the document"></textarea>
+                        <label for="ca-summary-content" class="block text-gray-700 text-sm font-semibold mb-2">Summary Content (Full daily digest):</label>
+                        <textarea id="ca-summary-content" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-48" required placeholder="Write the comprehensive daily current affairs summary here. Markdown is supported on the frontend."></textarea>
                     </div>
-                    <button type="submit" class="btn-primary w-full">Upload Document</button>
+                    <div>
+                        <label for="ca-daily-report-link" class="block text-gray-700 text-sm font-semibold mb-2">Daily Report Link (Optional URL to PDF/external page):</label>
+                        <input type="url" id="ca-daily-report-link" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Add/Update Digest</button>
+                        <button type="button" id="ca-cancel-edit" class="bg-gray-400 text-white py-2 px-6 rounded-md hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-md hidden">Cancel Edit</button>
+                    </div>
                 </form>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">Date</th>
+                                <th class="py-3 px-6 text-left">Summary Title</th>
+                                <th class="py-3 px-6 text-left">Content Preview</th>
+                                <th class="py-3 px-6 text-left">Report Link</th>
+                                <th class="py-3 px-6 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ca-table-body" class="text-gray-600 text-sm font-light">
+                            <tr><td colspan="5" class="py-4 text-center">Loading daily digests...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- Add Daily Target Card -->
-            <div class="card">
-                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Add Daily Target</h3>
-                <form id="addTargetForm" class="space-y-4">
+            <!-- Tab Content: PYQs -->
+            <div id="tab-content-pyqs" class="tab-content hidden bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Manage Previous Year Questions (PYQs)</h3>
+                <form id="pyqs-form" class="space-y-4 mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <input type="hidden" id="pyqs-doc-id">
                     <div>
-                        <label for="targetDate" class="block text-gray-700 text-sm font-medium mb-1">Target Date</label>
-                        <input type="date" id="targetDate" required>
+                        <label for="pyqs-year" class="block text-gray-700 text-sm font-semibold mb-2">Year:</label>
+                        <input type="number" id="pyqs-year" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required min="2000" max="${new Date().getFullYear()}">
                     </div>
                     <div>
-                        <label for="targetText" class="block text-gray-700 text-sm font-medium mb-1">Target Description</label>
-                        <textarea id="targetText" rows="4" placeholder="e.g., Complete Chapter 3 of Indian Polity" required></textarea>
+                        <label for="pyqs-paper" class="block text-gray-700 text-sm font-semibold mb-2">Paper (e.g., GS Paper I, CSAT, Essay):</label>
+                        <input type="text" id="pyqs-paper" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
-                    <button type="submit" class="btn-primary w-full">Add Target</button>
+                    <div>
+                        <label for="pyqs-description" class="block text-gray-700 text-sm font-semibold mb-2">Description (e.g., Full Paper, Sectional):</label>
+                        <textarea id="pyqs-description" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-20"></textarea>
+                    </div>
+                    <div>
+                        <label for="pyqs-link" class="block text-gray-700 text-sm font-semibold mb-2">Link (URL to PDF/Page):</label>
+                        <input type="url" id="pyqs-link" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Add/Update PYQ</button>
+                        <button type="button" id="pyqs-cancel-edit" class="bg-gray-400 text-white py-2 px-6 rounded-md hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-md hidden">Cancel Edit</button>
+                    </div>
                 </form>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">Year</th>
+                                <th class="py-3 px-6 text-left">Paper</th>
+                                <th class="py-3 px-6 text-left">Description</th>
+                                <th class="py-3 px-6 text-left">Link</th>
+                                <th class="py-3 px-6 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pyqs-table-body" class="text-gray-600 text-sm font-light">
+                            <tr><td colspan="5" class="py-4 text-center">Loading PYQs...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- Add General Note Card -->
-            <div class="card">
-                <h3 class="text-2xl font-semibold mb-4 text-indigo-700">Add General Note</h3>
-                <form id="addNoteForm" class="space-y-4">
+            <!-- Tab Content: Answer Writing Practice - UPDATED FIELDS -->
+            <div id="tab-content-answerWriting" class="tab-content hidden bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Manage Answer Writing Practice Questions</h3>
+                <form id="answer-writing-form" class="space-y-4 mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <input type="hidden" id="aw-doc-id">
                     <div>
-                        <label for="noteTitle" class="block text-gray-700 text-sm font-medium mb-1">Note Title</label>
-                        <input type="text" id="noteTitle" placeholder="e.g., Important Current Affairs Update" required>
+                        <label for="aw-date" class="block text-gray-700 text-sm font-semibold mb-2">Date (YYYY-MM-DD):</label>
+                        <input type="date" id="aw-date" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
-                        <label for="noteText" class="block text-gray-700 text-sm font-medium mb-1">Note Content</label>
-                        <textarea id="noteText" rows="4" placeholder="Type your note here..." required></textarea>
+                        <label for="aw-question" class="block text-gray-700 text-sm font-semibold mb-2">Question:</label>
+                        <textarea id="aw-question" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24" required placeholder="Type the full Mains question here."></textarea>
                     </div>
-                    <button type="submit" class="btn-primary w-full">Add Note</button>
+                    <div>
+                        <label for="aw-model-answer-content" class="block text-gray-700 text-sm font-semibold mb-2">Model Answer Content (Use HTML for structure, e.g., &lt;h2&gt;, &lt;ul&gt;, &lt;table&gt;):</label>
+                        <textarea id="aw-model-answer-content" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-48" placeholder="Provide the detailed model answer here. You can use HTML tags for headings, lists, tables, etc."></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="aw-difficulty" class="block text-gray-700 text-sm font-semibold mb-2">Difficulty:</label>
+                            <select id="aw-difficulty" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Difficulty</option>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="aw-marks" class="block text-gray-700 text-sm font-semibold mb-2">Marks:</label>
+                            <input type="number" id="aw-marks" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" max="250">
+                        </div>
+                        <div>
+                            <label for="aw-time-limit-minutes" class="block text-gray-700 text-sm font-semibold mb-2">Time Limit (Minutes):</label>
+                            <input type="number" id="aw-time-limit-minutes" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" max="60">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="aw-official-link" class="block text-gray-700 text-sm font-semibold mb-2">Official Link (Optional URL to source/resource):</label>
+                        <input type="url" id="aw-official-link" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Add/Update Question</button>
+                        <button type="button" id="aw-cancel-edit" class="bg-gray-400 text-white py-2 px-6 rounded-md hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-md hidden">Cancel Edit</button>
+                    </div>
                 </form>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">Date</th>
+                                <th class="py-3 px-6 text-left">Question Preview</th>
+                                <th class="py-3 px-6 text-left">Difficulty</th>
+                                <th class="py-3 px-6 text-left">Marks</th>
+                                <th class="py-3 px-6 text-left">Time</th>
+                                <th class="py-3 px-6 text-left">Link</th>
+                                <th class="py-3 px-6 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="aw-table-body" class="text-gray-600 text-sm font-light">
+                            <tr><td colspan="7" class="py-4 text-center">Loading questions...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Content: Syllabus -->
+            <div id="tab-content-syllabus" class="tab-content hidden bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Manage Syllabus Sections</h3>
+                <form id="syllabus-form" class="space-y-4 mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <input type="hidden" id="syll-doc-id">
+                    <div>
+                        <label for="syll-title" class="block text-gray-700 text-sm font-semibold mb-2">Section Title (e.g., Prelims GS I - History):</label>
+                        <input type="text" id="syll-title" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="syll-content" class="block text-gray-700 text-sm font-semibold mb-2">Syllabus Content (Use HTML for tables/lists, or Markdown):</label>
+                        <textarea id="syll-content" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-32" required placeholder="Example HTML: <h2>Topic</h2><ul><li>Point 1</li><li>Point 2</li></ul><table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Data</td></tr></tbody></table>"></textarea>
+                    </div>
+                    <div>
+                        <label for="syll-link" class="block text-gray-700 text-sm font-semibold mb-2">Official Link (Optional):</label>
+                        <input type="url" id="syll-link" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Add/Update Syllabus</button>
+                        <button type="button" id="syll-cancel-edit" class="bg-gray-400 text-white py-2 px-6 rounded-md hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-md hidden">Cancel Edit</button>
+                    </div>
+                </form>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">Section Title</th>
+                                <th class="py-3 px-6 text-left">Content Preview</th>
+                                <th class="py-3 px-6 text-left">Official Link</th>
+                                <th class="py-3 px-6 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="syll-table-body" class="text-gray-600 text-sm font-light">
+                            <tr><td colspan="4" class="py-4 text-center">Loading syllabus sections...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Content: Study Planners -->
+            <div id="tab-content-studyPlanners" class="tab-content hidden bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Manage Study Planners/Tips</h3>
+                <form id="study-planner-form" class="space-y-4 mb-8 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <input type="hidden" id="sp-doc-id">
+                    <div>
+                        <label for="sp-title" class="block text-gray-700 text-sm font-semibold mb-2">Planner/Tip Title:</label>
+                        <input type="text" id="sp-title" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="sp-description" class="block text-gray-700 text-sm font-semibold mb-2">Description/Content:</label>
+                        <textarea id="sp-description" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24" required></textarea>
+                    </div>
+                    <div>
+                        <label for="sp-link" class="block text-gray-700 text-sm font-semibold mb-2">Link (Optional, e.g., detailed planner PDF):</label>
+                        <input type="url" id="sp-link" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Add/Update Planner</button>
+                        <button type="button" id="sp-cancel-edit" class="bg-gray-400 text-white py-2 px-6 rounded-md hover:bg-gray-500 transition-colors duration-200 font-semibold shadow-md hidden">Cancel Edit</button>
+                    </div>
+                </form>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">Title</th>
+                                <th class="py-3 px-6 text-left">Description</th>
+                                <th class="py-3 px-6 text-left">Link</th>
+                                <th class="py-3 px-6 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sp-table-body" class="text-gray-600 text-sm font-light">
+                            <tr><td colspan="4" class="py-4 text-center">Loading planners...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Footer Section -->
-    <footer class="bg-gray-800 text-white p-4 mt-8">
-        <div class="container text-center text-sm">
-            &copy; 2025 UPSC Preparation Portal. All rights reserved.
+    <!-- Footer - Directly embedded -->
+    <footer class="bg-gray-800 text-white p-6 text-center mt-12 rounded-t-lg shadow-inner">
+        <div class="container mx-auto">
+            <p class="mb-2">&copy; 2025 UPSC Ascent. Admin Portal.</p>
+            <p class="text-sm opacity-80">Manage content for your UPSC aspirants.</p>
         </div>
     </footer>
 
-    <!-- Firebase SDKs - Loaded as a module for modern JavaScript -->
+    <!-- Firebase SDKs - Initialized here for direct page access -->
     <script type="module">
-        // Import necessary Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        // ADDED setDoc to the import list
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Firebase Configuration provided by the user
+        // Your Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyB47PN51DxVExryra_tYeW2kuGNK9wmyFo",
-            authDomain: "upscbuddymzr.firebaseapp.com",
-            projectId: "upscbuddymzr",
-            storageBucket: "upscbuddymzr.firebasestorage.app",
-            messagingSenderId: "478927698160",
-            appId: "1:478927698160:web:53fb75ad368005bd0b6a35",
-            measurementId: "G-P9P6K4VVEQ"
+            apiKey: "AIzaSyAn0XLw2XA26UBf4OevQkqp5UESakQI8kg",
+            authDomain: "upscbuddy-5050d.firebaseapp.com",
+            projectId: "upscbuddy-5050d",
+            storageBucket: "upscbuddy-5050d.firebasestorage.app",
+            messagingSenderId: "632136482996",
+            appId: "1:632136482996:web:4bebdeb43c266398d697e1",
+            measurementId: "G-QLVRYRJFL2"
         };
-        const appId = firebaseConfig.projectId; // Use projectId as appId for consistency with Firestore paths
 
-        let app, db, auth, userId = null; // Declare Firebase instances and current user ID
+        // Global variables for Firebase instances
+        window.firebaseApp = null;
+        window.db = null;
+        window.auth = null;
+        window.userId = null;
+        window.appId = firebaseConfig.appId.split(':')[1]; // Extract appId from the provided config
+        window.isAuthReady = false; // Flag to indicate auth state is ready
 
-        // Initialize Firebase services
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            console.log("Firebase initialized successfully.");
-        } catch (error) {
-            console.error("Error initializing Firebase:", error);
-            showMessageBox("Error initializing Firebase. Please check your configuration.", 'error');
-        }
+        // Initialize Firebase
+        window.firebaseApp = initializeApp(firebaseConfig);
+        window.db = getFirestore(window.firebaseApp);
+        window.auth = getAuth(window.firebaseApp);
 
-        // --- DOM Element References ---
-        const logoutBtn = document.getElementById('logoutBtn');
-        const unverifiedStudentsList = document.getElementById('unverifiedStudentsList');
-        const uploadDocumentForm = document.getElementById('uploadDocumentForm');
-        const docTitleInput = document.getElementById('docTitle');
-        const docUrlInput = document.getElementById('docUrl');
-        const docDescriptionInput = document.getElementById('docDescription');
+        // Make Firebase instances and utility functions globally available for admin.js
+        window.getFirestore = getFirestore;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.onSnapshot = onSnapshot;
+        window.setDoc = setDoc; // EXPOSED setDoc GLOBALLY
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
 
-        const addTargetForm = document.getElementById('addTargetForm');
-        const targetDateInput = document.getElementById('targetDate');
-        const targetTextInput = document.getElementById('targetText');
-
-        const addNoteForm = document.getElementById('addNoteForm');
-        const noteTitleInput = document.getElementById('noteTitle');
-        const noteTextInput = document.getElementById('noteText');
-
-        // --- Utility Functions ---
-
-        /**
-         * Displays a custom, temporary message box to the user.
-         * This replaces the browser's default alert() for a better UX.
-         * @param {string} message The message content to display.
-         * @param {string} type The type of message ('success', 'error', 'info', 'warning') to determine styling.
-         */
-        function showMessageBox(message, type = 'info') {
-            let bgColor = 'bg-blue-500'; // Default info color
-            if (type === 'success') bgColor = 'bg-green-500';
-            else if (type === 'error') bgColor = 'bg-red-500';
-            else if (type === 'warning') bgColor = 'bg-yellow-500';
-
-            const messageBox = document.createElement('div');
-            messageBox.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white ${bgColor} z-50 animate-fade-in-down`;
-            messageBox.textContent = message;
-            document.body.appendChild(messageBox);
-
-            // Automatically remove the message box after 3 seconds
-            setTimeout(() => {
-                messageBox.classList.add('animate-fade-out-up');
-                messageBox.addEventListener('animationend', () => messageBox.remove());
-            }, 3000);
-        }
-
-        /**
-         * Handles user logout and redirects to the login page.
-         */
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showMessageBox("Logged out successfully.", 'info');
-                window.location.href = 'login.html'; // Redirect to login page
-            } catch (error) {
-                console.error("Error during logout:", error);
-                showMessageBox(`Logout failed: ${error.message}`, 'error');
-            }
-        });
-
-        // --- Firebase Authentication State Listener ---
-
-        /**
-         * Listens for changes in the user's authentication state (login/logout).
-         * This is the central point for managing UI visibility based on user status.
-         */
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid; // Set the global userId
-                // Check if the user's email ends with @mzr.in for admin access
-                if (user.email && user.email.endsWith('@mzr.in')) {
-                    loadAdminContent(); // Load admin-specific data
-                } else {
-                    // If not an admin, redirect to student dashboard or login
-                    showMessageBox("Access Denied: Redirecting to student dashboard.", 'warning');
-                    window.location.href = 'student.html'; // Redirect to student.html if not admin
-                }
-            } else {
-                // If no user is logged in, redirect to the login page
-                userId = null;
-                showMessageBox("You are not logged in. Redirecting to login page.", 'info');
-                window.location.href = 'login.html';
-            }
-        });
-
-        // --- Admin Dashboard Content Loading & Actions ---
-
-        /**
-         * Loads and displays unverified students for the admin dashboard.
-         * Also sets up event listeners for verifying students.
-         */
-        function loadAdminContent() {
-            // Query for students whose 'isVerified' field is false
-            // Note: The 'profile.data.role' check is done implicitly by the security rules
-            const q = query(collection(db, `artifacts/${appId}/users`), where("profile.data.isVerified", "==", false));
-            onSnapshot(q, (snapshot) => {
-                unverifiedStudentsList.innerHTML = ''; // Clear existing list
-                if (snapshot.empty) {
-                    unverifiedStudentsList.innerHTML = '<p class="text-gray-500">No unverified students at the moment.</p>';
-                    return;
-                }
-                // Iterate through unverified student documents and create HTML elements
-                snapshot.forEach(userDoc => {
-                    const studentData = userDoc.data().profile.data; // Access the nested profile.data
-                    const studentId = userDoc.id; // The user's UID is the document ID
-                    const studentElement = `
-                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 flex justify-between items-center">
-                            <div>
-                                <p class="font-semibold text-gray-800">${studentData.email}</p>
-                                <p class="text-sm text-gray-600">User ID: ${studentId}</p>
-                            </div>
-                            <button class="btn-primary btn-sm verify-student-btn" data-uid="${studentId}">Verify</button>
+        // Custom modal function (instead of alert/confirm)
+        window.showCustomModal = function(title, message, type = 'info', callback = null) {
+            const modalId = 'custom-modal-' + Date.now();
+            const modalHtml = `
+                <div id="${modalId}" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-auto p-6 transform transition-all duration-300 scale-95 opacity-0" style="animation: modal-fade-in 0.3s forwards;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold ${type === 'error' ? 'text-red-600' : 'text-blue-600'}">${title}</h3>
+                            <button class="text-gray-500 hover:text-gray-700 close-modal-btn" data-modal-id="${modalId}">&times;</button>
                         </div>
-                    `;
-                    unverifiedStudentsList.innerHTML += studentElement;
-                });
+                        <p class="text-gray-700 mb-6">${message}</p>
+                        <div class="flex justify-end">
+                            <button class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 close-modal-btn" data-modal-id="${modalId}">OK</button>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes modal-fade-in {
+                        from { opacity: 0; transform: scale(0.95); }
+                        to { opacity: 1; transform: scale(1); }
+                    }
+                    @keyframes modal-fade-out {
+                        from { opacity: 1; transform: scale(1); }
+                        to { opacity: 0; transform: scale(0.95); }
+                    }
+                </style>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-                // Attach click event listeners to all newly rendered 'Verify' buttons
-                document.querySelectorAll('.verify-student-btn').forEach(button => {
-                    button.onclick = async (e) => {
-                        const uidToVerify = e.target.dataset.uid; // Get the UID from the button's data attribute
-                        try {
-                            // Update the student's document to set isVerified to true
-                            await updateDoc(doc(db, `artifacts/${appId}/users/${uidToVerify}/profile/data`), {
-                                isVerified: true
-                            });
-                            showMessageBox(`Student ${uidToVerify} verified successfully!`, 'success');
-                        } catch (error) {
-                            console.error("Error verifying student:", error);
-                            showMessageBox(`Failed to verify student: ${error.message}`, 'error');
-                        }
-                    };
-                });
-            }, (error) => {
-                console.error("Error fetching unverified students:", error);
-                showMessageBox("Failed to load unverified students for admin panel. Check console for details.", 'error');
+            const modalElement = document.getElementById(modalId);
+            modalElement.querySelectorAll('.close-modal-btn').forEach(button => {
+                button.onclick = () => {
+                    modalElement.style.animation = 'modal-fade-out 0.3s forwards';
+                    modalElement.addEventListener('animationend', () => modalElement.remove());
+                    if (callback) callback();
+                };
             });
-        }
+        };
 
-        /**
-         * Handles the submission of the document upload form by admin.
-         */
-        uploadDocumentForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = docTitleInput.value;
-            const url = docUrlInput.value;
-            const description = docDescriptionInput.value;
+        // Global navigation function (for admin to go to portal)
+        window.navigate = function(page) {
+            window.location.href = page;
+        };
 
-            try {
-                // Add a new document record to the 'documents' collection
-                await addDoc(collection(db, `artifacts/${appId}/public/data/documents`), {
-                    title,
-                    url,
-                    description,
-                    uploadedAt: serverTimestamp() // Record the upload time
-                });
-                showMessageBox("Document uploaded successfully!", 'success');
-                uploadDocumentForm.reset(); // Clear the form fields
-            } catch (error) {
-                console.error("Error uploading document:", error);
-                showMessageBox(`Failed to upload document: ${error.message}`, 'error');
-            }
-        });
+        // Admin page specific logic for showing/hiding dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginSection = document.getElementById('login-section');
+            const adminDashboard = document.getElementById('admin-dashboard');
 
-        /**
-         * Handles the submission of the daily target form by admin.
-         */
-        addTargetForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const date = targetDateInput.value; // Date in YYYY-MM-DD format
-            const text = targetTextInput.value;
-
-            try {
-                // Add a new target record to the 'targets' collection
-                await addDoc(collection(db, `artifacts/${appId}/public/data/targets`), {
-                    date,
-                    text,
-                    createdAt: serverTimestamp()
-                });
-                showMessageBox("Daily target added successfully!", 'success');
-                addTargetForm.reset(); // Clear the form fields
-            } catch (error) {
-                console.error("Error adding target:", error);
-                showMessageBox(`Failed to add target: ${error.message}`, 'error');
-            }
-        });
-
-        /**
-         * Handles the submission of the general note form by admin.
-         */
-        addNoteForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = noteTitleInput.value;
-            const text = noteTextInput.value;
-
-            try {
-                // Add a new note record to the 'notes' collection
-                await addDoc(collection(db, `artifacts/${appId}/public/data/notes`), {
-                    title,
-                    text,
-                    createdAt: serverTimestamp()
-                });
-                showMessageBox("General note added successfully!", 'success');
-                addNoteForm.reset(); // Clear the form fields
-            } catch (error) {
-                console.error("Error adding note:", error);
-                showMessageBox(`Failed to add note: ${error.message}`, 'error');
-            }
+            // Initial check on page load
+            onAuthStateChanged(window.auth, (user) => {
+                if (user) {
+                    loginSection.classList.add('hidden');
+                    adminDashboard.classList.remove('hidden');
+                    // Trigger initial content load for the active tab
+                    const activeTabButton = document.querySelector('.tab-button.active');
+                    if (activeTabButton) {
+                        // This call is now handled by admin.js's onAuthStateChanged listener
+                        // which is designed to wait for isAuthReady.
+                        // No need to call loadContent directly here in HTML.
+                    }
+                } else {
+                    loginSection.classList.remove('hidden');
+                    adminDashboard.classList.add('hidden');
+                }
+            });
         });
     </script>
+    <!-- Admin-specific JavaScript for login and content management -->
+    <script type="module" src="js/admin.js"></script>
 </body>
 </html>

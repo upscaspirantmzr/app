@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPSC Prep Hub - Student Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6; /* bg-gray-100 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Hide pages by default, show only the active one via JS */
+        .page-content {
+            display: none;
+        }
+        .container {
+            max-width: 1280px; /* Equivalent to mx-auto */
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem; /* p-4 */
+            padding-right: 1rem; /* p-4 */
+        }
+        /* Style for active navigation button */
+        .nav-button.active {
+            background-color: #2563eb; /* blue-600 */
+            font-weight: bold;
+        }
+        /* Style for modal confirmation buttons */
+        .modal-confirm-btn {
+            background-color: #22c55e; /* green-500 */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.3s;
+        }
+        .modal-confirm-btn:hover {
+            background-color: #16a34a; /* green-600 */
+        }
+        .modal-cancel-btn {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.3s;
+        }
+        .modal-cancel-btn:hover {
+            background-color: #dc2626; /* red-600 */
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100 font-sans text-gray-900 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-700 to-blue-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-3xl font-extrabold mb-2 md:mb-0">UPSC Prep Hub - Student</h1>
+            <nav class="flex flex-wrap gap-4 md:gap-6">
+                <button id="nav-login" class="nav-button px-4 py-2 rounded-md transition-colors duration-300 hover:bg-blue-600">
+                    Login/Register
+                </button>
+                <button id="nav-student-dashboard" class="nav-button px-4 py-2 rounded-md transition-colors duration-300 hover:bg-blue-600 hidden">
+                    Dashboard
+                </button>
+                <button id="nav-student-targets" class="nav-button px-4 py-2 rounded-md transition-colors duration-300 hover:bg-blue-600 hidden">
+                    Targets
+                </button>
+                <button id="nav-student-documents" class="nav-button px-4 py-2 rounded-md transition-colors duration-300 hover:bg-blue-600 hidden">
+                    Documents
+                </button>
+                <button id="nav-student-test-series" class="nav-button px-4 py-2 rounded-md transition-colors duration-300 hover:bg-blue-600 hidden">
+                    Test Series
+                </button>
+                <button id="nav-student-payment" class="nav-button px-4 py-2 rounded-md transition-colors duration-300 hover:bg-blue-600 hidden">
+                    Payment
+                </button>
+                <button id="nav-logout" class="nav-button px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 transition-colors duration-300 hidden">
+                    Logout
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto flex-grow p-4">
+        <!-- User ID Display -->
+        <div id="user-id-display" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md mb-4 shadow-sm hidden" role="alert">
+            <p class="font-bold">Logged in as: <span id="current-user-role" class="font-semibold capitalize"></span></p>
+            <p id="current-user-id" class="break-all text-sm"></p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-spinner" class="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl font-semibold text-gray-700">
+            Loading UPSC Prep Hub...
+        </div>
+
+        <!-- Message Modal -->
+        <div id="message-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+                <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800"></h3>
+                <p id="modal-message" class="text-gray-700 mb-6"></p>
+                <div id="modal-buttons" class="flex justify-end space-x-4">
+                    <button id="modal-close-btn" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login/Register Page -->
+        <div id="page-login" class="page-content p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Login or Register</h2>
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <button type="submit" id="login-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300">
+                    Login
+                </button>
+                <button type="button" id="register-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-300">
+                    Register
+                </button>
+            </form>
+        </div>
+
+        <!-- Student Dashboard Page -->
+        <div id="page-student-dashboard" class="page-content p-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Student Dashboard</h2>
+            <p class="text-lg text-gray-600 mb-4">Welcome, student! Here's an overview of your preparation.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Daily Targets</h3>
+                    <p class="text-gray-600">View your daily study goals set by the teacher.</p>
+                    <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300" onclick="showPage('student-targets')">
+                        View Targets
+                    </button>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Study Documents</h3>
+                    <p class="text-gray-600">Access important PDFs, notes, and study materials.</p>
+                    <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300" onclick="showPage('student-documents')">
+                        View Documents
+                    </button>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Test Series</h3>
+                    <p class="text-gray-600">Practice with UPSC Prelims mock tests.</p>
+                    <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300" onclick="showPage('student-test-series')">
+                        Start Practice
+                    </button>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Payment & Enrollment</h3>
+                    <p class="text-gray-600">Check your payment status and course enrollment.</p>
+                    <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300" onclick="showPage('student-payment')">
+                        Manage Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Targets Page -->
+        <div id="page-student-targets" class="page-content p-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Daily Targets</h2>
+            <div id="student-targets-list" class="space-y-4">
+                <p class="text-gray-600">Loading daily targets...</p>
+            </div>
+        </div>
+
+        <!-- Student Documents Page -->
+        <div id="page-student-documents" class="page-content p-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Study Documents & Notes</h2>
+            <div id="student-documents-list" class="space-y-4">
+                <p class="text-gray-600">Loading documents...</p>
+            </div>
+        </div>
+
+        <!-- Student Test Series Page -->
+        <div id="page-student-test-series" class="page-content p-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">UPSC Prelims Test Series</h2>
+
+            <!-- Test List View -->
+            <div id="test-list-view">
+                <h3 class="text-2xl font-bold text-gray-700 mb-4">Available Test Series</h3>
+                <div id="available-test-series-list" class="space-y-4">
+                    <p class="text-gray-600">Loading test series...</p>
+                </div>
+            </div>
+
+            <!-- Test Taking View -->
+            <div id="test-taking-view" class="hidden">
+                <h3 id="test-title" class="text-2xl font-bold text-gray-700 mb-4"></h3>
+                <p class="text-gray-600 mb-4">Question <span id="current-question-number">1</span> of <span id="total-questions">0</span></p>
+                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                    <p id="question-text" class="text-lg font-semibold text-gray-800 mb-4"></p>
+                    <div id="question-options" class="space-y-3">
+                        <!-- Options will be loaded here -->
+                    </div>
+                </div>
+                <div class="flex justify-between mt-4">
+                    <button id="prev-question-btn" class="px-6 py-3 bg-gray-400 text-white rounded-md hover:bg-gray-500 transition-colors duration-300" disabled>Previous</button>
+                    <button id="next-question-btn" class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300">Next</button>
+                    <button id="submit-test-btn" class="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-300 hidden">Submit Test</button>
+                </div>
+            </div>
+
+            <!-- Test Results View -->
+            <div id="test-results-view" class="hidden">
+                <h3 class="text-2xl font-bold text-gray-700 mb-4">Test Results</h3>
+                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                    <p class="text-lg font-semibold text-gray-800 mb-2">Score: <span id="result-score"></span> / <span id="result-total-marks"></span></p>
+                    <p class="text-lg font-semibold text-gray-800 mb-2">Correct Answers: <span id="result-correct-count"></span></p>
+                    <p class="text-lg font-semibold text-gray-800 mb-2">Incorrect Answers: <span id="result-incorrect-count"></span></p>
+                    <p class="text-lg font-semibold text-gray-800 mb-4">Result: <span id="result-status" class="font-bold"></span></p>
+                    <button id="review-answers-btn" class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300">Review Answers</button>
+                    <button id="back-to-tests-btn" class="px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-300 ml-2">Back to Tests</button>
+                </div>
+                <div id="review-questions-list" class="space-y-6 mt-6">
+                    <!-- Reviewed questions will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Payment Page -->
+        <div id="page-student-payment" class="page-content p-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Payment & Enrollment Status</h2>
+            <div id="payment-status-info" class="bg-blue-50 p-4 rounded-lg shadow-sm mb-6">
+                <p class="text-lg font-semibold text-blue-800 mb-2">Your Enrollment Status: <span id="enrollment-status" class="font-bold">Checking...</span></p>
+                <p class="text-gray-700">Payment Verification: <span id="payment-verification-status" class="font-bold">Checking...</span></p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Enroll in a Course</h3>
+                <p class="text-gray-600 mb-4">To enroll, please make a payment using the universal link below and then request verification from the admin.</p>
+                <div class="mb-4">
+                    <label for="select-course-to-enroll" class="block text-sm font-medium text-gray-700 mb-2">Select Course to Enroll:</label>
+                    <select id="select-course-to-enroll" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <option value="">-- Select a Course --</option>
+                    </select>
+                </div>
+                <div id="selected-course-payment-link-container" class="mb-4 hidden">
+                    <p class="text-gray-700 mb-2">Payment Link for <span id="selected-course-name" class="font-semibold"></span>:</p>
+                    <a id="selected-course-payment-link" href="#" target="_blank" class="text-blue-600 hover:underline font-medium break-all">Click here to pay</a>
+                </div>
+
+                <button id="request-payment-verification-btn" class="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-300 mt-4" disabled>
+                    Request Payment Verification
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white p-4 text-center mt-8">
+        <div class="container mx-auto text-sm">
+            &copy; <span id="current-year"></span> UPSC Prep Hub. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs and Custom JS -->
+    <script type="module" src="./firebase_config.js"></script>
+    <script type="module" src="./firebase_auth_listeners.js"></script>
+    <script type="module" src="./student_logic.js"></script>
+
+    <script>
+        // Initial setup for footer year
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

@@ -5,16 +5,15 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- Firebase Configuration ---
-// IMPORTANT: Replace the following with your actual Firebase project configuration.
-// Go to your Firebase project -> Project settings (gear icon) -> Your apps -> Web app -> Firebase SDK snippet -> Config
+// IMPORTANT: These have been updated with the keys you provided.
 const firebaseConfig = {
-  apiKey: "AIzaSyB47PN51DxVExryra_tYeW2kuGNK9wmyFo",
-  authDomain: "upscbuddymzr.firebaseapp.com",
-  projectId: "upscbuddymzr",
-  storageBucket: "upscbuddymzr.firebasestorage.app",
-  messagingSenderId: "478927698160",
-  appId: "1:478927698160:web:53fb75ad368005bd0b6a35",
-  measurementId: "G-P9P6K4VVEQ"
+    apiKey: "AIzaSyB47PN51DxVExryra_tYeW2kuGNK9wmyFo",
+    authDomain: "upscbuddymzr.firebaseapp.com",
+    projectId: "upscbuddymzr",
+    storageBucket: "upscbuddymzr.firebasestorage.app",
+    messagingSenderId: "478927698160",
+    appId: "1:478927698160:web:53fb75ad368005bd0b6a35",
+    measurementId: "G-P9P6K4VVEQ" // measurementId is optional and not directly used in the app logic
 };
 
 // This will be used as the 'appId' part in your Firestore paths (e.g., artifacts/YOUR_PROJECT_ID/...)

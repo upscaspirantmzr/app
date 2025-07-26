@@ -8,12 +8,13 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase
 // IMPORTANT: Replace the following with your actual Firebase project configuration.
 // Go to your Firebase project -> Project settings (gear icon) -> Your apps -> Web app -> Firebase SDK snippet -> Config
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyB47PN51DxVExryra_tYeW2kuGNK9wmyFo",
+  authDomain: "upscbuddymzr.firebaseapp.com",
+  projectId: "upscbuddymzr",
+  storageBucket: "upscbuddymzr.firebasestorage.app",
+  messagingSenderId: "478927698160",
+  appId: "1:478927698160:web:53fb75ad368005bd0b6a35",
+  measurementId: "G-P9P6K4VVEQ"
 };
 
 // This will be used as the 'appId' part in your Firestore paths (e.g., artifacts/YOUR_PROJECT_ID/...)

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Take Test - UPSC Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
+  <script src="firebaseConfig.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+
+    header {
+      background-color: #0055a5;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+      background: white;
+      margin-top: 2rem;
+      border-radius: 8px;
+    }
+
+    .question-box {
+      margin-bottom: 2rem;
+    }
+
+    .option {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .option:hover {
+      background: #e0e0e0;
+    }
+
+    .timer {
+      text-align: right;
+      font-weight: bold;
+      color: #dc3545;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Test in Progress</h1>
+  </header>
+
+  <div class="container">
+    <div class="timer" id="timer">Loading...</div>
+
+    <div class="question-box" id="questionBox">
+      <!-- Question will be shown here -->
+    </div>
+
+    <div class="buttons">
+      <button onclick="prevQuestion()">Previous</button>
+      <button onclick="nextQuestion()">Next</button>
+      <button onclick="submitTest()">Submit Test</button>
+    </div>
+  </div>
+
+  <script>
+    const db = firebase.firestore();
+    let userEmail = "";
+    let testId = "demoTestId"; // Replace with dynamic ID if needed
+    let testData = {};
+    let currentIndex = 0;
+    let selectedAnswers = [];
+    let timerInterval;
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        userEmail = user.email;
+        loadTest();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function loadTest() {
+      db.collection("tests").doc(testId).get().then((doc) => {
+        if (doc.exists) {
+          testData = doc.data();
+          selectedAnswers = Array(testData.questions.length).fill(null);
+          startTimer(testData.duration);
+          showQuestion();
+        } else {
+          alert("Test not found.");
+        }
+      });
+    }
+
+    function showQuestion() {
+      const qBox = document.getElementById("questionBox");
+      const question = testData.questions[currentIndex];
+
+      qBox.innerHTML = `
+        <h3>Q${currentIndex + 1}: ${question.question}</h3>
+        ${question.options.map((opt, i) => `
+          <div class="option" onclick="selectOption(${i})" style="background-color: ${selectedAnswers[currentIndex] === i ? '#cce5ff' : '#f0f0f0'};">
+            ${opt}
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function selectOption(index) {
+      selectedAnswers[currentIndex] = index;
+      showQuestion(); // refresh UI
+    }
+
+    function nextQuestion() {
+      if (currentIndex < testData.questions.length - 1) {
+        currentIndex++;
+        showQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showQuestion();
+      }
+    }
+
+    function startTimer(minutes) {
+      let timeLeft = minutes * 60;
+      timerInterval = setInterval(() => {
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        document.getElementById("timer").textContent = `Time Left: ${mins}:${secs.toString().padStart(2, '0')}`;
+        timeLeft--;
+
+        if (timeLeft < 0) {
+          clearInterval(timerInterval);
+          alert("Time is up! Submitting your test.");
+          submitTest();
+        }
+      }, 1000);
+    }
+
+    function submitTest() {
+      clearInterval(timerInterval);
+
+      db.collection("responses").add({
+        user: userEmail,
+        testId: testId,
+        answers: selectedAnswers,
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert("Test submitted successfully!");
+        window.location.href = "dashboard.html";
+      }).catch((e) => {
+        alert("Error submitting test: " + e.message);
+      });
+    }
+  </script>
+
+</body>
+</html>

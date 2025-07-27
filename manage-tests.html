@@ -92,6 +92,11 @@
                         <textarea id="testDescription" name="testDescription" rows="3"
                                   class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg outline-none"></textarea>
                     </div>
+                    <div>
+                        <label for="timeLimitMinutes" class="block text-lg font-medium text-gray-700 mb-2">Time Limit (Minutes)</label>
+                        <input type="number" id="timeLimitMinutes" name="timeLimitMinutes" min="1" value="60" required
+                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg outline-none">
+                    </div>
 
                     <div id="questionsContainer" class="space-y-6">
                         <h4 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Questions</h4>
@@ -157,6 +162,10 @@
         const existingTestsList = document.getElementById('existingTestsList');
         const loadingTestsMessage = document.getElementById('loadingTestsMessage');
         const noExistingTestsMessage = document.getElementById('noExistingTestsMessage');
+        const testNameInput = document.getElementById('testName');
+        const testDescriptionInput = document.getElementById('testDescription');
+        const timeLimitMinutesInput = document.getElementById('timeLimitMinutes');
+
 
         let currentEditingTestId = null; // To store the ID of the test being edited
 
@@ -296,9 +305,16 @@
         testForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const testName = document.getElementById('testName').value;
-            const testDescription = document.getElementById('testDescription').value;
+            const testName = testNameInput.value;
+            const testDescription = testDescriptionInput.value;
+            const timeLimitMinutes = parseInt(timeLimitMinutesInput.value); // Get time limit
             const questions = [];
+
+            // Basic validation for time limit
+            if (isNaN(timeLimitMinutes) || timeLimitMinutes <= 0) {
+                showMessage('Please enter a valid time limit in minutes (must be a positive number).', 'error');
+                return;
+            }
 
             // Collect questions and options
             document.querySelectorAll('.question-block').forEach((qBlock, qIndex) => {
@@ -328,6 +344,7 @@
             const testData = {
                 testName,
                 testDescription,
+                timeLimitMinutes, // Save time limit
                 questions,
                 createdAt: new Date()
             };
@@ -385,7 +402,7 @@
                     testItem.innerHTML = `
                         <div>
                             <p class="text-xl font-semibold text-gray-800">${test.testName}</p>
-                            <p class="text-gray-600 text-sm">${test.questions ? test.questions.length : 0} Questions</p>
+                            <p class="text-gray-600 text-sm">${test.questions ? test.questions.length : 0} Questions | ${test.timeLimitMinutes || 'N/A'} Mins</p>
                         </div>
                         <div class="space-x-2">
                             <button type="button" class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-300 text-sm" data-id="${testId}" onclick="editTest('${testId}')">Edit</button>
@@ -412,8 +429,9 @@
 
                 if (testDocSnap.exists()) {
                     const testData = testDocSnap.data();
-                    document.getElementById('testName').value = testData.testName;
-                    document.getElementById('testDescription').value = testData.testDescription;
+                    testNameInput.value = testData.testName;
+                    testDescriptionInput.value = testData.testDescription;
+                    timeLimitMinutesInput.value = testData.timeLimitMinutes || 60; // Populate time limit
 
                     questionsContainer.innerHTML = ''; // Clear current questions
                     questionCounter = 0; // Reset counter for re-rendering

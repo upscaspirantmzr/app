@@ -140,17 +140,17 @@
         <div class="test-card">
             <!-- Test Controls (Pause, Timer, Submit) -->
             <div class="flex justify-between items-center mb-6">
-                <button class="bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold flex items-center space-x-2">
+                <button id="pauseButton" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                     </svg>
-                    <span>Pause</span>
+                    <span id="pauseButtonText">Pause</span>
                 </button>
                 <div class="flex items-center space-x-2 text-red-600 font-bold text-xl">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l3 3a1 1 0 001.414-1.414L11 9.586V6z" clip-rule="evenodd" />
                     </svg>
-                    <span id="timerDisplay">11:43</span>
+                    <span id="timerDisplay">00:00</span>
                 </div>
                 <button id="submitTestButtonTop" class="bg-green-600 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-green-700 transition duration-300">
                     SUBMIT
@@ -159,7 +159,7 @@
 
             <!-- Test Name and Grid Icon -->
             <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h3 class="text-xl font-semibold text-gray-800" id="testTitleDisplay">General Studies Test 41</h3>
+                <h3 class="text-xl font-semibold text-gray-800" id="testTitleDisplay">General Studies Test</h3>
                 <button class="text-gray-500 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
@@ -227,18 +227,25 @@
         const optionsContainer = document.getElementById('optionsContainer');
         const prevButton = document.getElementById('prevButton');
         const nextButton = document.getElementById('nextButton');
-        const submitTestButtonTop = document.getElementById('submitTestButtonTop'); // New: Top submit button
-        const clearSelectionButton = document.getElementById('clearSelectionButton'); // New: Clear selection button
-        const testTitleDisplay = document.getElementById('testTitleDisplay'); // New: Test title display
+        const submitTestButtonTop = document.getElementById('submitTestButtonTop');
+        const clearSelectionButton = document.getElementById('clearSelectionButton');
+        const testTitleDisplay = document.getElementById('testTitleDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const pauseButton = document.getElementById('pauseButton');
+        const pauseButtonText = document.getElementById('pauseButtonText');
 
-        let questions = []; // Array to hold test questions
+        let questions = [];
         let currentQuestionIndex = 0;
-        let userAnswers = {}; // Object to store user's selected answers {questionIndex: selectedOptionIndex}
-        let userId = null; // To store the authenticated user's ID
-        let currentTestId = null; // To store the ID of the test being attempted
-        let currentTestName = "UPSC Mock Test"; // Default test name
+        let userAnswers = {};
+        let userId = null;
+        let currentTestId = null;
+        let currentTestName = "UPSC Mock Test";
+        let timeLimitSeconds = 0; // Total time in seconds
+        let timeLeft = 0; // Remaining time in seconds
+        let timerInterval = null;
+        let isPaused = false;
 
-        const optionLetters = ['A', 'B', 'C', 'D', 'E', 'F']; // For options A, B, C, D...
+        const optionLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
 
         // Function to display messages
         function showMessage(message, type) {
@@ -248,6 +255,44 @@
             setTimeout(() => {
                 messageBox.classList.add('hidden');
             }, 5000);
+        }
+
+        // Timer Functions
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval); // Clear any existing timer
+            isPaused = false;
+            pauseButtonText.textContent = 'Pause';
+
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    timeLeft--;
+                    updateTimerDisplay();
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        showMessage('Time is up! Submitting your test...', 'info');
+                        submitTest(); // Auto-submit when time runs out
+                    }
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isPaused = true;
+            pauseButtonText.textContent = 'Resume';
+            clearInterval(timerInterval);
+        }
+
+        function resumeTimer() {
+            isPaused = false;
+            pauseButtonText.textContent = 'Pause';
+            startTimer(); // Restart the interval
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
         // Fetch test questions from Firestore
@@ -268,13 +313,18 @@
                     return;
                 }
 
-                // Assuming we take the first test found for simplicity
                 const testDoc = querySnapshot.docs[0];
                 currentTestId = testDoc.id;
                 const testData = testDoc.data();
                 questions = testData.questions || [];
                 currentTestName = testData.testName || "UPSC Mock Test";
-                testTitleDisplay.textContent = currentTestName; // Update test title display
+                testTitleDisplay.textContent = currentTestName;
+
+                // Set up timer
+                timeLimitSeconds = (testData.timeLimitMinutes || 60) * 60; // Default to 60 minutes if not set
+                timeLeft = timeLimitSeconds;
+                updateTimerDisplay(); // Initial display
+                startTimer(); // Start the timer
 
                 if (questions.length === 0) {
                     noTestMessage.classList.remove('hidden');
@@ -303,7 +353,7 @@
             const question = questions[currentQuestionIndex];
             currentQuestionNumberSpan.textContent = currentQuestionIndex + 1;
             questionTextElement.textContent = question.questionText;
-            optionsContainer.innerHTML = ''; // Clear previous options
+            optionsContainer.innerHTML = '';
 
             question.options.forEach((option, index) => {
                 const optionDiv = document.createElement('label');
@@ -315,17 +365,15 @@
                 `;
                 optionsContainer.appendChild(optionDiv);
 
-                // Add click listener to highlight selected option
                 optionDiv.addEventListener('click', () => {
                     document.querySelectorAll('.question-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
                     optionDiv.classList.add('selected');
-                    optionDiv.querySelector('input[type="radio"]').checked = true; // Manually check the radio
+                    optionDiv.querySelector('input[type="radio"]').checked = true;
                 });
             });
 
-            // Pre-select user's previous answer if available
             const savedAnswer = userAnswers[currentQuestionIndex];
             if (savedAnswer !== undefined) {
                 const radioInput = optionsContainer.querySelector(`input[value="${savedAnswer}"]`);
@@ -342,15 +390,6 @@
         function updateNavigationButtons() {
             prevButton.disabled = currentQuestionIndex === 0;
             nextButton.disabled = currentQuestionIndex === questions.length - 1;
-
-            // The top submit button is always visible, but the bottom next button changes to submit
-            // The bottom next button is replaced by the submit button on the last question
-            if (currentQuestionIndex === questions.length - 1) {
-                // The submit button in the footer is not used in this design,
-                // the primary submit is at the top.
-                // We just ensure nextButton is disabled on last question.
-                nextButton.disabled = true;
-            }
         }
 
         // Save user's answer for the current question
@@ -359,46 +398,21 @@
             if (selectedOption) {
                 userAnswers[currentQuestionIndex] = parseInt(selectedOption.value);
             } else {
-                delete userAnswers[currentQuestionIndex]; // Clear answer if nothing selected
+                delete userAnswers[currentQuestionIndex];
             }
             console.log("Current Answers:", userAnswers);
         }
 
-        // --- Event Listeners ---
-        prevButton.addEventListener('click', () => {
-            saveAnswer();
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                renderQuestion();
-            }
-        });
-
-        nextButton.addEventListener('click', () => {
-            saveAnswer();
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                renderQuestion();
-            }
-        });
-
-        clearSelectionButton.addEventListener('click', () => {
-            document.querySelectorAll('.question-option').forEach(opt => {
-                opt.classList.remove('selected');
-                opt.querySelector('input[type="radio"]').checked = false;
-            });
-            delete userAnswers[currentQuestionIndex]; // Clear answer for current question
-            showMessage('Selection cleared for current question.', 'info');
-        });
-
-        // Handle submission from the top submit button
-        submitTestButtonTop.addEventListener('click', async () => {
+        // Submit Test Function
+        async function submitTest() {
+            clearInterval(timerInterval); // Stop the timer
             saveAnswer(); // Save final answer
 
             let score = 0;
             let correctCount = 0;
             let incorrectCount = 0;
             let unansweredCount = 0;
-            const detailedResults = []; // To store question-specific results
+            const detailedResults = [];
 
             questions.forEach((question, index) => {
                 const userAnswerIndex = userAnswers[index];
@@ -428,7 +442,6 @@
 
             showMessage('Test submitted successfully! Redirecting to results...', 'success');
 
-            // Save results to Firestore
             if (userId && currentTestId) {
                 try {
                     const userResultsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/users/${userId}/results`);
@@ -440,8 +453,8 @@
                         correctCount: correctCount,
                         incorrectCount: incorrectCount,
                         unansweredCount: unansweredCount,
-                        userAnswers: userAnswers, // Store raw answers
-                        detailedResults: detailedResults, // Store detailed results for analysis
+                        userAnswers: userAnswers,
+                        detailedResults: detailedResults,
                         submittedAt: new Date()
                     });
                     console.log("Test results saved to Firestore.");
@@ -455,17 +468,53 @@
             setTimeout(() => {
                 window.location.href = 'results.html';
             }, 2000);
+        }
+
+        // --- Event Listeners ---
+        prevButton.addEventListener('click', () => {
+            saveAnswer();
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            saveAnswer();
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        });
+
+        clearSelectionButton.addEventListener('click', () => {
+            document.querySelectorAll('.question-option').forEach(opt => {
+                opt.classList.remove('selected');
+                opt.querySelector('input[type="radio"]').checked = false;
+            });
+            delete userAnswers[currentQuestionIndex];
+            showMessage('Selection cleared for current question.', 'info');
+        });
+
+        submitTestButtonTop.addEventListener('click', submitTest); // Call the new submitTest function
+
+        pauseButton.addEventListener('click', () => {
+            if (isPaused) {
+                resumeTimer();
+            } else {
+                pauseTimer();
+            }
         });
 
         // Listen for authentication state changes
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                userId = user.uid; // Store user ID
+                userId = user.uid;
                 userEmailDisplay.textContent = `Welcome, ${user.email || 'User'}!`;
-                fetchTestQuestions(); // Fetch questions once user is authenticated
+                fetchTestQuestions();
             } else {
                 console.log("No user is signed in. Redirecting to login.");
-                window.location.href = 'login.html'; // Redirect to login page if not authenticated
+                window.location.href = 'login.html';
             }
         });
 
@@ -474,7 +523,7 @@
             try {
                 await signOut(auth);
                 console.log("User signed out successfully.");
-                window.location.href = 'login.html'; // Redirect to login page after logout
+                window.location.href = 'login.html';
             } catch (error) {
                 console.error("Logout error:", error);
                 showMessage(`Logout failed: ${error.message}`, 'error');

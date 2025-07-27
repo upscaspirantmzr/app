@@ -4,27 +4,25 @@
   <meta charset="UTF-8">
   <title>Register - UPSC Test Series</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Firebase SDK -->
+
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
-  
-  <!-- Your Firebase Config -->
   <script src="firebaseConfig.js"></script>
 
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f5f7fa;
+      background-color: #f0f2f5;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
       margin: 0;
     }
 
     .register-box {
-      background: white;
+      background-color: #fff;
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 0 15px rgba(0,0,0,0.1);
@@ -34,8 +32,8 @@
 
     h2 {
       text-align: center;
-      margin-bottom: 1.5rem;
       color: #333;
+      margin-bottom: 1.5rem;
     }
 
     input {
@@ -51,8 +49,8 @@
       width: 100%;
       padding: 10px;
       background-color: #007bff;
-      border: none;
       color: white;
+      border: none;
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
@@ -65,65 +63,48 @@
     .message {
       margin-top: 1rem;
       text-align: center;
-      font-size: 14px;
-    }
-
-    .error {
       color: red;
-    }
-
-    .success {
-      color: green;
-    }
-
-    .back-link {
-      text-align: center;
-      margin-top: 1rem;
-    }
-
-    .back-link a {
-      text-decoration: none;
-      color: #007bff;
     }
   </style>
 </head>
 <body>
 
   <div class="register-box">
-    <h2>Create Account</h2>
-    
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password (min 6 characters)" required />
-    
+    <h2>Create Your Account</h2>
+
+    <input type="email" id="email" placeholder="Email Address" required>
+    <input type="password" id="password" placeholder="Password" required>
     <button onclick="registerUser()">Register</button>
 
     <div id="message" class="message"></div>
-
-    <div class="back-link">
-      Already have an account? <a href="login.html">Login here</a>
-    </div>
   </div>
 
   <script>
     function registerUser() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const msg = document.getElementById('message');
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const msg = document.getElementById("message");
+
+      if (!email || !password) {
+        msg.textContent = "Please fill all fields.";
+        return;
+      }
 
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
-          msg.textContent = "✅ Registration successful! Redirecting to dashboard...";
-          msg.className = "message success";
+          msg.style.color = 'green';
+          msg.textContent = "Registration successful! Redirecting...";
           setTimeout(() => {
-            window.location.href = "dashboard.html";
+            window.location.href = "login.html";
           }, 1500);
         })
         .catch((error) => {
-          msg.textContent = `❌ ${error.message}`;
-          msg.className = "message error";
+          msg.style.color = 'red';
+          msg.textContent = error.message;
         });
     }
   </script>
 
 </body>
 </html>
+

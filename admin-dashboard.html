@@ -34,9 +34,26 @@
             font-weight: 500;
             text-align: center;
         }
+        .message-box.success {
+            background-color: #d1fae5; /* Green-100 */
+            color: #065f46; /* Green-800 */
+        }
         .message-box.error {
             background-color: #fee2e2; /* Red-100 */
             color: #991b1b; /* Red-800 */
+        }
+        .hidden-section {
+            display: none;
+        }
+        .study-material-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            background-color: #f9fafb;
         }
     </style>
 </head>
@@ -52,35 +69,98 @@
         </div>
     </nav>
 
-    <main class="flex-grow flex items-center justify-center py-12 px-4">
-        <div class="dashboard-card text-center max-w-4xl w-full">
-            <h2 class="text-5xl font-bold mb-6 text-gray-800">Admin Control Panel</h2>
-            <p class="text-xl text-gray-700 mb-4">Manage users, tests, and content.</p>
-            <p id="adminIdDisplay" class="text-lg text-gray-600 mb-8 break-all"></p>
-            <div id="message" class="message-box hidden"></div>
+    <main class="flex-grow py-12 px-4">
+        <div class="container">
+            <div class="dashboard-card text-center max-w-4xl w-full mx-auto mb-12">
+                <h2 class="text-5xl font-bold mb-6 text-gray-800">Admin Control Panel</h2>
+                <p class="text-xl text-gray-700 mb-4">Manage users, tests, and content.</p>
+                <p id="adminIdDisplay" class="text-lg text-gray-600 mb-8 break-all"></p>
+                <div id="message" class="message-box hidden"></div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                <a href="#" class="block p-6 bg-red-100 text-red-800 rounded-lg shadow-md hover:bg-red-200 transition duration-300 transform hover:-translate-y-1">
-                    <h3 class="text-2xl font-semibold mb-2">Manage Users</h3>
-                    <p>Add, edit, or remove user accounts.</p>
-                </a>
-                <a href="manage-tests.html" class="block p-6 bg-orange-100 text-orange-800 rounded-lg shadow-md hover:bg-orange-200 transition duration-300 transform hover:-translate-y-1">
-                    <h3 class="text-2xl font-semibold mb-2">Create/Edit Tests</h3>
-                    <p>Design and update test series and questions.</p>
-                </a>
-                <a href="#" class="block p-6 bg-purple-100 text-purple-800 rounded-lg shadow-md hover:bg-purple-200 transition duration-300 transform hover:-translate-y-1">
-                    <h3 class="text-2xl font-semibold mb-2">View Analytics</h3>
-                    <p>Monitor platform usage and test performance.</p>
-                </a>
-                <a href="#" class="block p-6 bg-green-100 text-green-800 rounded-lg shadow-md hover:bg-green-200 transition duration-300 transform hover:-translate-y-1">
-                    <h3 class="text-2xl font-semibold mb-2">Manage Study Material</h3>
-                    <p>Upload and organize study resources.</p>
-                </a>
-                <a href="#" class="block p-6 bg-blue-100 text-blue-800 rounded-lg shadow-md hover:bg-blue-200 transition duration-300 transform hover:-translate-y-1">
-                    <h3 class="text-2xl font-semibold mb-2">System Settings</h3>
-                    <p>Configure portal-wide settings.</p>
-                </a>
-                <!-- Removed Support Tickets functionality as requested -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <button id="manageUsersBtn" class="block p-6 bg-red-100 text-red-800 rounded-lg shadow-md hover:bg-red-200 transition duration-300 transform hover:-translate-y-1">
+                        <h3 class="text-2xl font-semibold mb-2">Manage Users</h3>
+                        <p>View and manage user accounts.</p>
+                    </button>
+                    <a href="manage-tests.html" class="block p-6 bg-orange-100 text-orange-800 rounded-lg shadow-md hover:bg-orange-200 transition duration-300 transform hover:-translate-y-1">
+                        <h3 class="text-2xl font-semibold mb-2">Create/Edit Tests</h3>
+                        <p>Design and update test series and questions.</p>
+                    </a>
+                    <button id="viewAnalyticsBtn" class="block p-6 bg-purple-100 text-purple-800 rounded-lg shadow-md hover:bg-purple-200 transition duration-300 transform hover:-translate-y-1">
+                        <h3 class="text-2xl font-semibold mb-2">View Analytics</h3>
+                        <p>Monitor platform usage and test performance.</p>
+                    </button>
+                    <button id="manageStudyMaterialBtn" class="block p-6 bg-green-100 text-green-800 rounded-lg shadow-md hover:bg-green-200 transition duration-300 transform hover:-translate-y-1">
+                        <h3 class="text-2xl font-semibold mb-2">Manage Study Material</h3>
+                        <p>Upload and organize study resources.</p>
+                    </button>
+                    <a href="#" class="block p-6 bg-blue-100 text-blue-800 rounded-lg shadow-md hover:bg-blue-200 transition duration-300 transform hover:-translate-y-1">
+                        <h3 class="text-2xl font-semibold mb-2">System Settings</h3>
+                        <p>Configure portal-wide settings.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Manage Users Section -->
+            <div id="manageUsersSection" class="dashboard-card hidden-section mb-12">
+                <h3 class="text-3xl font-bold mb-6 text-gray-800">Manage Users</h3>
+                <p class="text-gray-700 mb-4">Displaying registered users. For advanced user management (e.g., password resets, disabling accounts), Firebase Admin SDK or Cloud Functions are recommended.</p>
+                <div id="userList" class="space-y-4">
+                    <p id="loadingUsersMessage" class="text-center text-gray-600">Loading users...</p>
+                    <p id="noUsersMessage" class="text-center text-gray-600 hidden">No registered users found.</p>
+                </div>
+                <button id="backToDashboardFromUsers" class="mt-8 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg shadow-md hover:bg-gray-400 transition duration-300 font-semibold text-lg">Back to Dashboard</button>
+            </div>
+
+            <!-- View Analytics Section -->
+            <div id="viewAnalyticsSection" class="dashboard-card hidden-section mb-12">
+                <h3 class="text-3xl font-bold mb-6 text-gray-800">Portal Analytics</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div class="p-6 bg-blue-50 rounded-lg shadow-sm">
+                        <p class="text-lg font-medium text-blue-700">Total Registered Users:</p>
+                        <p id="totalUsersCount" class="text-4xl font-bold text-blue-900 mt-2">0</p>
+                    </div>
+                    <div class="p-6 bg-green-50 rounded-lg shadow-sm">
+                        <p class="text-lg font-medium text-green-700">Total Tests Available:</p>
+                        <p id="totalTestsCount" class="text-4xl font-bold text-green-900 mt-2">0</p>
+                    </div>
+                    <!-- Add more analytics here as needed -->
+                </div>
+                <button id="backToDashboardFromAnalytics" class="mt-8 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg shadow-md hover:bg-gray-400 transition duration-300 font-semibold text-lg">Back to Dashboard</button>
+            </div>
+
+            <!-- Manage Study Material Section -->
+            <div id="manageStudyMaterialSection" class="dashboard-card hidden-section mb-12">
+                <h3 class="text-3xl font-bold mb-6 text-gray-800">Manage Study Material</h3>
+
+                <form id="studyMaterialForm" class="space-y-6 mb-8">
+                    <div>
+                        <label for="materialTitle" class="block text-lg font-medium text-gray-700 mb-2">Material Title</label>
+                        <input type="text" id="materialTitle" name="materialTitle" required
+                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg outline-none">
+                    </div>
+                    <div>
+                        <label for="materialDescription" class="block text-lg font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="materialDescription" name="materialDescription" rows="3"
+                                  class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label for="materialUrl" class="block text-lg font-medium text-gray-700 mb-2">Material URL (Optional)</label>
+                        <input type="url" id="materialUrl" name="materialUrl"
+                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg outline-none">
+                    </div>
+                    <button type="submit" id="saveMaterialButton"
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-xl font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out transform hover:scale-105">
+                        Add Study Material
+                    </button>
+                </form>
+
+                <h4 class="text-2xl font-bold mb-4 text-gray-800">Existing Study Materials</h4>
+                <div id="existingStudyMaterialsList" class="space-y-4">
+                    <p id="loadingMaterialsMessage" class="text-center text-gray-600">Loading study materials...</p>
+                    <p id="noMaterialsMessage" class="text-center text-gray-600 hidden">No study materials added yet.</p>
+                </div>
+                <button id="backToDashboardFromMaterials" class="mt-8 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg shadow-md hover:bg-gray-400 transition duration-300 font-semibold text-lg">Back to Dashboard</button>
             </div>
         </div>
     </main>
@@ -102,7 +182,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, query, getDocs, addDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { firebaseConfig } from './firebase_config.js'; // Import firebaseConfig
 
         // Initialize Firebase
@@ -110,25 +190,288 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const adminIdDisplay = document.getElementById('adminIdDisplay');
+        // DOM Elements
         const adminEmailDisplay = document.getElementById('adminEmailDisplay');
         const adminLogoutButton = document.getElementById('adminLogoutButton');
         const messageBox = document.getElementById('message');
+        const adminIdDisplay = document.getElementById('adminIdDisplay');
 
-        // Function to display messages
+        // Section Buttons
+        const manageUsersBtn = document.getElementById('manageUsersBtn');
+        const viewAnalyticsBtn = document.getElementById('viewAnalyticsBtn');
+        const manageStudyMaterialBtn = document.getElementById('manageStudyMaterialBtn');
+
+        // Sections
+        const dashboardMainContent = document.querySelector('.dashboard-card'); // The main grid of buttons
+        const manageUsersSection = document.getElementById('manageUsersSection');
+        const viewAnalyticsSection = document.getElementById('viewAnalyticsSection');
+        const manageStudyMaterialSection = document.getElementById('manageStudyMaterialSection');
+
+        // Manage Users elements
+        const userList = document.getElementById('userList');
+        const loadingUsersMessage = document.getElementById('loadingUsersMessage');
+        const noUsersMessage = document.getElementById('noUsersMessage');
+        const backToDashboardFromUsers = document.getElementById('backToDashboardFromUsers');
+
+        // View Analytics elements
+        const totalUsersCount = document.getElementById('totalUsersCount');
+        const totalTestsCount = document.getElementById('totalTestsCount');
+        const backToDashboardFromAnalytics = document.getElementById('backToDashboardFromAnalytics');
+
+        // Manage Study Material elements
+        const studyMaterialForm = document.getElementById('studyMaterialForm');
+        const materialTitleInput = document.getElementById('materialTitle');
+        const materialDescriptionInput = document.getElementById('materialDescription');
+        const materialUrlInput = document.getElementById('materialUrl');
+        const saveMaterialButton = document.getElementById('saveMaterialButton');
+        const existingStudyMaterialsList = document.getElementById('existingStudyMaterialsList');
+        const loadingMaterialsMessage = document.getElementById('loadingMaterialsMessage');
+        const noMaterialsMessage = document.getElementById('noMaterialsMessage');
+        const backToDashboardFromMaterials = document.getElementById('backToDashboardFromMaterials');
+
+        let currentEditingMaterialId = null; // For editing study materials
+
+        // --- Utility Functions ---
         function showMessage(message, type) {
             messageBox.textContent = message;
-            messageBox.className = `message-box ${type}`; // Apply success or error class
+            messageBox.className = `message-box ${type}`;
             messageBox.classList.remove('hidden');
             setTimeout(() => {
                 messageBox.classList.add('hidden');
-            }, 5000); // Hide after 5 seconds
+            }, 5000);
         }
 
-        // Listen for authentication state changes
+        function showSection(sectionToShow) {
+            dashboardMainContent.classList.add('hidden-section');
+            manageUsersSection.classList.add('hidden-section');
+            viewAnalyticsSection.classList.add('hidden-section');
+            manageStudyMaterialSection.classList.add('hidden-section');
+
+            sectionToShow.classList.remove('hidden-section');
+        }
+
+        function showDashboard() {
+            dashboardMainContent.classList.remove('hidden-section');
+            manageUsersSection.classList.add('hidden-section');
+            viewAnalyticsSection.classList.add('hidden-section');
+            manageStudyMaterialSection.classList.add('hidden-section');
+        }
+
+        // --- Manage Users Functions ---
+        async function fetchUsers() {
+            loadingUsersMessage.classList.remove('hidden');
+            noUsersMessage.classList.add('hidden');
+            userList.innerHTML = ''; // Clear previous list
+
+            try {
+                // In a real app, user profiles would be stored in Firestore upon registration.
+                // For this example, we'll assume a 'user_profiles' collection exists.
+                // Firebase Authentication does not provide a direct client-side API to list all users.
+                // This would typically require a Firebase Cloud Function for security reasons.
+                // For demonstration, we'll fetch from a hypothetical 'user_profiles' collection.
+                const userProfilesCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/public/data/user_profiles`);
+                const querySnapshot = await getDocs(query(userProfilesCollectionRef));
+
+                if (querySnapshot.empty) {
+                    noUsersMessage.classList.remove('hidden');
+                    loadingUsersMessage.classList.add('hidden');
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const userData = docSnap.data();
+                    const userItem = document.createElement('div');
+                    userItem.className = 'p-4 border border-gray-200 rounded-lg shadow-sm bg-white text-left';
+                    userItem.innerHTML = `
+                        <p class="text-lg font-semibold text-gray-800">Email: ${userData.email || 'N/A'}</p>
+                        <p class="text-sm text-gray-600">User ID: ${docSnap.id}</p>
+                        <p class="text-sm text-gray-600">Registered: ${userData.createdAt ? new Date(userData.createdAt.toDate()).toLocaleString() : 'N/A'}</p>
+                        <!-- Add more user details or management buttons here -->
+                    `;
+                    userList.appendChild(userItem);
+                });
+                loadingUsersMessage.classList.add('hidden');
+
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                showMessage(`Failed to load users: ${error.message}`, 'error');
+                loadingUsersMessage.classList.add('hidden');
+            }
+        }
+
+        // --- View Analytics Functions ---
+        async function fetchAnalytics() {
+            try {
+                // Count total users (from user_profiles)
+                const userProfilesCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/public/data/user_profiles`);
+                const userCountSnapshot = await getDocs(query(userProfilesCollectionRef));
+                totalUsersCount.textContent = userCountSnapshot.size;
+
+                // Count total tests
+                const testsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/public/data/tests`);
+                const testCountSnapshot = await getDocs(query(testsCollectionRef));
+                totalTestsCount.textContent = testCountSnapshot.size;
+
+            } catch (error) {
+                console.error("Error fetching analytics:", error);
+                showMessage(`Failed to load analytics: ${error.message}`, 'error');
+            }
+        }
+
+        // --- Manage Study Material Functions ---
+        async function fetchStudyMaterials() {
+            loadingMaterialsMessage.classList.remove('hidden');
+            noMaterialsMessage.classList.add('hidden');
+            existingStudyMaterialsList.innerHTML = ''; // Clear previous list
+
+            try {
+                const materialsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/public/data/study_materials`);
+                const querySnapshot = await getDocs(query(materialsCollectionRef));
+
+                if (querySnapshot.empty) {
+                    noMaterialsMessage.classList.remove('hidden');
+                    loadingMaterialsMessage.classList.add('hidden');
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const material = docSnap.data();
+                    const materialId = docSnap.id;
+
+                    const materialItem = document.createElement('div');
+                    materialItem.className = 'study-material-item';
+                    materialItem.innerHTML = `
+                        <div>
+                            <p class="text-xl font-semibold text-gray-800">${material.title}</p>
+                            <p class="text-gray-600 text-sm">${material.description}</p>
+                            ${material.url ? `<a href="${material.url}" target="_blank" class="text-blue-500 hover:underline text-sm">View Material</a>` : ''}
+                        </div>
+                        <div class="space-x-2">
+                            <button type="button" class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition duration-300 text-sm" data-id="${materialId}" onclick="editStudyMaterial('${materialId}')">Edit</button>
+                            <button type="button" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-300 text-sm" data-id="${materialId}" onclick="deleteStudyMaterial('${materialId}')">Delete</button>
+                        </div>
+                    `;
+                    existingStudyMaterialsList.appendChild(materialItem);
+                });
+                loadingMaterialsMessage.classList.add('hidden');
+
+            } catch (error) {
+                console.error("Error fetching study materials:", error);
+                showMessage(`Failed to load study materials: ${error.message}`, 'error');
+                loadingMaterialsMessage.classList.add('hidden');
+            }
+        }
+
+        // Global functions for inline onclick (due to module scope)
+        window.editStudyMaterial = async function(materialId) {
+            try {
+                const materialsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/public/data/study_materials`);
+                const materialDocRef = doc(materialsCollectionRef, materialId);
+                const materialDocSnap = await getDoc(materialDocRef);
+
+                if (materialDocSnap.exists()) {
+                    const materialData = materialDocSnap.data();
+                    materialTitleInput.value = materialData.title;
+                    materialDescriptionInput.value = materialData.description;
+                    materialUrlInput.value = materialData.url || '';
+
+                    currentEditingMaterialId = materialId;
+                    saveMaterialButton.textContent = 'Update Study Material';
+                    showMessage('Study material loaded for editing.', 'info');
+                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
+                } else {
+                    showMessage('Study material not found for editing.', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading study material for edit:', error);
+                showMessage(`Failed to load study material for editing: ${error.message}`, 'error');
+            }
+        };
+
+        window.deleteStudyMaterial = async function(materialId) {
+            if (!confirm('Are you sure you want to delete this study material? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const materialsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/public/data/study_materials`);
+                await deleteDoc(doc(materialsCollectionRef, materialId));
+                showMessage('Study material deleted successfully!', 'success');
+                fetchStudyMaterials(); // Refresh list
+            } catch (error) {
+                console.error('Error deleting study material:', error);
+                showMessage(`Failed to delete study material: ${error.message}`, 'error');
+            }
+        };
+
+        // --- Event Listeners ---
+        manageUsersBtn.addEventListener('click', () => {
+            showSection(manageUsersSection);
+            fetchUsers();
+        });
+        backToDashboardFromUsers.addEventListener('click', showDashboard);
+
+        viewAnalyticsBtn.addEventListener('click', () => {
+            showSection(viewAnalyticsSection);
+            fetchAnalytics();
+        });
+        backToDashboardFromAnalytics.addEventListener('click', showDashboard);
+
+        manageStudyMaterialBtn.addEventListener('click', () => {
+            showSection(manageStudyMaterialSection);
+            fetchStudyMaterials();
+        });
+        backToDashboardFromMaterials.addEventListener('click', () => {
+            showDashboard();
+            studyMaterialForm.reset(); // Clear form when returning
+            currentEditingMaterialId = null;
+            saveMaterialButton.textContent = 'Add Study Material';
+        });
+
+        studyMaterialForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = materialTitleInput.value.trim();
+            const description = materialDescriptionInput.value.trim();
+            const url = materialUrlInput.value.trim();
+
+            if (!title) {
+                showMessage('Material title is required.', 'error');
+                return;
+            }
+
+            const materialData = {
+                title,
+                description,
+                url,
+                createdAt: new Date()
+            };
+
+            try {
+                const materialsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/public/data/study_materials`);
+
+                if (currentEditingMaterialId) {
+                    await setDoc(doc(materialsCollectionRef, currentEditingMaterialId), materialData);
+                    showMessage('Study material updated successfully!', 'success');
+                    currentEditingMaterialId = null;
+                    saveMaterialButton.textContent = 'Add Study Material';
+                } else {
+                    await addDoc(materialsCollectionRef, materialData);
+                    showMessage('Study material added successfully!', 'success');
+                }
+
+                studyMaterialForm.reset();
+                fetchStudyMaterials(); // Refresh the list
+            } catch (error) {
+                console.error('Error saving study material:', error);
+                showMessage(`Failed to save study material: ${error.message}`, 'error');
+            }
+        });
+
+        // --- Authentication Check and Initial Load ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // In a real application, you would verify admin role here using Firestore
+                // IMPORTANT: In a real application, you would verify admin role here using Firestore
                 // For now, we assume anyone successfully logged in via admin-login.html is an admin
                 // This is a placeholder for actual role-based access control
                 // For example:
@@ -142,11 +485,10 @@
 
                 adminIdDisplay.textContent = `Admin User ID: ${user.uid}`;
                 adminEmailDisplay.textContent = `Welcome, Admin ${user.email || 'User'}!`;
+                showDashboard(); // Show the main dashboard by default
             } else {
-                // User is signed out.
                 console.log("No admin user is signed in. Redirecting to admin login.");
-                // Redirect to admin login page if not authenticated
-                window.location.href = 'admin-login.html';
+                window.location.href = 'admin-login.html'; // Redirect to admin login page if not authenticated
             }
         });
 

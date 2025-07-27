@@ -1,326 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPSC Ascent - Ace the UPSC Exam</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F8FAFC; /* Light gray background */
-            line-height: 1.6;
-            color: #333; /* Darker default text for readability */
-        }
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
+  <meta charset="UTF-8">
+  <title>UPSC Test Series Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background-color: #f4f6f9;
+    }
 
-        /* Hero Section Specific Styling to match image */
-        .hero-section {
-            background-color: #EEF4FF; /* Light blue background from image */
-            padding-top: 5rem; /* Adjust for fixed header */
-        }
-        .hero-heading {
-            font-size: 3.5rem; /* ~56px */
-            line-height: 1.1;
-            font-weight: 800; /* Extra bold */
-            color: #1A202C; /* Dark text color from image */
-        }
-        @media (min-width: 768px) { /* md breakpoint */
-            .hero-heading {
-                font-size: 4.5rem; /* ~72px for desktop */
-            }
-        }
+    header {
+      background-color: #0055a5;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
 
-        /* Feature Card Specific Styling to match image */
-        .feature-card {
-            background-color: #FFFFFF;
-            border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* subtle shadow */
-            transition: all 0.3s ease;
-        }
-        .feature-card:hover {
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* larger shadow on hover */
-            transform: translateY(-5px);
-        }
-        .feature-card .icon-svg { /* Styling for inline SVG icons */
-            fill: currentColor; /* Allows Tailwind text-color classes to control SVG fill */
-            color: #3B82F6; /* Default blue for icons */
-        }
-        .feature-card h3 {
-            font-weight: 600; /* Semi-bold */
-            color: #2D3748; /* Darker text */
-        }
-        .feature-card p {
-            color: #4A5568; /* Medium gray text */
-        }
+    .intro {
+      padding: 2rem;
+      text-align: center;
+    }
 
-        /* Animations */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes bounceIn {
-            0%, 20%, 40%, 60%, 80%, 100% {
-                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-            }
-            0% { opacity: 0; transform: scale3d(.3, .3, .3); }
-            20% { transform: scale3d(1.1, 1.1, 1.1); }
-            40% { transform: scale3d(.9, .9, .9); }
-            60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
-            80% { transform: scale3d(.97, .97, .97); }
-            100% { opacity: 1; transform: scale3d(1, 1, 1); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .animate-fade-in-down { animation: fadeInDown 0.8s ease-out forwards; }
-        .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards 0.2s; }
-        .animate-bounce-in { animation: bounceIn 1s ease-out forwards 0.4s; }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+    .test-series {
+      max-width: 900px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      padding: 2rem;
+    }
 
-        /* Styling for current affairs cards on index page */
-        .ca-index-card {
-            background-color: #FFFFFF;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 1.5rem;
-        }
-        .ca-index-card:hover {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            transform: translateY(-5px);
-        }
-        .ca-index-card .ca-link-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            background-color: #3B82F6;
-            color: white;
-            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-            margin-top: auto;
-        }
-        .ca-index-card .ca-link-btn:hover {
-            background-color: #2563EB;
-            transform: translateY(-2px);
-        }
-    </style>
+    .test-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .test-card:hover {
+      transform: scale(1.02);
+    }
+
+    .test-card h3 {
+      margin-top: 0;
+    }
+
+    .buttons {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .buttons a {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 0 10px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      padding: 1rem;
+      background: #f1f1f1;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <!-- Header - Designed to match image, directly embedded -->
-    <header class="bg-white shadow-md fixed w-full z-10 py-4">
-        <div class="container mx-auto px-4 flex justify-between items-center">
-            <a href="index.html" class="text-3xl font-extrabold text-[#1A202C]">UPSC</a>
-            <nav class="hidden md:block">
-                <ul class="flex items-center space-x-8">
-                    <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium text-lg transition-colors duration-200">Home</a></li>
-                    <li><a href="syllabus.html" class="text-gray-700 hover:text-blue-600 font-medium text-lg transition-colors duration-200">Syllabus</a></li>
-                    <li><a href="study-planner.html" class="text-gray-700 hover:text-blue-600 font-medium text-lg transition-colors duration-200">Study Planner</a></li>
-                    <li><a href="study-material.html" class="text-gray-700 hover:text-blue-600 font-medium text-lg transition-colors duration-200">Study Material</a></li>
-                    <li><a href="current-affairs.html" class="text-gray-700 hover:text-blue-600 font-medium text-lg transition-colors duration-200">Current Affairs & Quizzes</a></li>
-                    <li><a href="pyqs.html" class="text-gray-700 hover:text-blue-600 font-medium text-lg transition-colors duration-200">PYQs</a></li>
-                    <li><a href="answer-writing.html" class="text-gray-700 hover:text-blue-600 font-medium text-lg transition-colors duration-200">Answer Writing</a></li>
-                    <li><a href="admin.html" class="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-200 shadow-md">Admin Login</a></li>
-                </ul>
-            </nav>
-            <!-- Mobile Menu Button -->
-            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-            </button>
-        </div>
-        <!-- Mobile Menu Overlay -->
-        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-75 z-20 hidden md:hidden">
-            <div class="absolute right-0 top-0 h-full w-3/4 bg-white shadow-lg p-6 transform translate-x-full transition-transform duration-300 ease-in-out">
-                <button id="close-mobile-menu" class="absolute top-4 right-4 text-gray-700 focus:outline-none">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-                <ul class="flex flex-col space-y-4 mt-12">
-                    <li><a href="index.html" class="block text-gray-800 hover:text-blue-600 font-medium text-xl py-2">Home</a></li>
-                    <li><a href="syllabus.html" class="block text-gray-800 hover:text-blue-600 font-medium text-xl py-2">Syllabus</a></li>
-                    <li><a href="study-planner.html" class="block text-gray-800 hover:text-blue-600 font-medium text-xl py-2">Study Planner</a></li>
-                    <li><a href="study-material.html" class="block text-gray-800 hover:text-blue-600 font-medium text-xl py-2">Study Material</a></li>
-                    <li><a href="current-affairs.html" class="block text-gray-800 hover:text-blue-600 font-medium text-xl py-2">Current Affairs & Quizzes</a></li>
-                    <li><a href="pyqs.html" class="block text-gray-800 hover:text-blue-600 font-medium text-xl py-2">PYQs</a></li>
-                    <li><a href="answer-writing.html" class="block text-gray-800 hover:text-blue-600 font-medium text-xl py-2">Answer Writing</a></li>
-                    <li><a href="admin.html" class="block bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-200 shadow-md text-center mt-4">Admin Login</a></li>
-                </ul>
-            </div>
-        </div>
-    </header>
+  <header>
+    <h1>UPSC Test Series Portal</h1>
+    <p>Your Companion in Civil Services Preparation</p>
+  </header>
 
-    <main class="flex-grow">
-        <!-- Hero Section - Matching the image UI -->
-        <section class="hero-section py-16 md:py-24">
-            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
-                <!-- Left Content: Text -->
-                <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
-                    <h1 class="hero-heading mb-4 animate-fade-in-down">
-                        ACE THE <br> UPSC EXAM
-                    </h1>
-                    <p class="text-xl md:text-2xl text-[#4A5568] mb-8 animate-fade-in-up">
-                        UPSC Exam Preparation Portal <br> Developed by an Aspirant
-                    </p>
-                    <a href="study-material.html" class="inline-block bg-[#2D3748] text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-700 transition-colors duration-300 shadow-lg transform hover:scale-105 animate-bounce-in">
-                        Get Started
-                    </a>
-                </div>
+  <div class="intro">
+    <h2>Welcome Aspirants!</h2>
+    <p>Practice mock tests, track your performance, and get detailed solutions. Sign up now and start your journey toward success!</p>
+  </div>
 
-                <!-- Right Content: Illustration -->
-                <div class="md:w-1/2 flex justify-center md:justify-end">
-                    <!-- Placeholder for the illustration. Using a more stylized placeholder image. -->
-                    <img src="https://placehold.co/500x350/EEF4FF/2D3748?text=UPSC+Aspirant+Illustration" alt="UPSC Aspirant Illustration" class="max-w-full h-auto rounded-lg shadow-xl animate-fade-in">
-                </div>
-            </div>
-        </section>
+  <section class="test-series">
+    <div class="test-card">
+      <h3>GS Paper I - Modern History</h3>
+      <p>Test your knowledge of India's freedom struggle, revolutions, and reforms.</p>
+    </div>
 
-        <!-- Feature Cards Section - Matching the image UI -->
-        <section class="container mx-auto px-4 py-12 md:py-16">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                <!-- Feature Card 1: Free Courses (Play Circle Icon) -->
-                <div class="feature-card p-6 md:p-8 text-center animate-fade-in">
-                    <svg class="icon-svg mx-auto mb-4 w-12 h-12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                    </svg>
-                    <h3 class="text-xl md:text-2xl mb-2">Free Courses</h3>
-                    <p class="text-base md:text-lg">Access high-quality courses covering the entire UPSC syllabus.</p>
-                </div>
-                <!-- Feature Card 2: Mock Tests (Clipboard Check Icon) -->
-                <div class="feature-card p-6 md:p-8 text-center animate-fade-in">
-                    <svg class="icon-svg mx-auto mb-4 w-12 h-12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16 1H8C6.34 1 5 2.34 5 4v16c0 1.66 1.34 3 3 3h8c1.66 0 3-1.34 3-3V4c0-1.66-1.34-3-3-3zm-2.5 13.5l-3-3-1.5 1.5L11 17l4.5-4.5-1.5-1.5zM16 21H8c-.55 0-1-.45-1-1V4c0-.55.45-1 1-1h8c.55 0 1 .45 1 1v16c0 .55-.45 1-1 1z"/>
-                    </svg>
-                    <h3 class="text-xl md:text-2xl mb-2">Mock Tests</h3>
-                    <p class="text-base md:text-lg">Take mock exams to simulate the real test and assess your performance.</p>
-                </div>
-                <!-- Feature Card 3: Study Materials (Book Icon) -->
-                <div class="feature-card p-6 md:p-8 text-center animate-fade-in">
-                    <svg class="icon-svg mx-auto mb-4 w-12 h-12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 2H6C4.9 2 4 2.9 4 4v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h12v2H6V4zm12 16H6V8h12v12zM9 9h6v2H9V9zm0 3h6v2H9v-2z"/>
-                    </svg>
-                    <h3 class="text-xl md:text-2xl mb-2">Study Materials</h3>
-                    <p class="text-base md:text-lg">Download notes, reference books, and other study resources.</p>
-                </div>
-                <!-- Feature Card 4: Current Affairs (Newspaper Icon) -->
-                <div class="feature-card p-6 md:p-8 text-center animate-fade-in">
-                    <svg class="icon-svg mx-auto mb-4 w-12 h-12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 2v14H4V5h16zM6 7h12v2H6zm0 4h12v2H6zm0 4h12v2H6z"/>
-                    </svg>
-                    <h3 class="text-xl md:text-2xl mb-2">Current Affairs</h3>
-                    <p class="text-base md:text-lg">Stay updated with daily news analysis and important events.</p>
-                </div>
-                <!-- Feature Card 5: Previous Year Questions (History/Question Icon) -->
-                <div class="feature-card p-6 md:p-8 text-center animate-fade-in">
-                    <svg class="icon-svg mx-auto mb-4 w-12 h-12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.92 13 13.5 13 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.5-.78 2.83-1.93 3.68z"/>
-                    </svg>
-                    <h3 class="text-xl md:text-2xl mb-2">Previous Year Questions</h3>
-                    <p class="text-base md:text-lg">Practice with past year question papers for better preparation.</p>
-                </div>
-                <!-- Feature Card 6: Answer Writing Practice (Pencil Ruler Icon) -->
-                <div class="feature-card p-6 md:p-8 text-center animate-fade-in">
-                    <svg class="icon-svg mx-auto mb-4 w-12 h-12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 12h-2V7h-5V5h5c1.1 0 2 .9 2 2v5zM6 19c1.1 0 2-.9 2-2V7H4v10c0 1.1.9 2 2 2zm13-5v5c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2v-3h13z"/>
-                    </svg>
-                    <h3 class="text-xl md:text-2xl mb-2">Answer Writing Practice</h3>
-                    <p class="text-base md:text-lg">Improve your answer writing skills with guided practice.</p>
-                </div>
-            </div>
-        </section>
+    <div class="test-card">
+      <h3>GS Paper II - Polity & Governance</h3>
+      <p>Evaluate your understanding of the Constitution, governance, and legal systems.</p>
+    </div>
 
-       
-            <div class="text-center mt-10">
-                <a href="current-affairs.html" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md transform hover:scale-105">
-                    View All Current Affairs
-                </a>
-            </div>
-        </section>
-    </main>
+    <div class="test-card">
+      <h3>GS Paper III - Economy</h3>
+      <p>Check your grasp on economic development, planning, and budgeting.</p>
+    </div>
 
-    <!-- Footer - Directly embedded -->
-    <footer class="bg-gray-800 text-white p-6 text-center mt-12 rounded-t-lg shadow-inner">
-        <div class="container mx-auto">
-            <p class="mb-2">&copy; 2025 UPSC Ascent. All rights reserved.</p>
-            <p class="text-sm opacity-80">Designed for UPSC Aspirants with dedication and precision.</p>
-            <div class="flex justify-center space-x-4 mt-4">
-                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Privacy Policy</a>
-                <span class="text-gray-500">|</span>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Terms of Service</a>
-                <span class="text-gray-500">|</span>
-                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200 text-sm">Contact Us</a>
-            </div>
-        </div>
-    </footer>
+    <div class="test-card">
+      <h3>GS Paper IV - Ethics</h3>
+      <p>Practice case studies and ethics-based questions to boost your score.</p>
+    </div>
+  </section>
 
-    <!-- Firebase SDKs and Integrated JavaScript -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, query, limit, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <div class="buttons">
+    <a href="register.html">Register</a>
+    <a href="login.html">Login</a>
+  </div>
 
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAn0XLw2XA26UBf4OevQkqp5UESakQI8kg",
-            authDomain: "upscbuddy-5050d.firebaseapp.com",
-            projectId: "upscbuddy-5050d",
-            storageBucket: "upscbuddy-5050d.firebasestorage.app",
-            messagingSenderId: "632136482996",
-            appId: "1:632136482996:web:4bebdeb43c266398d697e1",
-            measurementId: "G-QLVRYRJFL2"
-        };
+  <footer>
+    &copy; 2025 UPSC Test Series Portal | Designed by a fellow aspirant
+  </footer>
 
-        // Global variables for Firebase instances
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const currentAppId = firebaseConfig.appId.split(':')[1]; // Extract appId from the provided config
-
-        // Store unsubscribe functions for real-time listeners to prevent memory leaks
-        const unsubscribeFunctions = {};
-
-        // Function to create HTML for a current affairs card on the index page
-        function createCurrentAffairsIndexCardHtml(item) {
-            const previewContent = (item.summaryContent || 'No summary available.').substring(0, 150) + (item.summaryContent && item.summaryContent.length > 150 ? '...' : '');
-            return `
-                <div class="ca-index-card animate-fade-in">
-                    <div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${item.summaryTitle || 'Daily Current Affairs'}</h3>
-                        ${item.date ? `<p class="text-sm text-gray-500 mb-2">${item.date}</p>` : ''}
-                        <p class="text-gray-600 mb-4">${previewContent}</p>
-                    </div>
-                    <a href="current-affairs.html" class="ca-link-btn">
-                        View Daily Digest
-                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
-                    </a>
-                </div>
-            `;
-        }
-
-        /**
-         * Generic function to load content for a given collection using real-time listeners (onSnapshot).
-         * @param {string} collectionName - 
+</body>
+</html>

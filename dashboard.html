@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - UPSC Test Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script src="firebaseConfig.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+    }
+
+    header {
+      background-color: #0055a5;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
+    }
+
+    .greeting {
+      font-size: 18px;
+      margin-bottom: 1rem;
+    }
+
+    .test-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .test-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .test-card h3 {
+      margin-top: 0;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      float: right;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>UPSC Student Dashboard</h1>
+    <button class="logout-btn" onclick="logoutUser()">Logout</button>
+  </header>
+
+  <div class="container">
+    <div class="greeting" id="greeting">Welcome, Aspirant</div>
+
+    <h2>Available Test Series</h2>
+    <div class="test-list">
+      <div class="test-card">
+        <h3>GS Paper I - History</h3>
+        <p>Test on Modern Indian History and Culture</p>
+        <button onclick="alert('Test feature coming soon!')">Start Test</button>
+      </div>
+
+      <div class="test-card">
+        <h3>GS Paper II - Polity</h3>
+        <p>Test on Constitution and Indian Politics</p>
+        <button onclick="alert('Test feature coming soon!')">Start Test</button>
+      </div>
+
+      <div class="test-card">
+        <h3>GS Paper III - Economy</h3>
+        <p>Test on Economic Development and Budget</p>
+        <button onclick="alert('Test feature coming soon!')">Start Test</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById('greeting').textContent = "Welcome, " + user.email;
+      } else {
+        // Not logged in
+        window.location.href = "login.html";
+      }
+    });
+
+    function logoutUser() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+
+</body>
+</html>

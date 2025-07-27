@@ -1,221 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard - UPSC Test Series</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
-  <script src="firebaseConfig.js"></script>
-
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f2f5;
-      margin: 0;
-    }
-
-    header {
-      background-color: #333;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 2rem;
-    }
-
-    h2 {
-      margin-top: 2rem;
-      color: #333;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      margin-top: 1rem;
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .logout {
-      float: right;
-      margin-right: 1rem;
-      margin-top: -2.5rem;
-      background-color: #dc3545;
-    }
-
-    .logout:hover {
-      background-color: #c82333;
-    }
-
-    .question-block {
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-    }
-
-    .remove-btn {
-      background-color: #e74c3c;
-      margin-top: 10px;
-    }
-
-    .message {
-      color: green;
-      margin-top: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - UPSC Test Series Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .dashboard-card {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .message-box {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* Red-100 */
+            color: #991b1b; /* Red-800 */
+        }
+    </style>
 </head>
-<body>
+<body class="antialiased">
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-red-700 to-red-900 p-4 shadow-xl">
+        <div class="container flex justify-between items-center">
+            <a href="index.html" class="text-white text-3xl font-extrabold tracking-wide rounded-md px-3 py-2 hover:bg-red-800 transition duration-300 ease-in-out">UPSC Test Series (Admin)</a>
+            <div class="flex space-x-6">
+                <span id="adminEmailDisplay" class="text-white text-lg font-medium px-3 py-2"></span>
+                <button id="adminLogoutButton" class="bg-blue-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 transform hover:scale-105 transition duration-300 font-semibold text-lg">Logout</button>
+            </div>
+        </div>
+    </nav>
 
-  <header>
-    <h1>Admin Dashboard</h1>
-    <button class="logout" onclick="logout()">Logout</button>
-  </header>
+    <main class="flex-grow flex items-center justify-center py-12 px-4">
+        <div class="dashboard-card text-center max-w-4xl w-full">
+            <h2 class="text-5xl font-bold mb-6 text-gray-800">Admin Control Panel</h2>
+            <p class="text-xl text-gray-700 mb-4">Manage users, tests, and content.</p>
+            <p id="adminIdDisplay" class="text-lg text-gray-600 mb-8 break-all"></p>
+            <div id="message" class="message-box hidden"></div>
 
-  <div class="container">
-    <h2>Create a New Test</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <a href="#" class="block p-6 bg-red-100 text-red-800 rounded-lg shadow-md hover:bg-red-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">Manage Users</h3>
+                    <p>Add, edit, or remove user accounts.</p>
+                </a>
+                <a href="#" class="block p-6 bg-orange-100 text-orange-800 rounded-lg shadow-md hover:bg-orange-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">Create/Edit Tests</h3>
+                    <p>Design and update test series and questions.</p>
+                </a>
+                <a href="#" class="block p-6 bg-purple-100 text-purple-800 rounded-lg shadow-md hover:bg-purple-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">View Analytics</h3>
+                    <p>Monitor platform usage and test performance.</p>
+                </a>
+                <a href="#" class="block p-6 bg-green-100 text-green-800 rounded-lg shadow-md hover:bg-green-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">Manage Study Material</h3>
+                    <p>Upload and organize study resources.</p>
+                </a>
+                <a href="#" class="block p-6 bg-blue-100 text-blue-800 rounded-lg shadow-md hover:bg-blue-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">System Settings</h3>
+                    <p>Configure portal-wide settings.</p>
+                </a>
+                <a href="#" class="block p-6 bg-gray-100 text-gray-800 rounded-lg shadow-md hover:bg-gray-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">Support Tickets</h3>
+                    <p>Handle user support requests.</p>
+                </a>
+            </div>
+        </div>
+    </main>
 
-    <label for="testTitle">Test Title</label>
-    <input type="text" id="testTitle" placeholder="e.g., GS Paper I - History">
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-auto">
+        <div class="container text-center text-lg">
+            <p>&copy; 2025 UPSC Test Series Portal. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact Us</a>
+            </div>
+        </div>
+    </footer>
 
-    <label for="testDesc">Description</label>
-    <textarea id="testDesc" rows="2"></textarea>
+    <!-- Firebase Configuration and SDKs -->
+    <script type="module" src="firebase_config.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { firebaseConfig } from './firebase_config.js'; // Import firebaseConfig
 
-    <label for="testDuration">Duration (minutes)</label>
-    <input type="number" id="testDuration" placeholder="e.g., 60">
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    <h3>Questions</h3>
-    <div id="questionsContainer"></div>
-    <button onclick="addQuestion()">+ Add Question</button>
+        const adminIdDisplay = document.getElementById('adminIdDisplay');
+        const adminEmailDisplay = document.getElementById('adminEmailDisplay');
+        const adminLogoutButton = document.getElementById('adminLogoutButton');
+        const messageBox = document.getElementById('message');
 
-    <button onclick="submitTest()">✅ Submit Full Test</button>
-
-    <div id="message" class="message"></div>
-  </div>
-
-  <script>
-    const db = firebase.firestore();
-    const allowedAdmins = ["admin@upscportal.com"]; // your admin emails
-
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user || !allowedAdmins.includes(user.email)) {
-        alert("Access denied.");
-        firebase.auth().signOut().then(() => location.href = "admin-login.html");
-      }
-    });
-
-    function logout() {
-      firebase.auth().signOut().then(() => location.href = "admin-login.html");
-    }
-
-    let questionCount = 0;
-
-    function addQuestion() {
-      const qContainer = document.getElementById('questionsContainer');
-      const qId = `q${questionCount++}`;
-
-      const block = document.createElement('div');
-      block.className = 'question-block';
-      block.innerHTML = `
-        <label>Question:</label>
-        <input type="text" id="${qId}_question" placeholder="Enter question text">
-
-        <label>Option A:</label><input type="text" id="${qId}_opt0">
-        <label>Option B:</label><input type="text" id="${qId}_opt1">
-        <label>Option C:</label><input type="text" id="${qId}_opt2">
-        <label>Option D:</label><input type="text" id="${qId}_opt3">
-
-        <label>Correct Option:</label>
-        <select id="${qId}_correct">
-          <option value="0">A</option>
-          <option value="1">B</option>
-          <option value="2">C</option>
-          <option value="3">D</option>
-        </select>
-
-        <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
-      `;
-
-      qContainer.appendChild(block);
-    }
-
-    function submitTest() {
-      const title = document.getElementById("testTitle").value.trim();
-      const desc = document.getElementById("testDesc").value.trim();
-      const duration = parseInt(document.getElementById("testDuration").value.trim());
-
-      if (!title || !desc || isNaN(duration)) {
-        alert("Fill in all test details.");
-        return;
-      }
-
-      const questions = [];
-      const blocks = document.querySelectorAll('.question-block');
-      for (let block of blocks) {
-        const q = block.querySelector(`[id$="_question"]`).value.trim();
-        const opts = [
-          block.querySelector(`[id$="_opt0"]`).value.trim(),
-          block.querySelector(`[id$="_opt1"]`).value.trim(),
-          block.querySelector(`[id$="_opt2"]`).value.trim(),
-          block.querySelector(`[id$="_opt3"]`).value.trim()
-        ];
-        const correct = parseInt(block.querySelector(`[id$="_correct"]`).value);
-
-        if (!q || opts.some(o => !o)) {
-          alert("Fill all fields for each question.");
-          return;
+        // Function to display messages
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = `message-box ${type}`; // Apply success or error class
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000); // Hide after 5 seconds
         }
 
-        questions.push({ question: q, options: opts, correct: correct });
-      }
+        // Listen for authentication state changes
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in.
+                console.log("Admin user is signed in:", user);
+                // In a real application, you would verify admin role here using Firestore
+                // For now, we assume anyone successfully logged in via admin-login.html is an admin
+                // This is a placeholder for actual role-based access control
+                // For example:
+                // const userDocRef = doc(db, "users", user.uid);
+                // const userDocSnap = await getDoc(userDocRef);
+                // if (!userDocSnap.exists() || userDocSnap.data().role !== 'admin') {
+                //     await signOut(auth); // Sign out non-admin user
+                //     window.location.href = 'admin-login.html'; // Redirect to admin login
+                //     return;
+                // }
 
-      db.collection("tests").add({
-        title,
-        description: desc,
-        duration,
-        questions,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        document.getElementById("message").textContent = "✅ Test saved successfully!";
-        document.getElementById("questionsContainer").innerHTML = "";
-        document.getElementById("testTitle").value = "";
-        document.getElementById("testDesc").value = "";
-        document.getElementById("testDuration").value = "";
-        questionCount = 0;
-      }).catch((e) => {
-        alert("Error: " + e.message);
-      });
-    }
-  </script>
+                adminIdDisplay.textContent = `Admin User ID: ${user.uid}`;
+                adminEmailDisplay.textContent = `Welcome, Admin ${user.email || 'User'}!`;
+            } else {
+                // User is signed out.
+                console.log("No admin user is signed in. Redirecting to admin login.");
+                // Redirect to admin login page if not authenticated
+                window.location.href = 'admin-login.html';
+            }
+        });
 
+        // Handle admin logout
+        adminLogoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                console.log("Admin signed out successfully.");
+                window.location.href = 'admin-login.html'; // Redirect to admin login page after logout
+            } catch (error) {
+                console.error("Admin logout error:", error);
+                showMessage(`Logout failed: ${error.message}`, 'error');
+            }
+        });
+    </script>
 </body>
 </html>

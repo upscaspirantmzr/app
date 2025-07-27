@@ -1,120 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>UPSC Test Series Portal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      background-color: #f4f6f9;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPSC Test Series Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .hero-section {
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://placehold.co/1200x400/10B981/FFFFFF?text=UPSC+Preparation'); /* Placeholder image with overlay */
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
 
-    header {
-      background-color: #0055a5;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
+        /* Custom animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
 
-    .intro {
-      padding: 2rem;
-      text-align: center;
-    }
+        .animate-fade-in-down { animation: fadeInDown 1s ease-out forwards; }
+        .animate-fade-in-up { animation: fadeInUp 1s ease-out forwards; }
+        .animate-slide-in-left { animation: slideInLeft 0.8s ease-out forwards; }
+        .animate-slide-in-right { animation: slideInRight 0.8s ease-out forwards; }
 
-    .test-series {
-      max-width: 900px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-      padding: 2rem;
-    }
-
-    .test-card {
-      background: white;
-      border-radius: 10px;
-      padding: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
-    }
-
-    .test-card:hover {
-      transform: scale(1.02);
-    }
-
-    .test-card h3 {
-      margin-top: 0;
-    }
-
-    .buttons {
-      text-align: center;
-      margin-top: 2rem;
-    }
-
-    .buttons a {
-      display: inline-block;
-      padding: 10px 20px;
-      margin: 0 10px;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-
-    footer {
-      margin-top: 3rem;
-      text-align: center;
-      padding: 1rem;
-      background: #f1f1f1;
-      font-size: 14px;
-      color: #555;
-    }
-  </style>
+        /* Delay animations for staggered effect */
+        .animate-delay-200 { animation-delay: 0.2s; }
+        .animate-delay-400 { animation-delay: 0.4s; }
+        .animate-delay-600 { animation-delay: 0.6s; }
+    </style>
 </head>
-<body>
+<body class="antialiased">
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-blue-700 to-indigo-800 p-4 shadow-xl">
+        <div class="container flex justify-between items-center">
+            <a href="#" class="text-white text-3xl font-extrabold tracking-wide rounded-md px-3 py-2 hover:bg-blue-800 transition duration-300 ease-in-out">UPSC Test Series</a>
+            <div class="flex space-x-6">
+                <a href="registration.html" class="bg-white text-blue-700 px-6 py-3 rounded-full shadow-lg hover:bg-gray-100 transform hover:scale-105 transition duration-300 font-semibold text-lg">Register</a>
+                <a href="login.html" class="bg-white text-blue-700 px-6 py-3 rounded-full shadow-lg hover:bg-gray-100 transform hover:scale-105 transition duration-300 font-semibold text-lg">Login</a>
+            </div>
+        </div>
+    </nav>
 
-  <header>
-    <h1>UPSC Test Series Portal</h1>
-    <p>Your Companion in Civil Services Preparation</p>
-  </header>
+    <!-- Hero Section -->
+    <header class="hero-section text-center py-24 rounded-b-3xl shadow-2xl mb-16">
+        <div class="container">
+            <h1 class="text-6xl font-extrabold mb-5 animate-fade-in-down">Master UPSC with Our Comprehensive Test Series</h1>
+            <p class="text-2xl mb-10 opacity-90 animate-fade-in-up animate-delay-200">Designed by experts to help you achieve your dream of cracking the Civil Services Exam.</p>
+            <a href="registration.html" class="bg-yellow-400 text-gray-900 px-10 py-5 rounded-full text-xl font-bold shadow-xl hover:bg-yellow-300 transform hover:scale-105 transition duration-300 ease-in-out inline-block animate-fade-in-up animate-delay-400">Start Your Journey Today!</a>
+        </div>
+    </header>
 
-  <div class="intro">
-    <h2>Welcome Aspirants!</h2>
-    <p>Practice mock tests, track your performance, and get detailed solutions. Sign up now and start your journey toward success!</p>
-  </div>
+    <!-- Features Section -->
+    <section class="container py-16">
+        <h2 class="text-5xl font-bold text-center mb-12 text-gray-800">Why Choose Our Test Series?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <!-- Feature 1 -->
+            <div class="bg-white p-10 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 animate-slide-in-left">
+                <div class="text-6xl text-blue-600 mb-5 text-center">📚</div>
+                <h3 class="text-3xl font-bold mb-4 text-gray-700">Comprehensive Syllabus Coverage</h3>
+                <p class="text-lg text-gray-600 leading-relaxed">Our tests cover every topic and sub-topic as per the latest UPSC syllabus, ensuring no stone is left unturned.</p>
+            </div>
+            <!-- Feature 2 -->
+            <div class="bg-white p-10 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 animate-fade-in-up animate-delay-200">
+                <div class="text-6xl text-green-600 mb-5 text-center">📊</div>
+                <h3 class="text-3xl font-bold mb-4 text-gray-700">Detailed Performance Analysis</h3>
+                <p class="text-lg text-gray-600 leading-relaxed">Get in-depth reports on your strengths and weaknesses, helping you to focus on areas that need improvement.</p>
+            </div>
+            <!-- Feature 3 -->
+            <div class="bg-white p-10 rounded-xl shadow-2xl hover:shadow-3xl transition duration-300 transform hover:-translate-y-2 animate-slide-in-right">
+                <div class="text-6xl text-purple-600 mb-5 text-center">✍️</div>
+                <h3 class="text-3xl font-bold mb-4 text-gray-700">Expert-Curated Questions</h3>
+                <p class="text-lg text-gray-600 leading-relaxed">Questions are crafted by experienced educators and UPSC toppers, mirroring the actual exam pattern and difficulty.</p>
+            </div>
+        </div>
+    </section>
 
-  <section class="test-series">
-    <div class="test-card">
-      <h3>GS Paper I - Modern History</h3>
-      <p>Test your knowledge of India's freedom struggle, revolutions, and reforms.</p>
-    </div>
+    <!-- Call to Action Section -->
+    <section class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white py-20 text-center rounded-t-3xl shadow-2xl mt-16 mb-0">
+        <div class="container">
+            <h2 class="text-5xl font-bold mb-5">Ready to Ace Your UPSC Exam?</h2>
+            <p class="text-2xl mb-10 opacity-90">Join thousands of aspirants who are already benefiting from our structured test series.</p>
+            <a href="registration.html" class="bg-yellow-400 text-gray-900 px-10 py-5 rounded-full text-xl font-bold shadow-xl hover:bg-yellow-300 transform hover:scale-105 transition duration-300 ease-in-out inline-block">Register Now!</a>
+        </div>
+    </section>
 
-    <div class="test-card">
-      <h3>GS Paper II - Polity & Governance</h3>
-      <p>Evaluate your understanding of the Constitution, governance, and legal systems.</p>
-    </div>
-
-    <div class="test-card">
-      <h3>GS Paper III - Economy</h3>
-      <p>Check your grasp on economic development, planning, and budgeting.</p>
-    </div>
-
-    <div class="test-card">
-      <h3>GS Paper IV - Ethics</h3>
-      <p>Practice case studies and ethics-based questions to boost your score.</p>
-    </div>
-  </section>
-
-  <div class="buttons">
-    <a href="register.html">Register</a>
-    <a href="login.html">Login</a>
-  </div>
-
-  <footer>
-    &copy; 2025 UPSC Test Series Portal | Designed by a fellow aspirant
-  </footer>
-
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8">
+        <div class="container text-center text-lg">
+            <p>&copy; 2025 UPSC Test Series Portal. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact Us</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

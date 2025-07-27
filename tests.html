@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UPSC Test Series Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .dashboard-card {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .message-box {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* Red-100 */
+            color: #991b1b; /* Red-800 */
+        }
+        .test-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            background-color: #f9fafb;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .test-list-item:hover {
+            background-color: #eef2ff; /* Indigo-50 */
+        }
+        .test-list-item .icon {
+            margin-right: 1rem;
+            color: #3b82f6; /* Blue-500 */
+        }
+        .test-list-item .status {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .status.not-attempted {
+            background-color: #fef3c7; /* Yellow-100 */
+            color: #b45309; /* Yellow-800 */
+        }
+        .status.attempted {
+            background-color: #d1fae5; /* Green-100 */
+            color: #065f46; /* Green-800 */
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Top Header (UPSC IAS) -->
+    <header class="bg-yellow-400 text-gray-900 py-3 px-4 text-center shadow-md">
+        <h1 class="text-3xl font-bold">UPSC IAS</h1>
+        <p class="text-lg mt-1">Exam Target Questions</p>
+    </header>
+
+    <!-- Navigation Bar (User Email & Logout) -->
+    <nav class="bg-gradient-to-r from-blue-700 to-indigo-800 p-3 shadow-xl flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <a href="dashboard.html" class="text-white text-xl font-semibold rounded-md px-2 py-1 hover:bg-blue-800 transition duration-300 ease-in-out">Dashboard</a>
+            <span id="userEmailDisplay" class="text-white text-md font-medium"></span>
+        </div>
+        <button id="logoutButton" class="bg-red-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-red-600 transform hover:scale-105 transition duration-300 font-semibold text-md">Logout</button>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center py-6 px-4">
+        <div class="dashboard-card text-center max-w-2xl w-full">
+            <h2 class="text-4xl font-bold mb-6 text-gray-800">Available Tests</h2>
+            <div id="message" class="message-box hidden"></div>
+
+            <div class="flex justify-around mb-6 border-b pb-4">
+                <button class="text-blue-600 font-semibold text-lg border-b-2 border-blue-600 pb-2">LATEST</button>
+                <button class="text-gray-600 font-semibold text-lg hover:text-blue-600">CATEGORY</button>
+                <a href="results.html" class="text-gray-600 font-semibold text-lg hover:text-blue-600">RESULT</a>
+            </div>
+
+            <div id="testsList" class="space-y-4 text-left">
+                <p id="loadingTestsMessage" class="text-center text-gray-600">Loading tests...</p>
+                <p id="noTestsMessage" class="text-center text-gray-600 hidden">No tests available at the moment. Please check back later.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 hidden">
+                <!-- Old dashboard links, now hidden -->
+                <a href="test.html" class="block p-6 bg-blue-100 text-blue-800 rounded-lg shadow-md hover:bg-blue-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">Attempt New Test</h3>
+                    <p>Start a new test series and challenge yourself.</p>
+                </a>
+                <a href="results.html" class="block p-6 bg-green-100 text-green-800 rounded-lg shadow-md hover:bg-green-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">View Results</h3>
+                    <p>Check your past performance and detailed analysis.</p>
+                </a>
+                <a href="profile.html" class="block p-6 bg-purple-100 text-purple-800 rounded-lg shadow-md hover:bg-purple-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">My Profile</h3>
+                    <p>Manage your account settings and personal information.</p>
+                </a>
+                <a href="student-study-material.html" class="block p-6 bg-yellow-100 text-yellow-800 rounded-lg shadow-md hover:bg-yellow-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">Study Material</h3>
+                    <p>Access curated study resources and notes.</p>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (Bottom Navigation) -->
+    <footer class="bg-gray-900 text-white py-4 mt-auto">
+        <div class="container text-center text-lg">
+            <p>&copy; 2025 UPSC Test Series Portal. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-2">
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase Configuration and SDKs -->
+    <script type="module" src="firebase_config.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { firebaseConfig } from './firebase_config.js'; // Import firebaseConfig
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
+        const logoutButton = document.getElementById('logoutButton');
+        const messageBox = document.getElementById('message');
+        const testsList = document.getElementById('testsList');
+        const loadingTestsMessage = document.getElementById('loadingTestsMessage');
+        const noTestsMessage = document.getElementById('noTestsMessage');
+
+        let userId = null; // To store the authenticated user's ID
+
+        // Function to display messages
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = `message-box ${type}`;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Fetch and display available tests
+        async function fetchAvailableTests() {
+            loadingTestsMessage.classList.remove('hidden');
+            noTestsMessage.classList.add('hidden');
+            testsList.innerHTML = ''; // Clear previous list
+
+            if (!userId) {
+                showMessage('User not authenticated. Please log in.', 'error');
+                loadingTestsMessage.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const testsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/public/data/tests`);
+                const testsQuerySnapshot = await getDocs(query(testsCollectionRef));
+
+                if (testsQuerySnapshot.empty) {
+                    noTestsMessage.classList.remove('hidden');
+                    loadingTestsMessage.classList.add('hidden');
+                    return;
+                }
+
+                const userResultsCollectionRef = collection(db, `artifacts/${firebaseConfig.projectId}/users/${userId}/results`);
+                const userResultsQuerySnapshot = await getDocs(query(userResultsCollectionRef));
+                const attemptedTestIds = new Set();
+                userResultsQuerySnapshot.forEach(doc => {
+                    attemptedTestIds.add(doc.data().testId);
+                });
+
+                const tests = [];
+                testsQuerySnapshot.forEach(docSnap => {
+                    tests.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Sort tests by creation date (latest first)
+                tests.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
+
+                tests.forEach(test => {
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-list-item';
+                    testItem.dataset.testId = test.id; // Store test ID for click handler
+
+                    const statusText = attemptedTestIds.has(test.id) ? 'Attempted' : 'Not Attempted';
+                    const statusClass = attemptedTestIds.has(test.id) ? 'attempted' : 'not-attempted';
+
+                    testItem.innerHTML = `
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                            <div>
+                                <p class="text-lg font-semibold text-gray-800">${test.testName}</p>
+                                <p class="text-sm text-gray-600">${test.testDescription || 'No description'}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="status ${statusClass}">${statusText}</span>
+                            <a href="test.html?testId=${test.id}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </a>
+                        </div>
+                    `;
+                    testsList.appendChild(testItem);
+
+                    // Add click listener to the entire item to go to test page
+                    testItem.addEventListener('click', () => {
+                        window.location.href = `test.html?testId=${test.id}`;
+                    });
+                });
+
+                loadingTestsMessage.classList.add('hidden');
+
+            } catch (error) {
+                console.error("Error fetching available tests:", error);
+                showMessage(`Failed to load tests: ${error.message}`, 'error');
+                loadingTestsMessage.classList.add('hidden');
+            }
+        }
+
+        // Listen for authentication state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid; // Store user ID
+                userEmailDisplay.textContent = `Welcome, ${user.email || 'User'}!`;
+                fetchAvailableTests(); // Fetch tests once user is authenticated
+            } else {
+                console.log("No user is signed in. Redirecting to login.");
+                window.location.href = 'login.html'; // Redirect to login page if not authenticated
+            }
+        });
+
+        // Handle logout
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                console.log("User signed out successfully.");
+                window.location.href = 'login.html'; // Redirect to login page after logout
+            } catch (error) {
+                console.error("Logout error:", error);
+                showMessage(`Logout failed: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

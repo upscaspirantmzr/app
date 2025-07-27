@@ -64,7 +64,7 @@
                     <h3 class="text-2xl font-semibold mb-2">Manage Users</h3>
                     <p>Add, edit, or remove user accounts.</p>
                 </a>
-                <a href="#" class="block p-6 bg-orange-100 text-orange-800 rounded-lg shadow-md hover:bg-orange-200 transition duration-300 transform hover:-translate-y-1">
+                <a href="manage-tests.html" class="block p-6 bg-orange-100 text-orange-800 rounded-lg shadow-md hover:bg-orange-200 transition duration-300 transform hover:-translate-y-1">
                     <h3 class="text-2xl font-semibold mb-2">Create/Edit Tests</h3>
                     <p>Design and update test series and questions.</p>
                 </a>
@@ -80,10 +80,7 @@
                     <h3 class="text-2xl font-semibold mb-2">System Settings</h3>
                     <p>Configure portal-wide settings.</p>
                 </a>
-                <a href="#" class="block p-6 bg-gray-100 text-gray-800 rounded-lg shadow-md hover:bg-gray-200 transition duration-300 transform hover:-translate-y-1">
-                    <h3 class="text-2xl font-semibold mb-2">Support Tickets</h3>
-                    <p>Handle user support requests.</p>
-                </a>
+                <!-- Removed Support Tickets functionality as requested -->
             </div>
         </div>
     </main>
@@ -131,8 +128,6 @@
         // Listen for authentication state changes
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // User is signed in.
-                console.log("Admin user is signed in:", user);
                 // In a real application, you would verify admin role here using Firestore
                 // For now, we assume anyone successfully logged in via admin-login.html is an admin
                 // This is a placeholder for actual role-based access control

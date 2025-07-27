@@ -26,13 +26,13 @@
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
       padding: 2rem;
     }
 
     h2 {
-      margin-bottom: 1rem;
+      margin-top: 2rem;
       color: #333;
     }
 
@@ -42,7 +42,7 @@
       font-weight: bold;
     }
 
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -75,9 +75,22 @@
       background-color: #c82333;
     }
 
-    .message {
+    .question-block {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .remove-btn {
+      background-color: #e74c3c;
       margin-top: 10px;
+    }
+
+    .message {
       color: green;
+      margin-top: 1rem;
     }
   </style>
 </head>
@@ -89,69 +102,117 @@
   </header>
 
   <div class="container">
-    <h2>Add New Test</h2>
+    <h2>Create a New Test</h2>
 
     <label for="testTitle">Test Title</label>
-    <input type="text" id="testTitle" placeholder="e.g., GS Paper I - History" required />
+    <input type="text" id="testTitle" placeholder="e.g., GS Paper I - History">
 
-    <label for="testDesc">Test Description</label>
-    <textarea id="testDesc" rows="3" placeholder="Brief description of the test"></textarea>
+    <label for="testDesc">Description</label>
+    <textarea id="testDesc" rows="2"></textarea>
 
     <label for="testDuration">Duration (minutes)</label>
-    <input type="number" id="testDuration" placeholder="e.g., 60" />
+    <input type="number" id="testDuration" placeholder="e.g., 60">
 
-    <button onclick="addTest()">Add Test</button>
+    <h3>Questions</h3>
+    <div id="questionsContainer"></div>
+    <button onclick="addQuestion()">+ Add Question</button>
+
+    <button onclick="submitTest()">✅ Submit Full Test</button>
 
     <div id="message" class="message"></div>
   </div>
 
   <script>
-    const allowedAdmins = ["admin@upscportal.com", "your@email.com"];
     const db = firebase.firestore();
+    const allowedAdmins = ["admin@upscportal.com"]; // your admin emails
 
-    // Restrict access to admins only
     firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        if (!allowedAdmins.includes(user.email)) {
-          alert("Access denied. Not an admin.");
-          firebase.auth().signOut().then(() => {
-            window.location.href = "admin-login.html";
-          });
-        }
-      } else {
-        window.location.href = "admin-login.html";
+      if (!user || !allowedAdmins.includes(user.email)) {
+        alert("Access denied.");
+        firebase.auth().signOut().then(() => location.href = "admin-login.html");
       }
     });
 
-    // Add new test to Firestore
-    function addTest() {
-      const title = document.getElementById("testTitle").value;
-      const desc = document.getElementById("testDesc").value;
-      const duration = parseInt(document.getElementById("testDuration").value);
+    function logout() {
+      firebase.auth().signOut().then(() => location.href = "admin-login.html");
+    }
 
-      if (!title || !desc || !duration) {
-        alert("Please fill all fields.");
+    let questionCount = 0;
+
+    function addQuestion() {
+      const qContainer = document.getElementById('questionsContainer');
+      const qId = `q${questionCount++}`;
+
+      const block = document.createElement('div');
+      block.className = 'question-block';
+      block.innerHTML = `
+        <label>Question:</label>
+        <input type="text" id="${qId}_question" placeholder="Enter question text">
+
+        <label>Option A:</label><input type="text" id="${qId}_opt0">
+        <label>Option B:</label><input type="text" id="${qId}_opt1">
+        <label>Option C:</label><input type="text" id="${qId}_opt2">
+        <label>Option D:</label><input type="text" id="${qId}_opt3">
+
+        <label>Correct Option:</label>
+        <select id="${qId}_correct">
+          <option value="0">A</option>
+          <option value="1">B</option>
+          <option value="2">C</option>
+          <option value="3">D</option>
+        </select>
+
+        <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+      `;
+
+      qContainer.appendChild(block);
+    }
+
+    function submitTest() {
+      const title = document.getElementById("testTitle").value.trim();
+      const desc = document.getElementById("testDesc").value.trim();
+      const duration = parseInt(document.getElementById("testDuration").value.trim());
+
+      if (!title || !desc || isNaN(duration)) {
+        alert("Fill in all test details.");
         return;
       }
 
+      const questions = [];
+      const blocks = document.querySelectorAll('.question-block');
+      for (let block of blocks) {
+        const q = block.querySelector(`[id$="_question"]`).value.trim();
+        const opts = [
+          block.querySelector(`[id$="_opt0"]`).value.trim(),
+          block.querySelector(`[id$="_opt1"]`).value.trim(),
+          block.querySelector(`[id$="_opt2"]`).value.trim(),
+          block.querySelector(`[id$="_opt3"]`).value.trim()
+        ];
+        const correct = parseInt(block.querySelector(`[id$="_correct"]`).value);
+
+        if (!q || opts.some(o => !o)) {
+          alert("Fill all fields for each question.");
+          return;
+        }
+
+        questions.push({ question: q, options: opts, correct: correct });
+      }
+
       db.collection("tests").add({
-        title: title,
+        title,
         description: desc,
-        duration: duration,
+        duration,
+        questions,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
-        document.getElementById("message").textContent = "✅ Test added successfully!";
+        document.getElementById("message").textContent = "✅ Test saved successfully!";
+        document.getElementById("questionsContainer").innerHTML = "";
         document.getElementById("testTitle").value = "";
         document.getElementById("testDesc").value = "";
         document.getElementById("testDuration").value = "";
-      }).catch((error) => {
-        alert("Error adding test: " + error.message);
-      });
-    }
-
-    function logout() {
-      firebase.auth().signOut().then(() => {
-        window.location.href = "admin-login.html";
+        questionCount = 0;
+      }).catch((e) => {
+        alert("Error: " + e.message);
       });
     }
   </script>

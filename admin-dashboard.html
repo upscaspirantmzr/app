@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - UPSC Test Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
+  <script src="firebaseConfig.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+    }
+
+    header {
+      background-color: #333;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .logout {
+      float: right;
+      margin-right: 1rem;
+      margin-top: -2.5rem;
+      background-color: #dc3545;
+    }
+
+    .logout:hover {
+      background-color: #c82333;
+    }
+
+    .message {
+      margin-top: 10px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Admin Dashboard</h1>
+    <button class="logout" onclick="logout()">Logout</button>
+  </header>
+
+  <div class="container">
+    <h2>Add New Test</h2>
+
+    <label for="testTitle">Test Title</label>
+    <input type="text" id="testTitle" placeholder="e.g., GS Paper I - History" required />
+
+    <label for="testDesc">Test Description</label>
+    <textarea id="testDesc" rows="3" placeholder="Brief description of the test"></textarea>
+
+    <label for="testDuration">Duration (minutes)</label>
+    <input type="number" id="testDuration" placeholder="e.g., 60" />
+
+    <button onclick="addTest()">Add Test</button>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    const allowedAdmins = ["admin@upscportal.com", "your@email.com"];
+    const db = firebase.firestore();
+
+    // Restrict access to admins only
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        if (!allowedAdmins.includes(user.email)) {
+          alert("Access denied. Not an admin.");
+          firebase.auth().signOut().then(() => {
+            window.location.href = "admin-login.html";
+          });
+        }
+      } else {
+        window.location.href = "admin-login.html";
+      }
+    });
+
+    // Add new test to Firestore
+    function addTest() {
+      const title = document.getElementById("testTitle").value;
+      const desc = document.getElementById("testDesc").value;
+      const duration = parseInt(document.getElementById("testDuration").value);
+
+      if (!title || !desc || !duration) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      db.collection("tests").add({
+        title: title,
+        description: desc,
+        duration: duration,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        document.getElementById("message").textContent = "✅ Test added successfully!";
+        document.getElementById("testTitle").value = "";
+        document.getElementById("testDesc").value = "";
+        document.getElementById("testDuration").value = "";
+      }).catch((error) => {
+        alert("Error adding test: " + error.message);
+      });
+    }
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "admin-login.html";
+      });
+    }
+  </script>
+
+</body>
+</html>

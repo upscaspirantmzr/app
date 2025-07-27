@@ -1,123 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard - UPSC Test Series</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
-
-  <!-- Firebase Config -->
-  <script src="firebaseConfig.js"></script>
-
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-    }
-
-    header {
-      background-color: #0055a5;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 2rem;
-    }
-
-    .greeting {
-      font-size: 18px;
-      margin-bottom: 1rem;
-    }
-
-    .test-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .test-card {
-      background: white;
-      border-radius: 10px;
-      padding: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    .test-card h3 {
-      margin-top: 0;
-    }
-
-    .logout-btn {
-      background: #dc3545;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 6px;
-      float: right;
-      cursor: pointer;
-    }
-
-    .logout-btn:hover {
-      background-color: #c82333;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UPSC Test Series Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .dashboard-card {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .message-box {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* Red-100 */
+            color: #991b1b; /* Red-800 */
+        }
+    </style>
 </head>
-<body>
+<body class="antialiased">
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-blue-700 to-indigo-800 p-4 shadow-xl">
+        <div class="container flex justify-between items-center">
+            <a href="index.html" class="text-white text-3xl font-extrabold tracking-wide rounded-md px-3 py-2 hover:bg-blue-800 transition duration-300 ease-in-out">UPSC Test Series</a>
+            <div class="flex space-x-6">
+                <span id="userEmailDisplay" class="text-white text-lg font-medium px-3 py-2"></span>
+                <button id="logoutButton" class="bg-red-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-red-600 transform hover:scale-105 transition duration-300 font-semibold text-lg">Logout</button>
+            </div>
+        </div>
+    </nav>
 
-  <header>
-    <h1>UPSC Student Dashboard</h1>
-    <button class="logout-btn" onclick="logoutUser()">Logout</button>
-  </header>
+    <main class="flex-grow flex items-center justify-center py-12 px-4">
+        <div class="dashboard-card text-center max-w-2xl w-full">
+            <h2 class="text-5xl font-bold mb-6 text-gray-800">Welcome to Your Dashboard!</h2>
+            <p class="text-xl text-gray-700 mb-4">You are successfully logged in.</p>
+            <p id="userIdDisplay" class="text-lg text-gray-600 mb-8 break-all"></p>
+            <div id="message" class="message-box hidden"></div>
 
-  <div class="container">
-    <div class="greeting" id="greeting">Welcome, Aspirant</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <a href="#" class="block p-6 bg-blue-100 text-blue-800 rounded-lg shadow-md hover:bg-blue-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">Attempt New Test</h3>
+                    <p>Start a new test series and challenge yourself.</p>
+                </a>
+                <a href="#" class="block p-6 bg-green-100 text-green-800 rounded-lg shadow-md hover:bg-green-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">View Results</h3>
+                    <p>Check your past performance and detailed analysis.</p>
+                </a>
+                <a href="#" class="block p-6 bg-purple-100 text-purple-800 rounded-lg shadow-md hover:bg-purple-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">My Profile</h3>
+                    <p>Manage your account settings and personal information.</p>
+                </a>
+                <a href="#" class="block p-6 bg-yellow-100 text-yellow-800 rounded-lg shadow-md hover:bg-yellow-200 transition duration-300 transform hover:-translate-y-1">
+                    <h3 class="text-2xl font-semibold mb-2">Study Material</h3>
+                    <p>Access curated study resources and notes.</p>
+                </a>
+            </div>
+        </div>
+    </main>
 
-    <h2>Available Test Series</h2>
-    <div class="test-list">
-      <div class="test-card">
-        <h3>GS Paper I - History</h3>
-        <p>Test on Modern Indian History and Culture</p>
-        <button onclick="alert('Test feature coming soon!')">Start Test</button>
-      </div>
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-auto">
+        <div class="container text-center text-lg">
+            <p>&copy; 2025 UPSC Test Series Portal. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact Us</a>
+            </div>
+        </div>
+    </footer>
 
-      <div class="test-card">
-        <h3>GS Paper II - Polity</h3>
-        <p>Test on Constitution and Indian Politics</p>
-        <button onclick="alert('Test feature coming soon!')">Start Test</button>
-      </div>
+    <!-- Firebase Configuration and SDKs -->
+    <script type="module" src="firebase_config.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { firebaseConfig } from './firebase_config.js'; // Import firebaseConfig
 
-      <div class="test-card">
-        <h3>GS Paper III - Economy</h3>
-        <p>Test on Economic Development and Budget</p>
-        <button onclick="alert('Test feature coming soon!')">Start Test</button>
-      </div>
-    </div>
-  </div>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-  <script>
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        document.getElementById('greeting').textContent = "Welcome, " + user.email;
-      } else {
-        // Not logged in
-        window.location.href = "login.html";
-      }
-    });
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
+        const logoutButton = document.getElementById('logoutButton');
+        const messageBox = document.getElementById('message');
 
-    function logoutUser() {
-      firebase.auth().signOut().then(() => {
-        window.location.href = "login.html";
-      });
-    }
-  </script>
+        // Function to display messages
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = `message-box ${type}`; // Apply success or error class
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000); // Hide after 5 seconds
+        }
 
+        // Listen for authentication state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in.
+                console.log("User is signed in:", user);
+                userIdDisplay.textContent = `Your User ID: ${user.uid}`;
+                userEmailDisplay.textContent = `Welcome, ${user.email || 'User'}!`;
+            } else {
+                // User is signed out.
+                console.log("No user is signed in. Redirecting to login.");
+                // Redirect to login page if not authenticated
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Handle logout
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                console.log("User signed out successfully.");
+                window.location.href = 'login.html'; // Redirect to login page after logout
+            } catch (error) {
+                console.error("Logout error:", error);
+                showMessage(`Logout failed: ${error.message}`, 'error');
+            }
+        });
+    </script>
 </body>
 </html>

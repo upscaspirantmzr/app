@@ -34,10 +34,6 @@
             font-weight: 500;
             text-align: center;
         }
-        .message-box.success {
-            background-color: #d1fae5; /* Green-100 */
-            color: #065f46; /* Green-800 */
-        }
         .message-box.error {
             background-color: #fee2e2; /* Red-100 */
             color: #991b1b; /* Red-800 */
@@ -85,8 +81,8 @@
                     <a href="manage-tests.html" class="block p-6 bg-orange-100 text-orange-800 rounded-lg shadow-md hover:bg-orange-200 transition duration-300 transform hover:-translate-y-1">
                         <h3 class="text-2xl font-semibold mb-2">Create/Edit Tests</h3>
                         <p>Design and update test series and questions.</p>
-                    </a>
-                    <button id="viewAnalyticsBtn" class="block p-6 bg-purple-100 text-purple-800 rounded-lg shadow-md hover:bg-purple-200 transition duration-300 transform hover:-translate-y-1">
+                    </a
+                    ><button id="viewAnalyticsBtn" class="block p-6 bg-purple-100 text-purple-800 rounded-lg shadow-md hover:bg-purple-200 transition duration-300 transform hover:-translate-y-1">
                         <h3 class="text-2xl font-semibold mb-2">View Analytics</h3>
                         <p>Monitor platform usage and test performance.</p>
                     </button>
@@ -471,23 +467,23 @@
         // --- Authentication Check and Initial Load ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // IMPORTANT: In a real application, you would verify admin role here using Firestore
-                // For now, we assume anyone successfully logged in via admin-login.html is an admin
-                // This is a placeholder for actual role-based access control
-                // For example:
-                // const userDocRef = doc(db, "users", user.uid);
-                // const userDocSnap = await getDoc(userDocRef);
-                // if (!userDocSnap.exists() || userDocSnap.data().role !== 'admin') {
-                //     await signOut(auth); // Sign out non-admin user
-                //     window.location.href = 'admin-login.html'; // Redirect to admin login
-                //     return;
-                // }
+                // --- Crucial Admin Role Check on Dashboard Load ---
+                const adminRoleDocRef = doc(db, "admin_roles", user.uid);
+                const adminRoleDocSnap = await getDoc(adminRoleDocRef);
 
-                adminIdDisplay.textContent = `Admin User ID: ${user.uid}`;
-                adminEmailDisplay.textContent = `Welcome, Admin ${user.email || 'User'}!`;
-                showDashboard(); // Show the main dashboard by default
+                if (adminRoleDocSnap.exists() && adminRoleDocSnap.data().isAdmin === true) {
+                    // User is an authenticated admin
+                    adminIdDisplay.textContent = `Admin User ID: ${user.uid}`;
+                    adminEmailDisplay.textContent = `Welcome, Admin ${user.email || 'User'}!`;
+                    showDashboard(); // Show the main dashboard by default
+                } else {
+                    // User is authenticated but NOT an admin
+                    await signOut(auth); // Sign out the non-admin user
+                    console.log("Non-admin user attempted to access admin dashboard. Redirecting.");
+                    window.location.href = 'admin-login.html'; // Redirect to admin login
+                }
             } else {
-                console.log("No admin user is signed in. Redirecting to admin login.");
+                console.log("No user is signed in. Redirecting to admin login.");
                 window.location.href = 'admin-login.html'; // Redirect to admin login page if not authenticated
             }
         });

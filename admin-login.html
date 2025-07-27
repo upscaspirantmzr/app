@@ -96,7 +96,7 @@
     <script type="module" src="firebase_config.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { firebaseConfig } from './firebase_config.js'; // Import firebaseConfig
 
@@ -127,27 +127,23 @@
                 // Sign in user with email and password
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                console.log('Admin logged in:', user);
+                console.log('User attempted login:', user.uid);
 
-                // IMPORTANT: In a real application, you would check if this user has admin privileges
-                // For example, by querying a 'roles' collection in Firestore:
-                // const userDocRef = doc(db, "users", user.uid);
-                // const userDocSnap = await getDoc(userDocRef);
-                // if (userDocSnap.exists() && userDocSnap.data().role === 'admin') {
-                //     showMessage('Admin login successful! Redirecting to admin dashboard...', 'success');
-                //     setTimeout(() => {
-                //         window.location.href = 'admin-dashboard.html';
-                //     }, 2000);
-                // } else {
-                //     await auth.signOut(); // Sign out non-admin user
-                //     showMessage('Access Denied: You do not have administrator privileges.', 'error');
-                // }
+                // --- Crucial Admin Role Check ---
+                const adminRoleDocRef = doc(db, "admin_roles", user.uid);
+                const adminRoleDocSnap = await getDoc(adminRoleDocRef);
 
-                // For now, we'll just redirect to admin-dashboard.html if login is successful
-                showMessage('Admin login successful! Redirecting to admin dashboard...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'admin-dashboard.html'; // We will create this next
-                }, 2000);
+                if (adminRoleDocSnap.exists() && adminRoleDocSnap.data().isAdmin === true) {
+                    // User is an authenticated admin
+                    showMessage('Admin login successful! Redirecting to admin dashboard...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'admin-dashboard.html';
+                    }, 2000);
+                } else {
+                    // User is authenticated but NOT an admin
+                    await signOut(auth); // Sign out the non-admin user
+                    showMessage('Access Denied: You do not have administrator privileges.', 'error');
+                }
 
             } catch (error) {
                 console.error('Admin login error:', error);
